@@ -7,8 +7,6 @@ const Signup = () => {
     password: '',
   });
 
-  const [message, setMessage] = useState('');
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -21,20 +19,21 @@ const Signup = () => {
       const res = await fetch("https://ticket-backend-g5da.onrender.com/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
       console.log("Signup Response:", data);
 
       if (res.ok) {
-        setMessage("Signup successful! You can login now.");
+        alert("Signup successful! Please login.");
+        window.location.href = "/login";
       } else {
-        setMessage(data.message || "Signup failed, try again.");
+        alert(data.message || "Signup failed");
       }
     } catch (err) {
       console.error("Signup Error:", err);
-      setMessage("Something went wrong.");
+      alert("Something went wrong!");
     }
   };
 
@@ -51,7 +50,7 @@ const Signup = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
@@ -62,7 +61,7 @@ const Signup = () => {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div>
@@ -73,7 +72,7 @@ const Signup = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+              className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <button
@@ -83,9 +82,6 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
-        {message && (
-          <p className="mt-4 text-center text-sm text-red-600">{message}</p>
-        )}
         <p className="text-sm mt-4 text-center">
           Already have an account? <a href="/login" className="text-blue-600 hover:underline">Log In</a>
         </p>
