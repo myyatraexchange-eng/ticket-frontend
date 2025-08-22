@@ -1,92 +1,81 @@
-import React, { useState } from 'react';
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+import React, { useState } from "react";
 
-const PostTicket = () => {
-  const [formData, setFormData] = useState({
-    trainNumber: '',
-    trainName: '',
-    from: '',
-    to: '',
-    date: '',
-    holderName: '',
-    contactNumber: '',
-  });
+const TicketPost = () => {
+  const [formData, setFormData] = useState({ title: "", description: "" });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePost = async () => {
-    if (
-      !formData.trainNumber ||
-      !formData.trainName ||
-      !formData.holderName ||
-      !formData.from ||
-      !formData.to ||
-      !formData.date ||
-      !formData.contactNumber
-    ) {
-      alert('Please fill all the fields.');
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Ticket Data:", formData);
 
     try {
-      const response = await fetch(`${API_BASE}/api/tickets`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first!");
+        return;
+      }
+
+      const res = await fetch("https://ticket-backend-g5da.onrender.com/api/tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // auth middleware ke liye
         },
-        body: JSON.stringify({
-          trainNumber: formData.trainNumber,
-          trainName: formData.trainName,
-          holderName: formData.holderName,
-          from: formData.from,
-          to: formData.to,
-          date: formData.date,
-          contactNumber: formData.contactNumber,
-        }),
+        body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        await response.json();
-        alert('Ticket posted successfully!');
-        setFormData({
-          trainNumber: '',
-          trainName: '',
-          from: '',
-          to: '',
-          date: '',
-          holderName: '',
-          contactNumber: '',
-        });
+      const data = await res.json();
+      console.log("Ticket Response:", data);
+
+      if (res.ok) {
+        alert("Ticket created successfully!");
+        setFormData({ title: "", description: "" });
       } else {
-        const errorData = await response.json();
-        alert('Error posting ticket: ' + (errorData.error || response.statusText));
+        alert(data.message || "Failed to create ticket");
       }
-    } catch (error) {
-      alert('Network error: ' + error.message);
+    } catch (err) {
+      console.error("Ticket Error:", err);
+      alert("Something went wrong!");
     }
   };
 
   return (
-    <div className="p-6 bg-white rounded shadow max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Post Ticket</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input name="trainNumber" value={formData.trainNumber} onChange={handleChange} placeholder="Train Number" className="border p-2" />
-        <input name="trainName" value={formData.trainName} onChange={handleChange} placeholder="Train Name" className="border p-2" />
-        <input name="holderName" value={formData.holderName} onChange={handleChange} placeholder="Ticket Holder Name" className="border p-2" />
-        <input name="from" value={formData.from} onChange={handleChange} placeholder="From Station" className="border p-2" />
-        <input name="to" value={formData.to} onChange={handleChange} placeholder="To Station" className="border p-2" />
-        <input type="date" name="date" value={formData.date} onChange={handleChange} className="border p-2" />
-        <input name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder="Contact Number" className="border p-2" />
-      </div>
-      <button onClick={handlePost} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-        Post Ticket
-      </button>
+    <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-bold text-blue-700 mb-4">Create a Ticket</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Title</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Description</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Post Ticket
+        </button>
+      </form>
     </div>
   );
 };
 
-export default PostTicket;
-
+export default TicketPost;
