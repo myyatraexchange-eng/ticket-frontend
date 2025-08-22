@@ -7,14 +7,35 @@ const Signup = () => {
     password: '',
   });
 
+  const [message, setMessage] = useState('');
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Signup Data:', formData);
-    // You can later send this data to backend here
+
+    try {
+      const res = await fetch("https://ticket-backend-g5da.onrender.com/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+      console.log("Signup Response:", data);
+
+      if (res.ok) {
+        setMessage("Signup successful! You can login now.");
+      } else {
+        setMessage(data.message || "Signup failed, try again.");
+      }
+    } catch (err) {
+      console.error("Signup Error:", err);
+      setMessage("Something went wrong.");
+    }
   };
 
   return (
@@ -62,6 +83,9 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
+        {message && (
+          <p className="mt-4 text-center text-sm text-red-600">{message}</p>
+        )}
         <p className="text-sm mt-4 text-center">
           Already have an account? <a href="/login" className="text-blue-600 hover:underline">Log In</a>
         </p>
