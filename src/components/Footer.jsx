@@ -34,7 +34,7 @@ const Footer = () => {
             <li><Link to="/terms" className="hover:underline hover:text-yellow-300">Terms of Use</Link></li>
           </ul>
           <div className="text-gray-200 text-sm">
-            <p>Email: <a href="mailto:support@myyatraexchange.com" className="hover:underline">support@myyatraexchange.com</a></p>
+            <p>Email: <a href="mailto:support@myyatraexchange.com" className="hover:underline"> myyatraexchange@gmail.com</a></p>
             <p>Location: India</p>
           </div>
         </div>
