@@ -2,24 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import trainImage from "../assets/train.jpg";
 
+// ✅ VITE_API_BASE fallback included
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
-    console.log("VITE_API_BASE:", import.meta.env.VITE_API_BASE); // check env
-
+    console.log("API_BASE:", API_BASE); // Debug: check if env variable loaded
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
         const data = await res.json();
-        // backend se direct array aata hai, contactVisible ko default false set karte hain
-        const safeTickets = data.map((t) => ({
-          ...t,
-          contactVisible: t.contactVisible ?? false,
-        }));
-        setTickets(safeTickets);
+        setTickets(data || []);
       } catch (err) {
         console.error("Error fetching tickets", err);
         setTickets([]);
@@ -43,9 +38,8 @@ const Home = () => {
             <span className="text-white">Yatra</span>
             <span className="text-green-500">Exchange.com</span>
           </h1>
-          <p className="text-xl mb-6 max-w-2xl text-center">
-            Share Your Unused Train Ticket — Save Cancellation Charges! Connect
-            with people who need a ticket.
+          <p className="text-xl mb-6 max-w-2xl">
+            Share Your Unused Train Ticket — Save Cancellation Charges! Connect with people who need a ticket.
           </p>
           <div className="space-x-4">
             <Link
@@ -90,10 +84,7 @@ const Home = () => {
                 <p>Date: {new Date(ticket.date).toLocaleDateString()}</p>
                 <p>Tickets: {ticket.ticketCount}</p>
                 <p>Class: {ticket.seatType}</p>
-                <p>
-                  Passenger: {ticket.holderName} ({ticket.gender},{" "}
-                  {ticket.age})
-                </p>
+                <p>Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
                 <p>
                   {ticket.contactVisible ? (
                     <span className="text-green-600 font-semibold">
