@@ -24,10 +24,10 @@ const PostTicket = () => {
     if (
       !formData.trainNumber ||
       !formData.trainName ||
-      !formData.holderName ||
       !formData.from ||
       !formData.to ||
       !formData.date ||
+      !formData.holderName ||
       !formData.contactNumber ||
       !formData.age ||
       !formData.gender ||
