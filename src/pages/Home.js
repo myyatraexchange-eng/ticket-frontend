@@ -12,7 +12,8 @@ const Home = () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
         const data = await res.json();
-        setTickets(data.tickets || []);
+        // backend se direct array aata hai
+        setTickets(data || []);
       } catch (err) {
         console.error("Error fetching tickets", err);
         setTickets([]);
