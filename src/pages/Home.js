@@ -8,12 +8,18 @@ const Home = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
+    console.log("VITE_API_BASE:", import.meta.env.VITE_API_BASE); // check env
+
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
         const data = await res.json();
-        // backend se direct array aata hai
-        setTickets(data || []);
+        // backend se direct array aata hai, contactVisible ko default false set karte hain
+        const safeTickets = data.map((t) => ({
+          ...t,
+          contactVisible: t.contactVisible ?? false,
+        }));
+        setTickets(safeTickets);
       } catch (err) {
         console.error("Error fetching tickets", err);
         setTickets([]);
@@ -37,7 +43,7 @@ const Home = () => {
             <span className="text-white">Yatra</span>
             <span className="text-green-500">Exchange.com</span>
           </h1>
-          <p className="text-xl mb-6 max-w-2xl">
+          <p className="text-xl mb-6 max-w-2xl text-center">
             Share Your Unused Train Ticket — Save Cancellation Charges! Connect
             with people who need a ticket.
           </p>
