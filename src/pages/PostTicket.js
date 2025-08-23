@@ -10,6 +10,10 @@ const PostTicket = () => {
     date: '',
     holderName: '',
     contactNumber: '',
+    age: '',
+    gender: '',
+    ticketCount: '',
+    seatType: '',
   });
 
   const handleChange = (e) => {
@@ -24,7 +28,11 @@ const PostTicket = () => {
       !formData.from ||
       !formData.to ||
       !formData.date ||
-      !formData.contactNumber
+      !formData.contactNumber ||
+      !formData.age ||
+      !formData.gender ||
+      !formData.ticketCount ||
+      !formData.seatType
     ) {
       alert('Please fill all the fields.');
       return;
@@ -37,15 +45,7 @@ const PostTicket = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
         },
-        body: JSON.stringify({
-          trainNumber: formData.trainNumber,
-          trainName: formData.trainName,
-          holderName: formData.holderName,
-          from: formData.from,
-          to: formData.to,
-          date: formData.date,
-          contactNumber: formData.contactNumber,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
@@ -59,6 +59,10 @@ const PostTicket = () => {
           date: '',
           holderName: '',
           contactNumber: '',
+          age: '',
+          gender: '',
+          ticketCount: '',
+          seatType: '',
         });
       } else {
         const errorData = await response.json();
@@ -80,6 +84,27 @@ const PostTicket = () => {
         <input name="to" value={formData.to} onChange={handleChange} placeholder="To Station" className="border p-2" />
         <input type="date" name="date" value={formData.date} onChange={handleChange} className="border p-2" />
         <input name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder="Contact Number" className="border p-2" />
+
+        {/* New Fields */}
+        <input type="number" name="age" value={formData.age} onChange={handleChange} placeholder="Age" className="border p-2" />
+        
+        <select name="gender" value={formData.gender} onChange={handleChange} className="border p-2">
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+
+        <input type="number" name="ticketCount" value={formData.ticketCount} onChange={handleChange} placeholder="Number of Tickets" className="border p-2" />
+        
+        <select name="seatType" value={formData.seatType} onChange={handleChange} className="border p-2">
+          <option value="">Select Seat Type</option>
+          <option value="sleeper">Sleeper</option>
+          <option value="3ac">3 AC</option>
+          <option value="2ac">2 AC</option>
+          <option value="1ac">1 AC</option>
+          <option value="general">General</option>
+        </select>
       </div>
       <button onClick={handlePost} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
         Post Ticket
