@@ -2,23 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import trainImage from '../assets/train.jpg';
 
-// Env se API Base le rahe hain
+// .env se API base le raha hai
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
-    console.log("Env Vars:", import.meta.env);   // Debug ke liye
-    console.log("API Base:", API_BASE);
+    console.log("API_BASE from env:", API_BASE);
 
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
         const data = await res.json();
-        setTickets(data || []);  // backend se direct array milta hai
+        setTickets(data || []);
       } catch (err) {
-        console.error("Error fetching tickets", err);
+        console.error("Error fetching tickets:", err);
         setTickets([]);
       }
     };
@@ -29,11 +28,7 @@ const Home = () => {
     <div>
       {/* Hero Section */}
       <div className="relative h-[500px] bg-gray-100 mb-10">
-        <img
-          src={trainImage}
-          alt="Train"
-          className="w-full h-full object-cover rounded"
-        />
+        <img src={trainImage} alt="Train" className="w-full h-full object-cover rounded" />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center p-4">
           <h1 className="text-4xl font-bold mb-4">
             <span className="text-orange-500">My</span>
@@ -41,8 +36,7 @@ const Home = () => {
             <span className="text-green-500">Exchange.com</span>
           </h1>
           <p className="text-xl mb-6 max-w-2xl">
-            Share Your Unused Train Ticket — Save Cancellation Charges! Connect
-            with people who need a ticket.
+            Share Your Unused Train Ticket — Save Cancellation Charges! Connect with people who need a ticket.
           </p>
           <div className="space-x-4">
             <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200">
