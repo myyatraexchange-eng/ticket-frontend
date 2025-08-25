@@ -2,24 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import trainImage from '../assets/train.jpg';
 
-const API_BASE = import.meta.env?.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com";
+// Backend URL
+const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
-        if (!res.ok) throw new Error(`Failed: ${res.status}`);
         const data = await res.json();
         setTickets(data || []);
       } catch (err) {
         console.error("Error fetching tickets:", err);
         setTickets([]);
-      } finally {
-        setLoading(false);
       }
     };
     fetchTickets();
@@ -39,41 +36,26 @@ const Home = () => {
             Share Your Unused Train Ticket — Save Cancellation Charges! Connect with people who need a ticket.
           </p>
           <div className="space-x-4">
-            <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200">
-              Find Ticket
-            </Link>
-            <Link to="/post" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700">
-              Post Ticket
-            </Link>
+            <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200">Find Ticket</Link>
+            <Link to="/post" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700">Post Ticket</Link>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 mb-8">
         <h2 className="text-2xl font-bold mb-4 text-center">All Available Tickets</h2>
-        {loading ? (
-          <p className="text-center text-gray-600 font-medium">Loading tickets...</p>
-        ) : tickets.length === 0 ? (
+        {tickets.length === 0 ? (
           <p className="text-center text-red-600 font-medium">No tickets available</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {tickets.map(ticket => (
+            {tickets.map((ticket) => (
               <div key={ticket._id} className="bg-white shadow-md rounded p-4 border">
-                <h3 className="font-semibold text-lg">
-                  {ticket.trainName} ({ticket.trainNumber})
-                </h3>
+                <h3 className="font-semibold text-lg">{ticket.trainName} ({ticket.trainNumber})</h3>
                 <p>{ticket.from} → {ticket.to}</p>
                 <p>Date: {new Date(ticket.date).toLocaleDateString()}</p>
                 <p>Tickets: {ticket.ticketCount}</p>
                 <p>Class: {ticket.seatType}</p>
                 <p>Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
-                <p>
-                  {ticket.contactVisible ? (
-                    <span className="text-green-600 font-semibold">Contact: {ticket.contactNumber}</span>
-                  ) : (
-                    <span className="text-blue-500 cursor-pointer">Unlock Contact - ₹20</span>
-                  )}
-                </p>
               </div>
             ))}
           </div>
