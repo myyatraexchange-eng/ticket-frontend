@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import trainImage from '../assets/train.jpg';
 
-// .env se API base le raha hai
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+// Backend URL (Render par chalega)
+const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
@@ -14,6 +14,9 @@ const Home = () => {
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch tickets: ${res.status}`);
+        }
         const data = await res.json();
         setTickets(data || []);
       } catch (err) {
