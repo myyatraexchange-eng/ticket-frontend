@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from 'react';
 
-const API_BASE = import.meta.env?.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com";
+// Backend URL
+const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
-        if (!res.ok) throw new Error(`Failed: ${res.status}`);
         const data = await res.json();
         setTickets(data || []);
       } catch (err) {
         console.error("Error fetching tickets:", err);
         setTickets([]);
-      } finally {
-        setLoading(false);
       }
     };
     fetchTickets();
@@ -40,29 +37,18 @@ const FindTicket = () => {
         value={query}
         onChange={e => setQuery(e.target.value)}
       />
-      {loading ? (
-        <p className="text-center text-gray-600 font-medium">Loading tickets...</p>
-      ) : filteredTickets.length === 0 ? (
+      {filteredTickets.length === 0 ? (
         <p className="text-center text-red-600 font-medium">No matching tickets found</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredTickets.map(ticket => (
             <div key={ticket._id} className="bg-white shadow-md rounded p-4 border">
-              <h3 className="font-semibold text-lg">
-                {ticket.trainName} ({ticket.trainNumber})
-              </h3>
+              <h3 className="font-semibold text-lg">{ticket.trainName} ({ticket.trainNumber})</h3>
               <p>{ticket.from} → {ticket.to}</p>
               <p>Date: {new Date(ticket.date).toLocaleDateString()}</p>
               <p>Tickets: {ticket.ticketCount}</p>
               <p>Class: {ticket.seatType}</p>
               <p>Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
-              <p>
-                {ticket.contactVisible ? (
-                  <span className="text-green-600 font-semibold">Contact: {ticket.contactNumber}</span>
-                ) : (
-                  <span className="text-blue-500 cursor-pointer">Unlock Contact - ₹20</span>
-                )}
-              </p>
             </div>
           ))}
         </div>
