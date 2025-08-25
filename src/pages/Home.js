@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import trainImage from '../assets/train.jpg';
 
-// Backend URL (Render par chalega)
-const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com";
+// Backend URL (Render + Local dono ke liye safe)
+const API_BASE = "https://ticket-backend-g5da.onrender.com";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
-    console.log("API_BASE from env:", API_BASE);
+    console.log("Using API_BASE:", API_BASE);
 
     const fetchTickets = async () => {
       try {
@@ -24,6 +24,7 @@ const Home = () => {
         setTickets([]);
       }
     };
+
     fetchTickets();
   }, []);
 
