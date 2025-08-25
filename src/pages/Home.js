@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import trainImage from '../assets/train.jpg';
 
 // Backend URL
-const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+// src/Home.js
+const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
