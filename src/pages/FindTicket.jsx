@@ -11,6 +11,7 @@ const FindTicket = () => {
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
+        if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
         setTickets(data || []);
       } catch (err) {
