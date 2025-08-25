@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from 'react';
 
-// Backend URL (Render par chalega)
+// Backend URL (Render deploy ke liye)
 const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com";
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`${API_BASE}/tickets`);
+        if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
         setTickets(data || []);
       } catch (err) {
         console.error("Error fetching tickets:", err);
-        setTickets([]);
+        setError("Failed to load tickets. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchTickets();
   }, []);
 
-  const filteredTickets = tickets.filter((ticket) =>
+  const filteredTickets = tickets.filter(ticket =>
     ticket.from.toLowerCase().includes(query.toLowerCase()) ||
     ticket.to.toLowerCase().includes(query.toLowerCase()) ||
     ticket.trainName.toLowerCase().includes(query.toLowerCase())
@@ -30,6 +36,7 @@ const FindTicket = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Find Your Ticket</h2>
+
       <input
         type="text"
         placeholder="Search by station or train name..."
@@ -37,9 +44,15 @@ const FindTicket = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
-      {filteredTickets.length === 0 ? (
+
+      {loading && <p className="text-center text-blue-600 font-medium">Loading tickets...</p>}
+      {error && <p className="text-center text-red-600 font-medium">{error}</p>}
+
+      {!loading && !error && filteredTickets.length === 0 && (
         <p className="text-center text-red-600 font-medium">No matching tickets found</p>
-      ) : (
+      )}
+
+      {!loading && !error && filteredTickets.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredTickets.map((ticket) => (
             <div key={ticket._id} className="bg-white shadow-md rounded p-4 border">
@@ -50,18 +63,14 @@ const FindTicket = () => {
               <p>Date: {new Date(ticket.date).toLocaleDateString()}</p>
               <p>Tickets: {ticket.ticketCount}</p>
               <p>Class: {ticket.seatType}</p>
-              <p>
-                Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})
-              </p>
+              <p>Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
               <p>
                 {ticket.contactVisible ? (
                   <span className="text-green-600 font-semibold">
                     Contact: {ticket.contactNumber}
                   </span>
                 ) : (
-                  <span className="text-blue-500 cursor-pointer">
-                    Unlock Contact - ₹20
-                  </span>
+                  <span className="text-blue-500 cursor-pointer">Unlock Contact - ₹20</span>
                 )}
               </p>
             </div>
