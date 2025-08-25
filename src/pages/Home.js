@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import trainImage from "../assets/train.jpg";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import trainImage from '../assets/train.jpg';
 
-// ✅ VITE_API_BASE fallback included
+// Env se API Base le rahe hain
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
-    console.log("API_BASE:", API_BASE); // Debug: check if env variable loaded
+    console.log("Env Vars:", import.meta.env);   // Debug ke liye
+    console.log("API Base:", API_BASE);
+
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
         const data = await res.json();
-        setTickets(data || []);
+        setTickets(data || []);  // backend se direct array milta hai
       } catch (err) {
         console.error("Error fetching tickets", err);
         setTickets([]);
@@ -39,19 +41,14 @@ const Home = () => {
             <span className="text-green-500">Exchange.com</span>
           </h1>
           <p className="text-xl mb-6 max-w-2xl">
-            Share Your Unused Train Ticket — Save Cancellation Charges! Connect with people who need a ticket.
+            Share Your Unused Train Ticket — Save Cancellation Charges! Connect
+            with people who need a ticket.
           </p>
           <div className="space-x-4">
-            <Link
-              to="/find"
-              className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200"
-            >
+            <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200">
               Find Ticket
             </Link>
-            <Link
-              to="/post"
-              className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700"
-            >
+            <Link to="/post" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700">
               Post Ticket
             </Link>
           </div>
@@ -60,31 +57,23 @@ const Home = () => {
 
       {/* Ticket Listing */}
       <div className="max-w-6xl mx-auto px-4 mb-8">
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          All Available Tickets
-        </h2>
-
+        <h2 className="text-2xl font-bold mb-4 text-center">All Available Tickets</h2>
         {tickets.length === 0 ? (
-          <p className="text-center text-red-600 font-medium">
-            No tickets available
-          </p>
+          <p className="text-center text-red-600 font-medium">No tickets available</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
-              <div
-                key={ticket._id}
-                className="bg-white shadow-md rounded p-4 border"
-              >
+              <div key={ticket._id} className="bg-white shadow-md rounded p-4 border">
                 <h3 className="font-semibold text-lg">
                   {ticket.trainName} ({ticket.trainNumber})
                 </h3>
-                <p>
-                  {ticket.from} → {ticket.to}
-                </p>
+                <p>{ticket.from} → {ticket.to}</p>
                 <p>Date: {new Date(ticket.date).toLocaleDateString()}</p>
                 <p>Tickets: {ticket.ticketCount}</p>
                 <p>Class: {ticket.seatType}</p>
-                <p>Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
+                <p>
+                  Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})
+                </p>
                 <p>
                   {ticket.contactVisible ? (
                     <span className="text-green-600 font-semibold">
