@@ -20,8 +20,7 @@ const PostTicket = () => {
 
   const handleChange = e => {
     const { name, value } = e.target;
-
-    // Number validation for age, ticketCount, contactNumber
+    // Only allow numbers for age, ticketCount, contactNumber
     if (["age", "ticketCount", "contactNumber"].includes(name)) {
       if (value === "" || /^[0-9\b]+$/.test(value)) {
         setTicketData(prev => ({ ...prev, [name]: value }));
@@ -34,19 +33,28 @@ const PostTicket = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token"); // optional auth token
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to post a ticket!");
+        return;
+      }
+
       const res = await fetch(`${API_BASE}/tickets`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(ticketData),
       });
 
-      if (!res.ok) throw new Error("Failed to post ticket");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to post ticket");
+      }
+
       alert("Ticket posted successfully!");
-      // Clear form after success
       setTicketData({
         trainNumber: "",
         trainName: "",
@@ -62,7 +70,7 @@ const PostTicket = () => {
       });
     } catch (err) {
       console.error(err);
-      alert("Error posting ticket");
+      alert(`Error posting ticket: ${err.message}`);
     }
   };
 
