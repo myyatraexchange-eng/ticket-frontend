@@ -6,8 +6,8 @@ import Footer from './components/Footer';
 
 import Home from './pages/Home';
 import About from './pages/About';
-import FindTicket from './pages/FindTicket'; // ✅ Make sure FindTicket.jsx exists and is default-exported
-import Post from './pages/Post';
+import FindTicket from './pages/FindTicket'; 
+import PostTicket from './pages/PostTicket';   // ✅ yahan change kiya
 import Contact from './pages/Contact';
 import Policy from './pages/Policy';
 import Privacy from './pages/Privacy';
@@ -28,8 +28,8 @@ function Layout() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/find" element={<FindTicket />} /> {/* ✅ This route should now work */}
-          <Route path="/post" element={<Post />} />
+          <Route path="/find" element={<FindTicket />} /> 
+          <Route path="/post" element={<PostTicket />} />   {/* ✅ yahan bhi change */}
           <Route path="/contact" element={<Contact />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -54,4 +54,3 @@ function App() {
 }
 
 export default App;
-
