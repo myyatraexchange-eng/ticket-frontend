@@ -1,147 +1,65 @@
 import React, { useState } from 'react';
 
-const API_BASE = import.meta.env?.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com";
+// Backend URL
+const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const PostTicket = () => {
-  const [formData, setFormData] = useState({
-    trainNumber: '',
-    trainName: '',
-    holderName: '',
-    from: '',
-    to: '',
-    date: '',
-    contactNumber: '',
-    age: '',
-    gender: 'male',
-    ticketCount: 1,
-    seatType: 'sleeper',
+  const [ticketData, setTicketData] = useState({
+    trainNumber: "",
+    trainName: "",
+    holderName: "",
+    from: "",
+    to: "",
+    date: "",
+    contactNumber: "",
+    age: "",
+    gender: "",
+    ticketCount: "",
+    seatType: "",
   });
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setTicketData({ ...ticketData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setLoading(true);
-    setMessage('');
     try {
+      const token = localStorage.getItem("token"); // auth token if needed
       const res = await fetch(`${API_BASE}/tickets`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          // Agar auth use kar rahe ho, token yahan bhej sakte ho:
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(ticketData),
       });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || `Failed: ${res.status}`);
-      }
-
-      setMessage('Ticket posted successfully!');
-      setFormData({
-        trainNumber: '',
-        trainName: '',
-        holderName: '',
-        from: '',
-        to: '',
-        date: '',
-        contactNumber: '',
-        age: '',
-        gender: 'male',
-        ticketCount: 1,
-        seatType: 'sleeper',
-      });
+      if (!res.ok) throw new Error("Failed to post ticket");
+      alert("Ticket posted successfully!");
     } catch (err) {
       console.error(err);
-      setMessage(err.message);
-    } finally {
-      setLoading(false);
+      alert("Error posting ticket");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Post Your Ticket</h2>
-      {message && <p className="text-center mb-4">{message}</p>}
+    <div className="max-w-3xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-6 text-center">Post a Ticket</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {[
-          { label: 'Train Number', name: 'trainNumber', type: 'text' },
-          { label: 'Train Name', name: 'trainName', type: 'text' },
-          { label: 'Holder Name', name: 'holderName', type: 'text' },
-          { label: 'From', name: 'from', type: 'text' },
-          { label: 'To', name: 'to', type: 'text' },
-          { label: 'Date', name: 'date', type: 'date' },
-          { label: 'Contact Number', name: 'contactNumber', type: 'text' },
-          { label: 'Age', name: 'age', type: 'number' },
-        ].map(field => (
-          <div key={field.name}>
-            <label className="block font-semibold mb-1">{field.label}</label>
-            <input
-              type={field.type}
-              name={field.name}
-              value={formData[field.name]}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
-          </div>
-        ))}
-
-        <div>
-          <label className="block font-semibold mb-1">Gender</label>
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Ticket Count</label>
+        {Object.keys(ticketData).map(key => (
           <input
-            type="number"
-            name="ticketCount"
-            min="1"
-            value={formData.ticketCount}
+            key={key}
+            type={key === "date" ? "date" : "text"}
+            name={key}
+            placeholder={key}
+            value={ticketData[key]}
             onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Seat Type</label>
-          <select
-            name="seatType"
-            value={formData.seatType}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="sleeper">Sleeper</option>
-            <option value="3ac">3AC</option>
-            <option value="2ac">2AC</option>
-            <option value="1ac">1AC</option>
-            <option value="general">General</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700"
-          disabled={loading}
-        >
-          {loading ? 'Posting...' : 'Post Ticket'}
+        ))}
+        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700">
+          Post Ticket
         </button>
       </form>
     </div>
