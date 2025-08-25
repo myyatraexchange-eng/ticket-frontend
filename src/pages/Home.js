@@ -50,19 +50,19 @@ const Home = () => {
 
       {/* Ticket Listing */}
       <div className="max-w-6xl mx-auto px-4 mb-8">
-        <h2 className="text-2xl font-bold mb-4 text-center">All Available Tickets</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center text-blue-600">All Available Tickets</h2>
         {tickets.length === 0 ? (
           <p className="text-center text-red-600 font-medium">No tickets available</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map(ticket => (
-              <div key={ticket._id} className="bg-white shadow-md rounded p-4 border">
-                <h3 className="font-semibold text-lg">{ticket.trainName} ({ticket.trainNumber})</h3>
-                <p>{ticket.from} → {ticket.to}</p>
-                <p>Date: {new Date(ticket.date).toLocaleDateString()}</p>
-                <p>Tickets: {ticket.ticketCount}</p>
-                <p>Class: {ticket.seatType}</p>
-                <p>Passenger: {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
+              <div key={ticket._id} className="bg-white shadow-md rounded p-4 border hover:shadow-lg transition duration-200">
+                <h3 className="font-semibold text-lg text-blue-600">{ticket.trainName} ({ticket.trainNumber})</h3>
+                <p><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
+                <p><strong>Date:</strong> {new Date(ticket.date).toLocaleDateString()}</p>
+                <p><strong>Tickets:</strong> {ticket.ticketCount}</p>
+                <p><strong>Class:</strong> {ticket.seatType}</p>
+                <p><strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
               </div>
             ))}
           </div>
