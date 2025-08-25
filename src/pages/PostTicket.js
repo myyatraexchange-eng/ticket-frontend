@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Backend URL
-const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const PostTicket = () => {
   const [ticketData, setTicketData] = useState({
