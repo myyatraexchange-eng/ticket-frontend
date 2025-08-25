@@ -1,16 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ phone: '', password: '' });
+  const [formData, setFormData] = useState({ phone: "", password: "" });
+  const [statusMsg, setStatusMsg] = useState({ type: "", text: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "phone") {
+      if (value === "" || /^[0-9\b]+$/.test(value)) {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', formData);
+    setStatusMsg({ type: "", text: "" });
 
+    if (formData.phone.length !== 10) {
+      setStatusMsg({ type: "error", text: "Phone number must be 10 digits." });
+      return;
+    }
+
+    setLoading(true);
     try {
       const res = await fetch("https://ticket-backend-g5da.onrender.com/api/auth/login", {
         method: "POST",
@@ -19,18 +34,19 @@ const Login = () => {
       });
 
       const data = await res.json();
-      console.log("Login Response:", data);
 
       if (res.ok && data.token) {
         localStorage.setItem("token", data.token);
-        alert("Login successful!");
-        window.location.href = "/"; // homepage redirect
+        setStatusMsg({ type: "success", text: "Login successful! Redirecting..." });
+        setTimeout(() => (window.location.href = "/"), 1000);
       } else {
-        alert(data.message || "Invalid login");
+        setStatusMsg({ type: "error", text: data.message || "Invalid login" });
       }
     } catch (err) {
       console.error("Login Error:", err);
-      alert("Something went wrong!");
+      setStatusMsg({ type: "error", text: "Something went wrong! Try again." });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +54,12 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-blue-50 px-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">Login to MyYatraExchange</h2>
+
+        {statusMsg.text && (
+          <div className={`mb-4 p-3 rounded ${statusMsg.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+            {statusMsg.text}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -49,7 +71,8 @@ const Login = () => {
               value={formData.phone}
               onChange={handleChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="Enter your phone number"
+              placeholder="Enter your 10-digit phone number"
+              maxLength={10}
               required
             />
           </div>
@@ -64,15 +87,17 @@ const Login = () => {
               onChange={handleChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md"
               placeholder="Enter your password"
+              minLength={6}
               required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
