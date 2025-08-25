@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 // Backend URL
-const API_BASE = import.meta.env.VITE_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
@@ -11,6 +11,7 @@ const FindTicket = () => {
     const fetchTickets = async () => {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
+        if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
         setTickets(data || []);
       } catch (err) {
