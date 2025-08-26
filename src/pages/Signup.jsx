@@ -8,6 +8,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
   });
   const [message, setMessage] = useState("");
@@ -21,7 +22,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // reset message before request
+    setMessage("");
     console.log("Signup Data:", formData);
 
     try {
@@ -35,11 +36,10 @@ const Signup = () => {
       console.log("Signup Response:", data);
 
       if (!res.ok) {
-        // backend ka error message show karna
         setMessage(data?.message || "Signup failed. Please try again.");
       } else {
         setMessage("Signup successful! You can now login.");
-        setFormData({ name: "", email: "", password: "" });
+        setFormData({ name: "", email: "", phone: "", password: "" });
       }
     } catch (err) {
       console.error("Signup error:", err);
@@ -78,6 +78,15 @@ const Signup = () => {
           name="email"
           placeholder="Email Address"
           value={formData.email}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
+          required
+        />
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone Number"
+          value={formData.phone}
           onChange={handleChange}
           className="border p-2 rounded w-full"
           required
