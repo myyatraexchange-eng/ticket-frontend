@@ -7,7 +7,6 @@ const API_BASE =
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     password: "",
   });
@@ -23,23 +22,31 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    console.log("Signup Data:", formData);
+
+    // basic validation
+    if (formData.phone.length !== 10) {
+      setMessage("Phone number must be 10 digits.");
+      return;
+    }
+    if (formData.password.length < 6) {
+      setMessage("Password must be at least 6 characters.");
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData), // ✅ only phone + password (+name)
       });
 
       const data = await res.json();
-      console.log("Signup Response:", data);
 
       if (!res.ok) {
         setMessage(data?.message || "Signup failed. Please try again.");
       } else {
         setMessage("Signup successful! You can now login.");
-        setFormData({ name: "", email: "", phone: "", password: "" });
+        setFormData({ name: "", phone: "", password: "" });
       }
     } catch (err) {
       console.error("Signup error:", err);
@@ -67,20 +74,10 @@ const Signup = () => {
         <input
           type="text"
           name="name"
-          placeholder="Full Name"
+          placeholder="Full Name (optional)"
           value={formData.name}
           onChange={handleChange}
           className="border p-2 rounded w-full"
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-          required
         />
         <input
           type="text"
@@ -90,6 +87,7 @@ const Signup = () => {
           onChange={handleChange}
           className="border p-2 rounded w-full"
           required
+          maxLength={10}
         />
         <input
           type="password"
@@ -99,6 +97,7 @@ const Signup = () => {
           onChange={handleChange}
           className="border p-2 rounded w-full"
           required
+          minLength={6}
         />
         <button
           type="submit"
