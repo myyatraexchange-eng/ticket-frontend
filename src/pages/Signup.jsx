@@ -23,21 +23,11 @@ const Signup = () => {
     e.preventDefault();
     setMessage("");
 
-    // basic validation
-    if (formData.phone.length !== 10) {
-      setMessage("Phone number must be 10 digits.");
-      return;
-    }
-    if (formData.password.length < 6) {
-      setMessage("Password must be at least 6 characters.");
-      return;
-    }
-
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData), // ✅ only phone + password (+name)
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
@@ -74,10 +64,11 @@ const Signup = () => {
         <input
           type="text"
           name="name"
-          placeholder="Full Name (optional)"
+          placeholder="Full Name"
           value={formData.name}
           onChange={handleChange}
           className="border p-2 rounded w-full"
+          required
         />
         <input
           type="text"
@@ -87,7 +78,6 @@ const Signup = () => {
           onChange={handleChange}
           className="border p-2 rounded w-full"
           required
-          maxLength={10}
         />
         <input
           type="password"
@@ -97,7 +87,6 @@ const Signup = () => {
           onChange={handleChange}
           className="border p-2 rounded w-full"
           required
-          minLength={6}
         />
         <button
           type="submit"
