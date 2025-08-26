@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    password: '',
+    name: "",
+    email: "",
+    password: "",
   });
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Signup Data:', formData);
+    setMessage(""); // reset message before request
+    console.log("Signup Data:", formData);
 
     try {
-      const res = await fetch("https://ticket-backend-g5da.onrender.com/api/auth/signup", {
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -25,67 +34,70 @@ const Signup = () => {
       const data = await res.json();
       console.log("Signup Response:", data);
 
-      if (res.ok) {
-        alert("Signup successful! Please login.");
-        window.location.href = "/login";
+      if (!res.ok) {
+        // backend ka error message show karna
+        setMessage(data?.message || "Signup failed. Please try again.");
       } else {
-        alert(data.message || "Signup failed");
+        setMessage("Signup successful! You can now login.");
+        setFormData({ name: "", email: "", password: "" });
       }
     } catch (err) {
-      console.error("Signup Error:", err);
-      alert("Something went wrong!");
+      console.error("Signup error:", err);
+      setMessage("Something went wrong. Please try again later.");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Create an Account</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-1 font-medium text-sm">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium text-sm">Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium text-sm">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-          >
-            Sign Up
-          </button>
-        </form>
-        <p className="text-sm mt-4 text-center">
-          Already have an account? <a href="/login" className="text-blue-600 hover:underline">Log In</a>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
+      <h2 className="text-2xl font-bold text-center mb-6 text-blue-600">
+        Signup
+      </h2>
+      {message && (
+        <p
+          className={`text-center mb-4 ${
+            message.includes("success")
+              ? "text-green-600"
+              : "text-red-600"
+          }`}
+        >
+          {message}
         </p>
-      </div>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          value={formData.name}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email Address"
+          value={formData.email}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
+          required
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Signup
+        </button>
+      </form>
     </div>
   );
 };
