@@ -1,29 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { FaPlane } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
 
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
-
-  // jab component load hoga → check karein ki token localStorage me hai ya nahi
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
-
-  // Logout
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // token delete
-    setIsLoggedIn(false);
-    navigate("/login");
-  };
 
   const handleLinkClick = () => {
     setMenuOpen(false);
@@ -44,7 +30,7 @@ const Navbar = () => {
           </NavLink>
         </div>
 
-        {/* Hamburger (mobile) */}
+        {/* Hamburger */}
         <button
           className="md:hidden text-white text-2xl focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -52,7 +38,7 @@ const Navbar = () => {
           ☰
         </button>
 
-        {/* Nav Links */}
+        {/* Links */}
         <div className={`flex-col md:flex md:flex-row md:space-x-4 ${menuOpen ? 'flex' : 'hidden'} md:flex items-center`}>
           <NavLink to="/" className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ''}`} onClick={handleLinkClick}>Home</NavLink>
           <NavLink to="/find" className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ''}`} onClick={handleLinkClick}>Find Ticket</NavLink>
@@ -60,26 +46,37 @@ const Navbar = () => {
           <NavLink to="/about" className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ''}`} onClick={handleLinkClick}>About</NavLink>
           <NavLink to="/contact" className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ''}`} onClick={handleLinkClick}>Contact</NavLink>
 
-          {/* More Dropdown */}
+          {/* More dropdown */}
           <div className="relative">
-            <button
-              onClick={() => setMoreOpen(!moreOpen)}
-              className="py-1 hover:underline"
-            >
-              More ▾
-            </button>
+            <button onClick={() => setMoreOpen(!moreOpen)} className="py-1 hover:underline">More ▾</button>
             {moreOpen && (
               <div className="absolute bg-white text-black mt-1 rounded shadow-md w-40 z-50">
-                <NavLink to="/policy" className={({ isActive }) => `block px-4 py-2 hover:bg-gray-100 ${isActive ? 'font-bold text-blue-600' : ''}`} onClick={handleLinkClick}>Policy</NavLink>
-                <NavLink to="/privacy" className={({ isActive }) => `block px-4 py-2 hover:bg-gray-100 ${isActive ? 'font-bold text-blue-600' : ''}`} onClick={handleLinkClick}>Privacy</NavLink>
-                <NavLink to="/disclaimer" className={({ isActive }) => `block px-4 py-2 hover:bg-gray-100 ${isActive ? 'font-bold text-blue-600' : ''}`} onClick={handleLinkClick}>Disclaimer</NavLink>
-                <NavLink to="/terms" className={({ isActive }) => `block px-4 py-2 hover:bg-gray-100 ${isActive ? 'font-bold text-blue-600' : ''}`} onClick={handleLinkClick}>Terms</NavLink>
+                <NavLink to="/policy" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>Policy</NavLink>
+                <NavLink to="/privacy" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>Privacy</NavLink>
+                <NavLink to="/disclaimer" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>Disclaimer</NavLink>
+                <NavLink to="/terms" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>Terms</NavLink>
               </div>
             )}
           </div>
 
-          {/* Auth Buttons */}
-          {!isLoggedIn ? (
+          {/* 🔹 Auth buttons */}
+          {user ? (
+            <>
+              <NavLink
+                to="/profile"
+                className="ml-0 md:ml-3 mt-2 md:mt-0 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 font-semibold"
+                onClick={handleLinkClick}
+              >
+                {user.phone}
+              </NavLink>
+              <button
+                onClick={logout}
+                className="ml-2 mt-2 md:mt-0 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 font-semibold"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
             <NavLink
               to="/login"
               className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
@@ -87,22 +84,6 @@ const Navbar = () => {
             >
               Login
             </NavLink>
-          ) : (
-            <>
-              <NavLink
-                to="/profile"
-                className="ml-0 md:ml-3 mt-2 md:mt-0 bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 font-semibold"
-                onClick={handleLinkClick}
-              >
-                Profile
-              </NavLink>
-              <button
-                onClick={handleLogout}
-                className="ml-2 mt-2 md:mt-0 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 font-semibold"
-              >
-                Logout
-              </button>
-            </>
           )}
         </div>
       </div>
