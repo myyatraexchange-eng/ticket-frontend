@@ -1,102 +1,71 @@
-import React, { useState } from "react";
+// 📂 src/pages/Signup.jsx
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE ||
-  "https://ticket-backend-g5da.onrender.com/api";
+const API_URL = "https://ticket-backend-g5da.onrender.com/api/auth/register";
 
-const Signup = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    password: "",
-  });
-  const [message, setMessage] = useState("");
+export default function Signup() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ phone: "", password: "" });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setMessage(data?.message || "Signup failed. Please try again.");
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/");
       } else {
-        setMessage("Signup successful! You can now login.");
-        setFormData({ name: "", phone: "", password: "" });
+        alert(data.message || "Signup failed");
       }
     } catch (err) {
-      console.error("Signup error:", err);
-      setMessage("Something went wrong. Please try again later.");
+      console.error(err);
+      alert("Something went wrong");
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold text-center mb-6 text-blue-600">
-        Signup
-      </h2>
-      {message && (
-        <p
-          className={`text-center mb-4 ${
-            message.includes("success")
-              ? "text-green-600"
-              : "text-red-600"
-          }`}
-        >
-          {message}
-        </p>
-      )}
+    <div className="max-w-md mx-auto mt-10">
+      <h2 className="text-2xl font-bold mb-4">Signup</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-          required
-        />
-        <input
-          type="text"
           name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
+          placeholder="Phone"
+          value={form.phone}
           onChange={handleChange}
-          className="border p-2 rounded w-full"
+          className="w-full p-2 border rounded"
           required
         />
         <input
           type="password"
           name="password"
           placeholder="Password"
-          value={formData.password}
+          value={form.password}
           onChange={handleChange}
-          className="border p-2 rounded w-full"
+          className="w-full p-2 border rounded"
           required
         />
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
         >
           Signup
         </button>
       </form>
     </div>
   );
-};
-
-export default Signup;
+}
