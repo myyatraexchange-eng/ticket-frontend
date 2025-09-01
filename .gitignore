@@ -1,0 +1,7 @@
+node_modules
+build
+dist
+.cache
+.env123
+123.pub
+123.pub
