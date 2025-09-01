@@ -2,7 +2,11 @@
   "name": "ticket-frontend",
   "version": "1.0.0",
   "private": true,
+<<<<<<< HEAD
   "homepage": "homepage": "https://ticket-frontend-1.onrender.com"
+=======
+  "homepage": "https://ticket-frontend-1.onrender.com",
+>>>>>>> Fix package.json and rebuild frontend
   "dependencies": {
     "lucide-react": "^0.542.0",
     "react": "^18.3.1",
@@ -16,5 +20,17 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
