@@ -38,13 +38,13 @@ const Contact = () => {
           <h2 className="text-2xl font-semibold mb-6 text-blue-700">Reach Us</h2>
           <ul className="space-y-4 text-gray-700">
             <li>
-              📧 <strong>Email:</strong> support@myyatraexchange.com
+              📧 <strong>Email:</strong> myyatraexchange@gmail.com
             </li>
             <li>
-              📞 <strong>Phone:</strong> +91 12345 43210
+              📞 <strong>Phone:</strong> +91 9753060916
             </li>
             <li>
-              📍 <strong>Location:</strong> Indore(map), India (Remote Support Only)
+              📍 <strong>Location:</strong> Indore(mp), India. 
             </li>
             <li>
               🕒 <strong>Support Hours:</strong> 10:00 AM – 6:00 PM (Mon–Sat)
