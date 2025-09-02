@@ -5,6 +5,9 @@ const API_BASE =
   process.env.REACT_APP_API_BASE ||
   "https://ticket-backend-g5da.onrender.com/api";
 
+// Optional: full station list JSON
+import stations from "./stations.json"; // { "stations": ["Mumbai", "Delhi", ...] }
+
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
@@ -13,6 +16,14 @@ const FindTicket = () => {
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // For search button
+  const [searchParams, setSearchParams] = useState({
+    query: "",
+    from: "",
+    to: "",
+    date: "",
+  });
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -34,27 +45,41 @@ const FindTicket = () => {
     fetchTickets();
   }, []);
 
+  // Filter tickets when search button clicked
   useEffect(() => {
     const filtered = tickets.filter((ticket) => {
       const trainName = ticket.trainName?.toLowerCase() || "";
       const from = ticket.from?.toLowerCase() || "";
       const to = ticket.to?.toLowerCase() || "";
 
-      const matchesQuery = trainName.includes(query.toLowerCase());
-      const matchesFrom = fromFilter
-        ? from === fromFilter.toLowerCase()
+      const matchesQuery = trainName.includes(searchParams.query.toLowerCase());
+      const matchesFrom = searchParams.from
+        ? from === searchParams.from.toLowerCase()
         : true;
-      const matchesTo = toFilter ? to === toFilter.toLowerCase() : true;
-      const matchesDate = dateFilter ? ticket.date === dateFilter : true;
+      const matchesTo = searchParams.to
+        ? to === searchParams.to.toLowerCase()
+        : true;
+      const matchesDate = searchParams.date
+        ? ticket.date === searchParams.date
+        : true;
 
       return matchesQuery && matchesFrom && matchesTo && matchesDate;
     });
     setFilteredTickets(filtered);
-  }, [query, fromFilter, toFilter, dateFilter, tickets]);
+  }, [searchParams, tickets]);
 
-  // Get unique stations for From/To dropdown (filter null/undefined bhi hatao)
-  const fromStations = [...new Set(tickets.map((t) => t.from).filter(Boolean))];
-  const toStations = [...new Set(tickets.map((t) => t.to).filter(Boolean))];
+  const handleSearch = () => {
+    setSearchParams({
+      query,
+      from: fromFilter,
+      to: toFilter,
+      date: dateFilter,
+    });
+  };
+
+  // Stations list for autocomplete
+  const fromStations = stations?.stations || [];
+  const toStations = stations?.stations || [];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -63,7 +88,7 @@ const FindTicket = () => {
       </h2>
 
       {/* Filters */}
-      <div className="grid gap-4 md:grid-cols-4 mb-6">
+      <div className="grid gap-4 md:grid-cols-5 mb-6">
         <input
           type="text"
           placeholder="Search by train name..."
@@ -71,36 +96,46 @@ const FindTicket = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <select
+
+        <input
+          list="fromStationsList"
+          placeholder="From"
+          className="border p-2 rounded"
           value={fromFilter}
           onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">From</option>
+        />
+        <datalist id="fromStationsList">
           {fromStations.map((station) => (
-            <option key={station} value={station}>
-              {station}
-            </option>
+            <option key={station} value={station} />
           ))}
-        </select>
-        <select
+        </datalist>
+
+        <input
+          list="toStationsList"
+          placeholder="To"
+          className="border p-2 rounded"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">To</option>
+        />
+        <datalist id="toStationsList">
           {toStations.map((station) => (
-            <option key={station} value={station}>
-              {station}
-            </option>
+            <option key={station} value={station} />
           ))}
-        </select>
+        </datalist>
+
         <input
           type="date"
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
           className="border p-2 rounded"
         />
+
+        <button
+          onClick={handleSearch}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          Search
+        </button>
       </div>
 
       {loading ? (
