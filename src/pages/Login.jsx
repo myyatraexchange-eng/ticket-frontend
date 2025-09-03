@@ -1,26 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  "https://ticket-backend-g5da.onrender.com/api"; // 👈 apna backend URL
 
 const Login = () => {
-  const [formData, setFormData] = useState({ phone: '', password: '' });
+  const [formData, setFormData] = useState({ phone: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', formData);
-    // Add real login logic here
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "Login failed");
+      }
+
+      const data = await res.json();
+      console.log("Login Success:", data);
+
+      // ✅ Token save karna
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        setSuccess("✅ Logged in successfully!");
+      }
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50 px-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">Login to MyYatraExchange</h2>
+        <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">
+          Login to MyYatraExchange
+        </h2>
+
+        {error && <p className="text-red-600 text-center mb-2">{error}</p>}
+        {success && <p className="text-green-600 text-center mb-2">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Phone Number
+            </label>
             <input
               type="text"
               name="phone"
@@ -34,7 +79,12 @@ const Login = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -49,14 +99,18 @@ const Login = () => {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <p className="mt-4 text-sm text-center text-gray-600">
-          Don't have an account? <a href="/signup" className="text-blue-600 hover:underline">Register here</a>
+          Don't have an account?{" "}
+          <a href="/signup" className="text-blue-600 hover:underline">
+            Register here
+          </a>
         </p>
       </div>
     </div>
