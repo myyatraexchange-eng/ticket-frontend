@@ -16,6 +16,15 @@ import TermsOfUse from "./pages/TermsOfUse";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
+// 🔹 Scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function Layout() {
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -23,6 +32,7 @@ function Layout() {
   return (
     <>
       <Navbar />
+      <ScrollToTop />
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
