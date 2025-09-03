@@ -22,6 +22,7 @@ const FindTicket = () => {
     date: "",
   });
 
+  // 🔹 Tickets fetch karna
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -42,7 +43,7 @@ const FindTicket = () => {
     fetchTickets();
   }, []);
 
-  // Filtering
+  // 🔹 Filters apply karna
   useEffect(() => {
     const filtered = tickets.filter((ticket) => {
       const from = ticket.from?.toLowerCase() || "";
@@ -54,11 +55,9 @@ const FindTicket = () => {
       const matchesFrom = searchParams.from
         ? from === searchParams.from.toLowerCase()
         : true;
-
       const matchesTo = searchParams.to
         ? to === searchParams.to.toLowerCase()
         : true;
-
       const matchesDate = searchParams.date
         ? ticketDate === searchParams.date
         : true;
@@ -69,6 +68,7 @@ const FindTicket = () => {
     setFilteredTickets(filtered);
   }, [searchParams, tickets]);
 
+  // 🔹 Search button
   const handleSearch = () => {
     setSearchParams({
       from: fromFilter,
@@ -77,18 +77,19 @@ const FindTicket = () => {
     });
   };
 
-  // 👉 Unlock contact API call
+  // 🔹 Unlock API call
   const handleUnlock = async (ticketId) => {
     try {
       const res = await fetch(`${API_BASE}/tickets/${ticketId}/unlock`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // agar login required hai
       });
       if (!res.ok) throw new Error("Failed to unlock contact");
 
       const updatedTicket = await res.json();
 
-      // update frontend state
+      // frontend state update
       setTickets((prev) =>
         prev.map((t) => (t._id === ticketId ? updatedTicket : t))
       );
@@ -96,7 +97,7 @@ const FindTicket = () => {
         prev.map((t) => (t._id === ticketId ? updatedTicket : t))
       );
     } catch (err) {
-      console.error(err);
+      console.error("Unlock Error:", err);
     }
   };
 
@@ -109,7 +110,7 @@ const FindTicket = () => {
         Find Your Ticket
       </h2>
 
-      {/* Filters */}
+      {/* 🔹 Filters */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <input
           list="fromStationsList"
@@ -152,6 +153,7 @@ const FindTicket = () => {
         </button>
       </div>
 
+      {/* 🔹 Tickets List */}
       {loading ? (
         <p className="text-center text-gray-500">Loading tickets...</p>
       ) : filteredTickets.length === 0 ? (
@@ -187,6 +189,8 @@ const FindTicket = () => {
                 <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
                 {ticket.age})
               </p>
+
+              {/* 🔹 Contact unlock logic */}
               <p>
                 {ticket.contactVisible ? (
                   <span className="text-green-600 font-semibold">
@@ -194,10 +198,10 @@ const FindTicket = () => {
                   </span>
                 ) : (
                   <a
-                    href="https://rzp.io/i/demoPaymentLink" // 👉 yaha apna real Razorpay/UPI link dalna hai
+                    href="https://rzp.io/i/demoPaymentLink" // 👉 Yaha apna real Razorpay/UPI link dalna hai
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => handleUnlock(ticket._id)} // 👉 payment ke baad unlock API call
+                    onClick={() => handleUnlock(ticket._id)} // 👉 Payment ke baad unlock call
                     className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition inline-block"
                   >
                     Pay ₹20 to Unlock Contact Number
