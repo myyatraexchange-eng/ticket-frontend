@@ -6,7 +6,7 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 // Optional: full station list JSON
-import stations from "./stations.json"; // { "stations": ["Mumbai", "Delhi", ...] }
+import stations from "../data/stations.json"; // { "stations": ["Mumbai", "Delhi", ...] }
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
