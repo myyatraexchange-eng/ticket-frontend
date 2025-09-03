@@ -164,17 +164,18 @@ const FindTicket = () => {
                 <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
                 {ticket.age})
               </p>
-              <p>
-                {ticket.contactVisible ? (
-                  <span className="text-green-600 font-semibold">
-                    Contact: {ticket.contactNumber}
-                  </span>
-                ) : (
-                  <span className="text-blue-500 cursor-pointer">
-                    Unlock Contact - ₹20
-                  </span>
-                )}
-              </p>
+
+              {/* Contact unlock button */}
+              <div className="mt-2">
+                <button
+                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
+                  onClick={() =>
+                    alert("Please pay ₹20 to unlock the contact number")
+                  }
+                >
+                  Pay ₹20 to Unlock Contact Number
+                </button>
+              </div>
             </div>
           ))}
         </div>
