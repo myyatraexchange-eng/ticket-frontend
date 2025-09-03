@@ -77,6 +77,29 @@ const FindTicket = () => {
     });
   };
 
+  // 👉 Unlock contact API call
+  const handleUnlock = async (ticketId) => {
+    try {
+      const res = await fetch(`${API_BASE}/tickets/${ticketId}/unlock`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to unlock contact");
+
+      const updatedTicket = await res.json();
+
+      // update frontend state
+      setTickets((prev) =>
+        prev.map((t) => (t._id === ticketId ? updatedTicket : t))
+      );
+      setFilteredTickets((prev) =>
+        prev.map((t) => (t._id === ticketId ? updatedTicket : t))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const fromStations = stations?.stations || [];
   const toStations = stations?.stations || [];
 
@@ -174,6 +197,7 @@ const FindTicket = () => {
                     href="https://rzp.io/i/demoPaymentLink" // 👉 yaha apna real Razorpay/UPI link dalna hai
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => handleUnlock(ticket._id)} // 👉 payment ke baad unlock API call
                     className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition inline-block"
                   >
                     Pay ₹20 to Unlock Contact Number
