@@ -1,14 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
-  "https://ticket-backend-g5da.onrender.com/api"; // 👈 apna backend URL
+  "https://ticket-backend-g5da.onrender.com/api";
 
 const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const navigate = useNavigate(); // ✅ react-router-dom hook
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -18,7 +19,6 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -33,13 +33,12 @@ const Login = () => {
       }
 
       const data = await res.json();
-      console.log("Login Success:", data);
 
       // ✅ Token save karna
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        setSuccess("✅ Logged in successfully!");
-      }
+      if (data.token) localStorage.setItem("token", data.token);
+
+      // ✅ Redirect to profile page
+      navigate("/profile");
     } catch (err) {
       console.error("Login Error:", err);
       setError(err.message);
@@ -56,14 +55,10 @@ const Login = () => {
         </h2>
 
         {error && <p className="text-red-600 text-center mb-2">{error}</p>}
-        {success && <p className="text-green-600 text-center mb-2">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>
             <input
@@ -79,10 +74,7 @@ const Login = () => {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
