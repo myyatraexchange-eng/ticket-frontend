@@ -2,14 +2,10 @@ import React, { useState } from 'react';
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
-  "https://ticket-backend-g5da.onrender.com/api"; // 👈 apna backend URL
+  "https://ticket-backend-g5da.onrender.com/api"; // apna backend URL
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ name: '', phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -25,7 +21,7 @@ const Signup = () => {
     setSuccess('');
 
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch(`${API_BASE}/auth/signup`, {  // ✅ route updated
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -39,11 +35,6 @@ const Signup = () => {
       const data = await res.json();
       setSuccess("✅ Account created successfully!");
       console.log("Signup Success:", data);
-
-      // token ko localStorage me save karlo
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
 
     } catch (err) {
       console.error("Signup Error:", err);
