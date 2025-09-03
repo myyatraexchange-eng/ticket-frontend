@@ -5,21 +5,18 @@ const API_BASE =
   process.env.REACT_APP_API_BASE ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// Optional: full station list JSON
+// Station list JSON
 import stations from "../data/stations.json"; // { "stations": ["Mumbai", "Delhi", ...] }
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
-  const [query, setQuery] = useState("");
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // For search button
   const [searchParams, setSearchParams] = useState({
-    query: "",
     from: "",
     to: "",
     date: "",
@@ -45,39 +42,41 @@ const FindTicket = () => {
     fetchTickets();
   }, []);
 
-  // Filter tickets when search button clicked
+  // Filtering
   useEffect(() => {
     const filtered = tickets.filter((ticket) => {
-      const trainName = ticket.trainName?.toLowerCase() || "";
       const from = ticket.from?.toLowerCase() || "";
       const to = ticket.to?.toLowerCase() || "";
+      const ticketDate = ticket.date
+        ? new Date(ticket.date).toISOString().slice(0, 10)
+        : "";
 
-      const matchesQuery = trainName.includes(searchParams.query.toLowerCase());
       const matchesFrom = searchParams.from
         ? from === searchParams.from.toLowerCase()
         : true;
+
       const matchesTo = searchParams.to
         ? to === searchParams.to.toLowerCase()
         : true;
+
       const matchesDate = searchParams.date
-        ? ticket.date === searchParams.date
+        ? ticketDate === searchParams.date
         : true;
 
-      return matchesQuery && matchesFrom && matchesTo && matchesDate;
+      return matchesFrom && matchesTo && matchesDate;
     });
+
     setFilteredTickets(filtered);
   }, [searchParams, tickets]);
 
   const handleSearch = () => {
     setSearchParams({
-      query,
       from: fromFilter,
       to: toFilter,
       date: dateFilter,
     });
   };
 
-  // Stations list for autocomplete
   const fromStations = stations?.stations || [];
   const toStations = stations?.stations || [];
 
@@ -88,15 +87,7 @@ const FindTicket = () => {
       </h2>
 
       {/* Filters */}
-      <div className="grid gap-4 md:grid-cols-5 mb-6">
-        <input
-          type="text"
-          placeholder="Search by train name..."
-          className="border p-2 rounded"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-
+      <div className="grid gap-4 md:grid-cols-4 mb-6">
         <input
           list="fromStationsList"
           placeholder="From"
