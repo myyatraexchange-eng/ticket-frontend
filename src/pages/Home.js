@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from "react-helmet";   // ✅ SEO ke liye import
 import trainImage from '../assets/train.jpg';
 
 // Backend URL
@@ -25,6 +26,33 @@ const Home = () => {
 
   return (
     <div>
+      {/* ✅ SEO Meta Tags */}
+      <Helmet>
+        <title>MyYatraExchange - Exchange & Find Confirmed Train Tickets</title>
+        <meta
+          name="description"
+          content="MyYatraExchange helps travelers connect to exchange or find confirmed train tickets and save cancellation charges. A simple and secure ticket exchange platform."
+        />
+        <meta
+          name="keywords"
+          content="train ticket exchange, confirmed train ticket, save cancellation charges, railway ticket, indian railways ticket exchange"
+        />
+        <meta name="author" content="MyYatraExchange" />
+
+        {/* Open Graph (Facebook, WhatsApp) */}
+        <meta property="og:title" content="MyYatraExchange - Confirmed Train Ticket Exchange" />
+        <meta property="og:description" content="Save cancellation charges and connect with people who need confirmed train tickets easily." />
+        <meta property="og:image" content="https://www.myyatraexchange.com/logo.png" />
+        <meta property="og:url" content="https://www.myyatraexchange.com/" />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="MyYatraExchange - Train Ticket Exchange" />
+        <meta name="twitter:description" content="Find and exchange confirmed train tickets securely at MyYatraExchange." />
+        <meta name="twitter:image" content="https://www.myyatraexchange.com/logo.png" />
+      </Helmet>
+
       {/* Hero Section */}
       <div className="relative h-[500px] bg-gray-100 mb-10">
         <img src={trainImage} alt="Train" className="w-full h-full object-cover rounded" />
