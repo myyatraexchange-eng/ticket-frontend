@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet"; // ✅ SEO ke liye import
 
 // Backend URL
 const API_BASE =
@@ -106,6 +107,34 @@ const FindTicket = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
+      {/* 🔹 SEO Helmet */}
+      <Helmet>
+        <title>Find Train Tickets | MyYatraExchange</title>
+        <meta
+          name="description"
+          content="Search and find confirmed train tickets easily on MyYatraExchange. Avoid cancellation charges and connect with ticket sellers directly."
+        />
+        <meta
+          name="keywords"
+          content="train tickets, find train ticket, confirmed train tickets, Indian Railways, MyYatraExchange"
+        />
+        <meta property="og:title" content="Find Train Tickets | MyYatraExchange" />
+        <meta
+          property="og:description"
+          content="Find and exchange confirmed train tickets securely with MyYatraExchange. Save money and travel stress-free."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.myyatraexchange.com/find-ticket" />
+        <meta property="og:image" content="https://www.myyatraexchange.com/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Find Train Tickets | MyYatraExchange" />
+        <meta
+          name="twitter:description"
+          content="Search and find confirmed train tickets easily on MyYatraExchange."
+        />
+        <meta name="twitter:image" content="https://www.myyatraexchange.com/logo.png" />
+      </Helmet>
+
       <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
         Find Your Ticket
       </h2>
@@ -198,10 +227,10 @@ const FindTicket = () => {
                   </span>
                 ) : (
                   <a
-                    href="https://rzp.io/i/demoPaymentLink" // 👉 Yaha apna real Razorpay/UPI link dalna hai
+                    href="https://rzp.io/i/demoPaymentLink"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => handleUnlock(ticket._id)} // 👉 Payment ke baad unlock call
+                    onClick={() => handleUnlock(ticket._id)}
                     className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition inline-block"
                   >
                     Pay ₹20 to Unlock Contact Number
