@@ -15,7 +15,6 @@ import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-<<<<<<< HEAD
 
 // 🔹 Scroll to top on route change
 function ScrollToTop() {
@@ -25,8 +24,6 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
-=======
->>>>>>> fix: replaced react-helmet with react-helmet-async and updated SEO meta tags
 
 function Layout() {
   const location = useLocation();
@@ -35,10 +32,7 @@ function Layout() {
   return (
     <>
       <Navbar />
-<<<<<<< HEAD
       <ScrollToTop />
-=======
->>>>>>> fix: replaced react-helmet with react-helmet-async and updated SEO meta tags
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
