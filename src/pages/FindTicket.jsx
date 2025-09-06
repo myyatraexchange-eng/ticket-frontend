@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet"; // ✅ SEO ke liye import
 
@@ -77,6 +78,7 @@ const FindTicket = () => {
       date: dateFilter,
     });
   };
+<<<<<<< HEAD
 
   // 🔹 Unlock API call
   const handleUnlock = async (ticketId) => {
@@ -88,6 +90,19 @@ const FindTicket = () => {
       });
       if (!res.ok) throw new Error("Failed to unlock contact");
 
+=======
+
+  // 🔹 Unlock API call
+  const handleUnlock = async (ticketId) => {
+    try {
+      const res = await fetch(`${API_BASE}/tickets/${ticketId}/unlock`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // agar login required hai
+      });
+      if (!res.ok) throw new Error("Failed to unlock contact");
+
+>>>>>>> fix: added react-helmet dependency
       const updatedTicket = await res.json();
 
       // frontend state update
@@ -246,3 +261,4 @@ const FindTicket = () => {
 };
 
 export default FindTicket;
+
