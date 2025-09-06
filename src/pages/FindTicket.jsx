@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet"; // ✅ SEO ke liye import
+import { Helmet } from "react-helmet-async"; // ✅ async version use karo
 
 // Backend URL
 const API_BASE =

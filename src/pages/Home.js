@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from "react-helmet";   // ✅ SEO ke liye import
+import { Helmet } from "react-helmet-async";   // ✅ SEO ke liye async version
 import trainImage from '../assets/train.jpg';
 
 // Backend URL
@@ -86,7 +85,9 @@ const Home = () => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map(ticket => (
               <div key={ticket._id} className="bg-white shadow-md rounded p-4 border hover:shadow-lg transition duration-200">
-                <h3 className="font-semibold text-lg text-blue-600">{ticket.trainName} ({ticket.trainNumber})</h3>
+                <h3 className="font-semibold text-lg text-blue-600">
+                  {ticket.trainName} ({ticket.trainNumber})
+                </h3>
                 <p><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
                 <p><strong>Date:</strong> {new Date(ticket.date).toLocaleDateString()}</p>
                 <p><strong>Tickets:</strong> {ticket.ticketCount}</p>
