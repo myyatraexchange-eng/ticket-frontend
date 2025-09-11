@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ import hook
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
-  "https://ticket-backend-g5da.onrender.com/api"; // apna backend URL
+  "https://ticket-backend-g5da.onrender.com/api"; // backend URL
 
 const Signup = () => {
-  const [formData, setFormData] = useState({ name: '', phone: '', password: '' });
+  const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const navigate = useNavigate(); // ✅ hook init
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,11 +18,10 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
 
     try {
-      const res = await fetch(`${API_BASE}/auth/signup`, {  // ✅ route updated
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -33,8 +33,11 @@ const Signup = () => {
       }
 
       const data = await res.json();
-      setSuccess("✅ Account created successfully!");
       console.log("Signup Success:", data);
+
+      // ✅ Success ke baad login page pe bhej do
+      alert("✅ Account created successfully! Please login.");
+      navigate("/login");
 
     } catch (err) {
       console.error("Signup Error:", err);
@@ -47,10 +50,11 @@ const Signup = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Create an Account</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
+          Create an Account
+        </h2>
 
         {error && <p className="text-red-600 text-center mb-2">{error}</p>}
-        {success && <p className="text-green-600 text-center mb-2">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -97,7 +101,9 @@ const Signup = () => {
 
         <p className="text-sm mt-4 text-center">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">Log In</a>
+          <a href="/login" className="text-blue-600 hover:underline">
+            Log In
+          </a>
         </p>
       </div>
     </div>
@@ -105,4 +111,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
