@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ import hook
+import { useNavigate } from "react-router-dom";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -9,7 +9,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // ✅ hook init
+  const navigate = useNavigate(); // ✅ redirect hook
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,10 +35,13 @@ const Signup = () => {
       const data = await res.json();
       console.log("Signup Success:", data);
 
-      // ✅ Success ke baad login page pe bhej do
-      alert("✅ Account created successfully! Please login.");
-      navigate("/login");
+      // ✅ Token save karo (agar backend bhej raha hai)
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
+      // ✅ Profile page pe redirect karo
+      navigate("/profile");
     } catch (err) {
       console.error("Signup Error:", err);
       setError(err.message);
@@ -98,13 +101,6 @@ const Signup = () => {
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
-
-        <p className="text-sm mt-4 text-center">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Log In
-          </a>
-        </p>
       </div>
     </div>
   );
