@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // ✅ import
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -9,7 +10,8 @@ const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // ✅ react-router-dom hook
+  const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ auth context
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -34,11 +36,10 @@ const Login = () => {
 
       const data = await res.json();
 
-      // ✅ Token save karna
-      if (data.token) localStorage.setItem("token", data.token);
-
-      // ✅ Redirect to profile page
-      navigate("/profile");
+      if (data.token) {
+        login(data.token); // ✅ context me save
+        navigate("/profile"); // ✅ redirect
+      }
     } catch (err) {
       console.error("Login Error:", err);
       setError(err.message);
@@ -110,4 +111,3 @@ const Login = () => {
 };
 
 export default Login;
-
