@@ -17,6 +17,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute"; // ✅ import
 
 // 🔹 Scroll to top on route change
@@ -40,8 +41,16 @@ function Layout() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/find" element={<FindTicket />} />
-          {/* ✅ Protect Post route */}
+
+          {/* ✅ Protected routes */}
+          <Route
+            path="/find"
+            element={
+              <PrivateRoute>
+                <FindTicket />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/post"
             element={
@@ -50,14 +59,6 @@ function Layout() {
               </PrivateRoute>
             }
           />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/policy" element={<Policy />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/disclaimer" element={<Disclaimer />} />
-          <Route path="/terms" element={<TermsOfUse />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          {/* ✅ Protect Profile route */}
           <Route
             path="/profile"
             element={
@@ -66,6 +67,23 @@ function Layout() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/edit-ticket/:id"
+            element={
+              <PrivateRoute>
+                <EditTicket />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Public routes */}
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/policy" element={<Policy />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
       <Footer />
