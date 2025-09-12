@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // ⚡ yahan aap backend se user details fetch kar sakte ho
+      // ⚡ future me backend se user details fetch kar sakte ho
       setUser({ token });
     }
   }, []);
@@ -29,4 +29,9 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// ✅ yeh hook add karna zaruri hai
+export const useAuth = () => {
+  return useContext(AuthContext);
 };
