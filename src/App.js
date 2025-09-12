@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
-import { AuthProvider } from "./context/AuthContext"; // ✅ import auth provider
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -16,7 +16,8 @@ import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Profile from "./pages/Profile"; // ✅ added Profile import
+import Profile from "./pages/Profile";
+import PrivateRoute from "./routes/PrivateRoute"; // ✅ import
 
 // 🔹 Scroll to top on route change
 function ScrollToTop() {
@@ -40,7 +41,15 @@ function Layout() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/find" element={<FindTicket />} />
-          <Route path="/post" element={<Post />} />
+          {/* ✅ Protect Post route */}
+          <Route
+            path="/post"
+            element={
+              <PrivateRoute>
+                <Post />
+              </PrivateRoute>
+            }
+          />
           <Route path="/contact" element={<Contact />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -48,7 +57,15 @@ function Layout() {
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} /> {/* ✅ added Profile route */}
+          {/* ✅ Protect Profile route */}
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </main>
       <Footer />
@@ -65,7 +82,7 @@ function App() {
 
   return (
     <Router>
-      <AuthProvider> {/* ✅ wrap all routes */}
+      <AuthProvider>
         <Layout />
       </AuthProvider>
     </Router>
