@@ -180,4 +180,21 @@ const Profile = () => {
                   <p>
                     <strong>Seats:</strong> {ticket.ticketCount} (
                     {ticket.seatType})
+                  </p>
+                  <button
+                    onClick={() => handleDelete(ticket._id)}
+                    className="bg-red-500 text-white px-3 py-1 mt-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
 
+export default Profile;
