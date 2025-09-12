@@ -181,12 +181,20 @@ const Profile = () => {
                     <strong>Seats:</strong> {ticket.ticketCount} (
                     {ticket.seatType})
                   </p>
-                  <button
-                    onClick={() => handleDelete(ticket._id)}
-                    className="bg-red-500 text-white px-3 py-1 mt-2 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => handleDelete(ticket._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => navigate(`/edit-ticket/${ticket._id}`)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
