@@ -1,11 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // 👈 import
+import { useAuth } from "../context/AuthContext"; // ✅ yaha change
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const { user, logout } = useContext(AuthContext); // 👈 auth state
+  const { user, logout } = useAuth(); // ✅ direct hook se state mil gayi
 
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
