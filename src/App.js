@@ -16,6 +16,7 @@ import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile"; // ✅ added Profile import
 
 // 🔹 Scroll to top on route change
 function ScrollToTop() {
@@ -47,6 +48,7 @@ function Layout() {
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} /> {/* ✅ added Profile route */}
         </Routes>
       </main>
       <Footer />
