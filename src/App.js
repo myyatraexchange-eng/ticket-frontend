@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
+import { AuthProvider } from "./context/AuthContext"; // ✅ import auth provider
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -62,7 +63,9 @@ function App() {
 
   return (
     <Router>
-      <Layout />
+      <AuthProvider> {/* ✅ wrap all routes */}
+        <Layout />
+      </AuthProvider>
     </Router>
   );
 }
