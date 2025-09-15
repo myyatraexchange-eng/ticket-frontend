@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext"; // ✅ yaha change
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const { user, logout } = useAuth(); // ✅ direct hook se state mil gayi
+  const { user } = useAuth(); // ✅ logout hata diya, sirf user ka use ho raha hai
 
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
@@ -87,21 +87,13 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           {user ? (
-            <>
-              <NavLink
-                to="/profile"
-                onClick={handleLinkClick}
-                className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
-              >
-                Profile
-              </NavLink>
-              <button
-                onClick={() => { logout(); handleLinkClick(); }}
-                className="ml-2 mt-2 md:mt-0 bg-red-500 px-4 py-1 rounded hover:bg-red-600 font-semibold"
-              >
-                Logout
-              </button>
-            </>
+            <NavLink
+              to="/profile"
+              onClick={handleLinkClick}
+              className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
+            >
+              Profile
+            </NavLink>
           ) : (
             <NavLink
               to="/login"
