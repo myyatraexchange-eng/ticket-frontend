@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const API_BASE =
-  process.env.REACT_APP_API_BASE ||
+  process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
@@ -118,10 +118,10 @@ const Profile = () => {
               <strong>Name:</strong> {user.name}
             </p>
             <p>
-              <strong>Email:</strong> {user.email}
+              <strong>Phone:</strong> {user.phone}
             </p>
             <p>
-              <strong>Phone:</strong> {user.phone}
+              <strong>Unique ID:</strong> {user.uniqueId}
             </p>
             <p>
               <strong>Password:</strong> ********
@@ -181,6 +181,14 @@ const Profile = () => {
                     <strong>Seats:</strong> {ticket.ticketCount} (
                     {ticket.seatType})
                   </p>
+                  <p>
+                    <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
+                    {ticket.age})
+                  </p>
+                  <p>
+                    <strong>Contact:</strong> {ticket.contactNumber}
+                  </p>
+
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => handleDelete(ticket._id)}
