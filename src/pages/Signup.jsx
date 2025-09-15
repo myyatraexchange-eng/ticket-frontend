@@ -1,20 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ add this
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
-  "https://ticket-backend-g5da.onrender.com/api"; // backend URL
+  "https://ticket-backend-g5da.onrender.com/api";
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ auth context se login function
+  const { login } = useAuth();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
@@ -29,29 +29,26 @@ const Signup = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        let message = "Signup failed";
-        try {
-          const errData = await res.json();
-          if (errData?.message) {
-            message = errData.message;
-          }
-        } catch {
-          message = `Signup failed with status ${res.status}`;
-        }
-        throw new Error(message);
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
       }
 
-      const data = await res.json();
-      console.log("Signup Success:", data);
+      if (!res.ok) {
+        throw new Error(data.message || `Signup failed with status ${res.status}`);
+      }
 
       if (data.token) {
-        login(data.token); // ✅ AuthContext me set karo
-        navigate("/profile"); // ✅ direct profile par bhejo
+        login(data.token);
+        navigate("/profile");
+      } else {
+        throw new Error("No token received. Please try again.");
       }
     } catch (err) {
       console.error("Signup Error:", err);
-      setError(err.message);
+      setError(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
