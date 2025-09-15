@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // ✅ add this
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -9,7 +10,8 @@ const Signup = () => {
   const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // ✅ redirect hook
+  const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ auth context se login function
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,13 +37,10 @@ const Signup = () => {
       const data = await res.json();
       console.log("Signup Success:", data);
 
-      // ✅ Token save karo (agar backend bhej raha hai)
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        login(data.token); // ✅ AuthContext me set karo
+        navigate("/profile"); // ✅ direct profile par bhejo
       }
-
-      // ✅ Profile page pe redirect karo
-      navigate("/profile");
     } catch (err) {
       console.error("Signup Error:", err);
       setError(err.message);
