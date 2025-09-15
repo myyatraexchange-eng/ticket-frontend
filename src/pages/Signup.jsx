@@ -14,7 +14,7 @@ const Signup = () => {
   const { login } = useAuth();
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -29,26 +29,18 @@ const Signup = () => {
         body: JSON.stringify(formData),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        data = {};
-      }
-
       if (!res.ok) {
-        throw new Error(data.message || `Signup failed with status ${res.status}`);
+        const errData = await res.json();
+        throw new Error(errData.message || "Signup failed");
       }
 
+      const data = await res.json();
       if (data.token) {
-        login(data.token);
+        login(data.token); // ✅ AuthContext me set karo
         navigate("/profile");
-      } else {
-        throw new Error("No token received. Please try again.");
       }
     } catch (err) {
-      console.error("Signup Error:", err);
-      setError(err?.message || "Something went wrong. Please try again.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
