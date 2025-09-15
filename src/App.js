@@ -18,7 +18,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
-import privateroute from "./routes/privateroute.jsx"; // ✅ Fixed import
+import PrivateRoute from "./routes/privateroute.jsx"; // ✅ Correct import with Capital name
 
 // 🔹 Scroll to top on route change
 function ScrollToTop() {
