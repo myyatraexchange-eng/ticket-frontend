@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
-import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -20,6 +19,7 @@ import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 
+// 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -41,6 +41,7 @@ function Layout() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
 
+          {/* ✅ Protected routes */}
           <Route
             path="/find"
             element={
@@ -91,19 +92,12 @@ function Layout() {
 
 function App() {
   useEffect(() => {
-    // ❌ disable force https for now
-    // if (window.location.protocol !== "https:") {
-    //   window.location.href = window.location.href.replace("http:", "https:");
-    // }
+    if (window.location.protocol !== "https:") {
+      window.location.href = window.location.href.replace("http:", "https:");
+    }
   }, []);
 
-  return (
-    <Router>
-      <AuthProvider>
-        <Layout />
-      </AuthProvider>
-    </Router>
-  );
+  return <Layout />;  // ✅ No BrowserRouter, No AuthProvider
 }
 
 export default App;
