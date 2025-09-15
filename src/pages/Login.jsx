@@ -29,26 +29,18 @@ const Login = () => {
         body: JSON.stringify(formData),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        data = {};
-      }
-
       if (!res.ok) {
-        throw new Error(data.message || `Login failed with status ${res.status}`);
+        const errData = await res.json();
+        throw new Error(errData.message || "Login failed");
       }
 
+      const data = await res.json();
       if (data.token) {
-        login(data.token);
+        login(data.token); // ✅ context me save
         navigate("/profile");
-      } else {
-        throw new Error("No token received. Please try again.");
       }
     } catch (err) {
-      console.error("Login Error:", err);
-      setError(err?.message || "Something went wrong. Please try again.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -65,13 +57,12 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>
             <input
               type="text"
               name="phone"
-              id="phone"
               value={formData.phone}
               onChange={handleChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 outline-none"
@@ -81,13 +72,12 @@ const Login = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
               type="password"
               name="password"
-              id="password"
               value={formData.password}
               onChange={handleChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 outline-none"
