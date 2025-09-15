@@ -18,9 +18,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
-import PrivateRoute from "./routes/PrivateRoute.jsx"; // ✅ Proper Capitalized import
+import PrivateRoute from "./routes/PrivateRoute.jsx";
 
-// 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -42,7 +41,6 @@ function Layout() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
 
-          {/* ✅ Protected routes */}
           <Route
             path="/find"
             element={
@@ -93,9 +91,10 @@ function Layout() {
 
 function App() {
   useEffect(() => {
-    if (window.location.protocol !== "https:") {
-      window.location.href = window.location.href.replace("http:", "https:");
-    }
+    // ❌ disable force https for now
+    // if (window.location.protocol !== "https:") {
+    //   window.location.href = window.location.href.replace("http:", "https:");
+    // }
   }, []);
 
   return (
