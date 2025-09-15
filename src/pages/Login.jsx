@@ -30,8 +30,16 @@ const Login = () => {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Login failed");
+        let message = "Login failed";
+        try {
+          const errData = await res.json();
+          if (errData?.message) {
+            message = errData.message;
+          }
+        } catch {
+          message = `Login failed with status ${res.status}`;
+        }
+        throw new Error(message);
       }
 
       const data = await res.json();
