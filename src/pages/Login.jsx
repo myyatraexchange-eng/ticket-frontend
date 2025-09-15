@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ import
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -11,7 +11,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ auth context
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -29,28 +29,26 @@ const Login = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        let message = "Login failed";
-        try {
-          const errData = await res.json();
-          if (errData?.message) {
-            message = errData.message;
-          }
-        } catch {
-          message = `Login failed with status ${res.status}`;
-        }
-        throw new Error(message);
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
       }
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || `Login failed with status ${res.status}`);
+      }
 
       if (data.token) {
-        login(data.token); // ✅ context me save
-        navigate("/profile"); // ✅ redirect
+        login(data.token);
+        navigate("/profile");
+      } else {
+        throw new Error("No token received. Please try again.");
       }
     } catch (err) {
       console.error("Login Error:", err);
-      setError(err.message);
+      setError(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
