@@ -8,7 +8,7 @@ const PrivateRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return children || null; // ⚡ safe return
+  return children || null; // ✅ safe return
 };
 
 export default PrivateRoute;
