@@ -30,8 +30,16 @@ const Signup = () => {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Signup failed");
+        let message = "Signup failed";
+        try {
+          const errData = await res.json();
+          if (errData?.message) {
+            message = errData.message;
+          }
+        } catch {
+          message = `Signup failed with status ${res.status}`;
+        }
+        throw new Error(message);
       }
 
       const data = await res.json();
