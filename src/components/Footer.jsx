@@ -42,15 +42,15 @@ const Footer = () => {
         </div>
       </div>
 
-
-      
-
       {/* Copyright */}
       <div className="text-center mt-4 text-sm text-gray-300">
-        © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved.
+        © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. | 
+        <span className="ml-1 font-bold text-yellow-400 hover:text-yellow-300 transition duration-300">
+          Rohit Akodiya
+        </span>
       </div>
 
-      {/* Moving Disclaimer - Now at bottom */}
+      {/* Moving Disclaimer */}
       <div className="bg-yellow-200 text-yellow-900 py-2 text-sm mt-4">
         <marquee behavior="scroll" direction="left" scrollAmount="4">
           <strong>Disclaimer:</strong> MyYatraExchange.com is an independent platform for connecting travellers. 
