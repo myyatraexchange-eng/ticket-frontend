@@ -1,19 +1,25 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const PrivateRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-  const token = localStorage.getItem("token");
+  const { user } = useAuth();
 
-  // check if user is logged in
-  const isAuthenticated =
-    (user && Object.keys(user).length > 0) || (token && token.trim() !== "");
+  // 🔹 Jab tak user state null hai aur token check ho raha hai
+  if (user === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
-  if (!isAuthenticated) {
+  // 🔹 Agar user logged in nahi hai
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // 🔹 Agar user logged in hai
   return children;
 };
 
