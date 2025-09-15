@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async"; // ✅ async version use karo
+import { Helmet } from "react-helmet-async";
 
 // Backend URL
 const API_BASE =
-  process.env.REACT_APP_API_BASE ||
+  process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
 // Station list JSON
@@ -84,13 +84,12 @@ const FindTicket = () => {
       const res = await fetch(`${API_BASE}/tickets/${ticketId}/unlock`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // agar login required hai
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to unlock contact");
 
       const updatedTicket = await res.json();
 
-      // frontend state update
       setTickets((prev) =>
         prev.map((t) => (t._id === ticketId ? updatedTicket : t))
       );
@@ -112,27 +111,12 @@ const FindTicket = () => {
         <title>Find Train Tickets | MyYatraExchange</title>
         <meta
           name="description"
-          content="Search and find confirmed train tickets easily on MyYatraExchange. Avoid cancellation charges and connect with ticket sellers directly."
+          content="Search and find confirmed train tickets easily on MyYatraExchange."
         />
         <meta
           name="keywords"
           content="train tickets, find train ticket, confirmed train tickets, Indian Railways, MyYatraExchange"
         />
-        <meta property="og:title" content="Find Train Tickets | MyYatraExchange" />
-        <meta
-          property="og:description"
-          content="Find and exchange confirmed train tickets securely with MyYatraExchange. Save money and travel stress-free."
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.myyatraexchange.com/find-ticket" />
-        <meta property="og:image" content="https://www.myyatraexchange.com/logo.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Find Train Tickets | MyYatraExchange" />
-        <meta
-          name="twitter:description"
-          content="Search and find confirmed train tickets easily on MyYatraExchange."
-        />
-        <meta name="twitter:image" content="https://www.myyatraexchange.com/logo.png" />
       </Helmet>
 
       <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
@@ -209,10 +193,10 @@ const FindTicket = () => {
                   : "N/A"}
               </p>
               <p>
-                <strong>Tickets:</strong> {ticket.ticketCount}
+                <strong>Tickets:</strong> {ticket.tickets}
               </p>
               <p>
-                <strong>Class:</strong> {ticket.seatType}
+                <strong>Class:</strong> {ticket.travelClass}
               </p>
               <p>
                 <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
@@ -223,7 +207,7 @@ const FindTicket = () => {
               <p>
                 {ticket.contactVisible ? (
                   <span className="text-green-600 font-semibold">
-                    Contact: {ticket.contactNumber}
+                    Contact: {ticket.contact}
                   </span>
                 ) : (
                   <a
