@@ -123,7 +123,7 @@ const FindTicket = () => {
         Find Your Ticket
       </h2>
 
-      {/* 🔹 Filters */}
+      {/* 🔹 Filters (unchanged) */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <input
           list="fromStationsList"
@@ -193,10 +193,10 @@ const FindTicket = () => {
                   : "N/A"}
               </p>
               <p>
-                <strong>Tickets:</strong> {ticket.tickets}
+                <strong>Tickets:</strong> {ticket.ticketCount}
               </p>
               <p>
-                <strong>Class:</strong> {ticket.travelClass}
+                <strong>Class:</strong> {ticket.seatType}
               </p>
               <p>
                 <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
@@ -207,7 +207,7 @@ const FindTicket = () => {
               <p>
                 {ticket.contactVisible ? (
                   <span className="text-green-600 font-semibold">
-                    Contact: {ticket.contact}
+                    Contact: {ticket.contactNumber}
                   </span>
                 ) : (
                   <a
