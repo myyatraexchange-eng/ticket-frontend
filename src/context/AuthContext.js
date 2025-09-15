@@ -3,14 +3,14 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(undefined); // ✅ initially undefined
+  const [user, setUser] = useState(undefined); // ⚡ undefined (loading state)
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setUser({ token });
     } else {
-      setUser(null); // ✅ explicitly null if no token
+      setUser(null);
     }
   }, []);
 
@@ -24,6 +24,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  if (user === undefined) {
+    // ⏳ loader jab tak state decide na ho
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
@@ -31,6 +36,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
