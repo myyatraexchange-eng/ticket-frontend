@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import Loader from "../components/Loader"; // reusable loader import
 
 // Backend URL
 const API_BASE =
@@ -7,7 +8,7 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 // Station list JSON
-import stations from "../data/stations.json"; // { "stations": ["Mumbai", "Delhi", ...] }
+import stations from "../data/stations.json";
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
@@ -16,6 +17,7 @@ const FindTicket = () => {
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [unlocking, setUnlocking] = useState(false); // unlocking state
 
   const [searchParams, setSearchParams] = useState({
     from: "",
@@ -78,64 +80,86 @@ const FindTicket = () => {
     });
   };
 
-  // 🔹 Razorpay Unlock Flow
-  const handleUnlock = async (ticketId) => {
+  // 🔹 Razorpay Payment + Unlock logic
+  const handlePayment = async (ticketId) => {
     try {
-      // 1. Backend se order create karo
-      const res = await fetch(`${API_BASE}/payment/order`, {
+      setUnlocking(true); // loader on
+      // ✅ Step 1: backend se order create
+      const res = await fetch(`${API_BASE}/payment/create-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount: 20 }), // ₹20
       });
 
       const order = await res.json();
+      if (!order || !order.id) {
+        alert("Order creation failed!");
+        setUnlocking(false);
+        return;
+      }
 
-      if (!order.id) throw new Error("Order creation failed");
-
-      // 2. Razorpay checkout open karo
+      // ✅ Step 2: Razorpay open
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID, // frontend env me Razorpay Key ID
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
+        order_id: order.id,
         name: "MyYatraExchange",
         description: "Unlock Contact Number",
-        order_id: order.id,
         handler: async function (response) {
-          // 3. Backend pe verify karo
-          const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              ...response,
-              ticketId,
-            }),
-          });
+          try {
+            // ✅ Step 3: payment verify
+            const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...response,
+                ticketId,
+              }),
+            });
 
-          const data = await verifyRes.json();
-
-          if (verifyRes.ok) {
-            alert("✅ Payment successful! Contact unlocked.");
-            setTickets((prev) =>
-              prev.map((t) => (t._id === ticketId ? data.ticket : t))
-            );
-            setFilteredTickets((prev) =>
-              prev.map((t) => (t._id === ticketId ? data.ticket : t))
-            );
-          } else {
-            alert("❌ Payment verification failed.");
+            const result = await verifyRes.json();
+            if (verifyRes.ok) {
+              // ✅ Update ticket frontend me
+              setTickets((prev) =>
+                prev.map((t) =>
+                  t._id === ticketId ? { ...t, contactVisible: true } : t
+                )
+              );
+              setFilteredTickets((prev) =>
+                prev.map((t) =>
+                  t._id === ticketId ? { ...t, contactVisible: true } : t
+                )
+              );
+              alert("Contact unlocked successfully!");
+            } else {
+              alert(result.message || "Payment verification failed!");
+            }
+          } catch (err) {
+            console.error("Verify Error:", err);
+            alert("Error verifying payment!");
+          } finally {
+            setUnlocking(false); // loader off
           }
         },
+        prefill: {
+          name: "Demo User",
+          email: "demo@example.com",
+          contact: "9999999999",
+        },
         theme: {
-          color: "#0d6efd",
+          color: "#3399cc",
         },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.error("Unlock Error:", err);
-      alert("Something went wrong during payment");
+      console.error("Payment Error:", err);
+      alert("Something went wrong during payment.");
+      setUnlocking(false);
     }
   };
 
@@ -206,7 +230,7 @@ const FindTicket = () => {
 
       {/* 🔹 Tickets List */}
       {loading ? (
-        <p className="text-center text-gray-500">Loading tickets...</p>
+        <Loader message="Fetching tickets..." />
       ) : filteredTickets.length === 0 ? (
         <p className="text-center text-red-600 font-medium">
           No matching tickets found
@@ -247,12 +271,14 @@ const FindTicket = () => {
                   <span className="text-green-600 font-semibold">
                     Contact: {ticket.contactNumber}
                   </span>
+                ) : unlocking ? (
+                  <Loader message="Unlocking contact..." />
                 ) : (
                   <button
-                    onClick={() => handleUnlock(ticket._id)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition inline-block"
+                    onClick={() => handlePayment(ticket._id)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
                   >
-                    Pay ₹20 to Unlock Contact Number
+                    Pay ₹20 to Unlock Contact
                   </button>
                 )}
               </p>
@@ -265,3 +291,4 @@ const FindTicket = () => {
 };
 
 export default FindTicket;
+
