@@ -78,26 +78,64 @@ const FindTicket = () => {
     });
   };
 
-  // 🔹 Unlock API call
+  // 🔹 Razorpay Unlock Flow
   const handleUnlock = async (ticketId) => {
     try {
-      const res = await fetch(`${API_BASE}/tickets/${ticketId}/unlock`, {
-        method: "PATCH",
+      // 1. Backend se order create karo
+      const res = await fetch(`${API_BASE}/payment/order`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to unlock contact");
 
-      const updatedTicket = await res.json();
+      const order = await res.json();
 
-      setTickets((prev) =>
-        prev.map((t) => (t._id === ticketId ? updatedTicket : t))
-      );
-      setFilteredTickets((prev) =>
-        prev.map((t) => (t._id === ticketId ? updatedTicket : t))
-      );
+      if (!order.id) throw new Error("Order creation failed");
+
+      // 2. Razorpay checkout open karo
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID, // frontend env me Razorpay Key ID
+        amount: order.amount,
+        currency: order.currency,
+        name: "MyYatraExchange",
+        description: "Unlock Contact Number",
+        order_id: order.id,
+        handler: async function (response) {
+          // 3. Backend pe verify karo
+          const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              ...response,
+              ticketId,
+            }),
+          });
+
+          const data = await verifyRes.json();
+
+          if (verifyRes.ok) {
+            alert("✅ Payment successful! Contact unlocked.");
+            setTickets((prev) =>
+              prev.map((t) => (t._id === ticketId ? data.ticket : t))
+            );
+            setFilteredTickets((prev) =>
+              prev.map((t) => (t._id === ticketId ? data.ticket : t))
+            );
+          } else {
+            alert("❌ Payment verification failed.");
+          }
+        },
+        theme: {
+          color: "#0d6efd",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
       console.error("Unlock Error:", err);
+      alert("Something went wrong during payment");
     }
   };
 
@@ -123,7 +161,7 @@ const FindTicket = () => {
         Find Your Ticket
       </h2>
 
-      {/* 🔹 Filters (unchanged) */}
+      {/* 🔹 Filters */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <input
           list="fromStationsList"
@@ -210,15 +248,12 @@ const FindTicket = () => {
                     Contact: {ticket.contactNumber}
                   </span>
                 ) : (
-                  <a
-                    href="https://rzp.io/i/demoPaymentLink"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
                     onClick={() => handleUnlock(ticket._id)}
                     className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition inline-block"
                   >
                     Pay ₹20 to Unlock Contact Number
-                  </a>
+                  </button>
                 )}
               </p>
             </div>
