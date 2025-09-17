@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import Loader from "../components/Loader"; // reusable loader import
+import Loader from "../components/Loader"; // ✅ ab ye sahi chalega
 
 // Backend URL
 const API_BASE =
@@ -17,7 +17,7 @@ const FindTicket = () => {
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
-  const [unlocking, setUnlocking] = useState(false); // unlocking state
+  const [unlocking, setUnlocking] = useState(false);
 
   const [searchParams, setSearchParams] = useState({
     from: "",
@@ -25,7 +25,7 @@ const FindTicket = () => {
     date: "",
   });
 
-  // 🔹 Tickets fetch karna
+  // 🔹 Tickets fetch
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -46,7 +46,7 @@ const FindTicket = () => {
     fetchTickets();
   }, []);
 
-  // 🔹 Filters apply karna
+  // 🔹 Filters
   useEffect(() => {
     const filtered = tickets.filter((ticket) => {
       const from = ticket.from?.toLowerCase() || "";
@@ -80,17 +80,15 @@ const FindTicket = () => {
     });
   };
 
-  // 🔹 Razorpay Payment + Unlock logic
+  // 🔹 Razorpay Unlock Flow
   const handlePayment = async (ticketId) => {
     try {
-      setUnlocking(true); // loader on
-      // ✅ Step 1: backend se order create
+      setUnlocking(true);
+
       const res = await fetch(`${API_BASE}/payment/create-order`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount: 20 }), // ₹20
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 20 }),
       });
 
       const order = await res.json();
@@ -100,7 +98,6 @@ const FindTicket = () => {
         return;
       }
 
-      // ✅ Step 2: Razorpay open
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -110,7 +107,6 @@ const FindTicket = () => {
         description: "Unlock Contact Number",
         handler: async function (response) {
           try {
-            // ✅ Step 3: payment verify
             const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -122,7 +118,6 @@ const FindTicket = () => {
 
             const result = await verifyRes.json();
             if (verifyRes.ok) {
-              // ✅ Update ticket frontend me
               setTickets((prev) =>
                 prev.map((t) =>
                   t._id === ticketId ? { ...t, contactVisible: true } : t
@@ -141,7 +136,7 @@ const FindTicket = () => {
             console.error("Verify Error:", err);
             alert("Error verifying payment!");
           } finally {
-            setUnlocking(false); // loader off
+            setUnlocking(false);
           }
         },
         prefill: {
@@ -149,9 +144,7 @@ const FindTicket = () => {
           email: "demo@example.com",
           contact: "9999999999",
         },
-        theme: {
-          color: "#3399cc",
-        },
+        theme: { color: "#3399cc" },
       };
 
       const rzp = new window.Razorpay(options);
@@ -168,7 +161,6 @@ const FindTicket = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      {/* 🔹 SEO Helmet */}
       <Helmet>
         <title>Find Train Tickets | MyYatraExchange</title>
         <meta
@@ -185,7 +177,7 @@ const FindTicket = () => {
         Find Your Ticket
       </h2>
 
-      {/* 🔹 Filters */}
+      {/* Filters */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <input
           list="fromStationsList"
@@ -228,7 +220,7 @@ const FindTicket = () => {
         </button>
       </div>
 
-      {/* 🔹 Tickets List */}
+      {/* Tickets List */}
       {loading ? (
         <Loader message="Fetching tickets..." />
       ) : filteredTickets.length === 0 ? (
@@ -265,7 +257,6 @@ const FindTicket = () => {
                 {ticket.age})
               </p>
 
-              {/* 🔹 Contact unlock logic */}
               <p>
                 {ticket.contactVisible ? (
                   <span className="text-green-600 font-semibold">
