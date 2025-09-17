@@ -12,14 +12,14 @@ const FindTicket = () => {
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+  const [dateTimeFilter, setDateTimeFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [unlocking, setUnlocking] = useState(false);
 
   const [searchParams, setSearchParams] = useState({
     from: "",
     to: "",
-    date: "",
+    fromDateTime: "",
   });
 
   // ✅ Pagination state
@@ -49,8 +49,8 @@ const FindTicket = () => {
     const filtered = tickets.filter((ticket) => {
       const from = ticket.from?.toLowerCase() || "";
       const to = ticket.to?.toLowerCase() || "";
-      const ticketDate = ticket.fromDateTime
-        ? new Date(ticket.fromDateTime).toISOString().slice(0, 10)
+      const ticketDateTime = ticket.fromDateTime
+        ? new Date(ticket.fromDateTime).toISOString().slice(0, 16) // yyyy-MM-ddTHH:mm
         : "";
 
       const matchesFrom = searchParams.from
@@ -59,11 +59,11 @@ const FindTicket = () => {
       const matchesTo = searchParams.to
         ? to === searchParams.to.toLowerCase()
         : true;
-      const matchesDate = searchParams.date
-        ? ticketDate === searchParams.date
+      const matchesDateTime = searchParams.fromDateTime
+        ? ticketDateTime.startsWith(searchParams.fromDateTime)
         : true;
 
-      return matchesFrom && matchesTo && matchesDate;
+      return matchesFrom && matchesTo && matchesDateTime;
     });
 
     setFilteredTickets(filtered);
@@ -74,7 +74,7 @@ const FindTicket = () => {
     setSearchParams({
       from: fromFilter,
       to: toFilter,
-      date: dateFilter,
+      fromDateTime: dateTimeFilter,
     });
   };
 
@@ -193,10 +193,11 @@ const FindTicket = () => {
           ))}
         </datalist>
 
+        {/* ✅ Calendar + Watch (date + time + AM/PM) */}
         <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
+          type="datetime-local"
+          value={dateTimeFilter}
+          onChange={(e) => setDateTimeFilter(e.target.value)}
           className="border p-2 rounded"
         />
 

@@ -97,10 +97,21 @@ const Home = () => {
                     {ticket.trainName} ({ticket.trainNumber})
                   </h3>
                   <p><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
+                  
+                  {/* ✅ Departure & Arrival */}
                   <p>
-                    <strong>Date:</strong>{" "}
-                    {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                    <strong>Departure:</strong>{" "}
+                    {ticket.fromDateTime
+                      ? new Date(ticket.fromDateTime).toLocaleString()
+                      : "N/A"}
                   </p>
+                  <p>
+                    <strong>Arrival:</strong>{" "}
+                    {ticket.toDateTime
+                      ? new Date(ticket.toDateTime).toLocaleString()
+                      : "N/A"}
+                  </p>
+
                   <p><strong>Tickets:</strong> {ticket.ticketCount}</p>
                   <p><strong>Class:</strong> {ticket.seatType}</p>
                   <p><strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
