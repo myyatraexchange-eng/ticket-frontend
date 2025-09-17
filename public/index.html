@@ -70,7 +70,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Cache-Control" content="max-age=31536000, must-revalidate" />
 
-    <!-- 🎨 Splash Screen CSS -->
+    <!-- 🎨 Splash + Loader CSS -->
     <style>
       #splash {
         position: fixed;
@@ -100,6 +100,24 @@
         visibility: hidden;
         transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
       }
+
+      /* Loader Icon */
+      #loader-icon {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 20px;
+      }
+
+      .rotate {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body>
@@ -108,7 +126,31 @@
     <!-- 🔹 Splash Screen -->
     <div id="splash">
       <img src="/logo.png" alt="MyYatraExchange Logo" />
-      <h1>Loading MyYatraExchange...</h1>
+      <div id="loader-icon">
+        <svg
+          class="rotate"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="white"
+            stroke-width="4"
+            class="opacity-25"
+          ></circle>
+          <path
+            fill="white"
+            d="M4 12a8 8 0 018-8v8H4z"
+            class="opacity-75"
+          ></path>
+        </svg>
+        <span>Loading MyYatraExchange...</span>
+      </div>
     </div>
 
     <!-- 🔹 React Root -->
