@@ -68,13 +68,13 @@ const EditTicket = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle submit
+  // ✅ Handle submit (PUT method for update)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const res = await fetch(`${API_BASE}/tickets/${id}`, {
-        method: "PATCH",
+        method: "PUT", // ✅ PATCH → PUT fix
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -230,3 +230,4 @@ const EditTicket = () => {
 };
 
 export default EditTicket;
+
