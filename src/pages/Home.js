@@ -4,10 +4,13 @@ import { Helmet } from "react-helmet-async";   // ✅ SEO ke liye async version
 import trainImage from '../assets/train.jpg';
 
 // Backend URL
-const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(6); // ✅ pehle 6 tickets
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -38,6 +41,7 @@ const Home = () => {
           content="train ticket exchange, confirmed train ticket, save cancellation charges, railway ticket, indian railways ticket exchange"
         />
         <meta name="author" content="MyYatraExchange" />
+        <link rel="canonical" href="https://www.myyatraexchange.com/" />
 
         {/* Open Graph (Facebook, WhatsApp) */}
         <meta property="og:title" content="MyYatraExchange - Confirmed Train Ticket Exchange" />
@@ -82,20 +86,40 @@ const Home = () => {
         {tickets.length === 0 ? (
           <p className="text-center text-red-600 font-medium">No tickets available</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {tickets.map(ticket => (
-              <div key={ticket._id} className="bg-white shadow-md rounded p-4 border hover:shadow-lg transition duration-200">
-                <h3 className="font-semibold text-lg text-blue-600">
-                  {ticket.trainName} ({ticket.trainNumber})
-                </h3>
-                <p><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
-                <p><strong>Date:</strong> {new Date(ticket.date).toLocaleDateString()}</p>
-                <p><strong>Tickets:</strong> {ticket.ticketCount}</p>
-                <p><strong>Class:</strong> {ticket.seatType}</p>
-                <p><strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {tickets.slice(0, visibleCount).map(ticket => (
+                <div
+                  key={ticket._id}
+                  className="bg-white shadow-md rounded p-4 border hover:shadow-lg transition duration-200"
+                >
+                  <h3 className="font-semibold text-lg text-blue-600">
+                    {ticket.trainName} ({ticket.trainNumber})
+                  </h3>
+                  <p><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                  </p>
+                  <p><strong>Tickets:</strong> {ticket.ticketCount}</p>
+                  <p><strong>Class:</strong> {ticket.seatType}</p>
+                  <p><strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})</p>
+                </div>
+              ))}
+            </div>
+
+            {/* ✅ Show More button */}
+            {visibleCount < tickets.length && (
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 6)}
+                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Show More
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -103,3 +127,4 @@ const Home = () => {
 };
 
 export default Home;
+

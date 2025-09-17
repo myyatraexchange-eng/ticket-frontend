@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import Loader from "../components/Loader"; // ✅ ab ye sahi chalega
+import Loader from "../components/Loader"; 
+import stations from "../data/stations.json";
 
-// Backend URL
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
-
-// Station list JSON
-import stations from "../data/stations.json";
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
@@ -25,7 +22,9 @@ const FindTicket = () => {
     date: "",
   });
 
-  // 🔹 Tickets fetch
+  // ✅ Pagination state
+  const [visibleCount, setVisibleCount] = useState(6);
+
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -46,13 +45,12 @@ const FindTicket = () => {
     fetchTickets();
   }, []);
 
-  // 🔹 Filters
   useEffect(() => {
     const filtered = tickets.filter((ticket) => {
       const from = ticket.from?.toLowerCase() || "";
       const to = ticket.to?.toLowerCase() || "";
-      const ticketDate = ticket.date
-        ? new Date(ticket.date).toISOString().slice(0, 10)
+      const ticketDate = ticket.fromDateTime
+        ? new Date(ticket.fromDateTime).toISOString().slice(0, 10)
         : "";
 
       const matchesFrom = searchParams.from
@@ -69,9 +67,9 @@ const FindTicket = () => {
     });
 
     setFilteredTickets(filtered);
+    setVisibleCount(6); // ✅ Reset pagination when filters change
   }, [searchParams, tickets]);
 
-  // 🔹 Search button
   const handleSearch = () => {
     setSearchParams({
       from: fromFilter,
@@ -80,11 +78,9 @@ const FindTicket = () => {
     });
   };
 
-  // 🔹 Razorpay Unlock Flow
   const handlePayment = async (ticketId) => {
     try {
       setUnlocking(true);
-
       const res = await fetch(`${API_BASE}/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -163,14 +159,6 @@ const FindTicket = () => {
     <div className="max-w-6xl mx-auto px-4 py-6">
       <Helmet>
         <title>Find Train Tickets | MyYatraExchange</title>
-        <meta
-          name="description"
-          content="Search and find confirmed train tickets easily on MyYatraExchange."
-        />
-        <meta
-          name="keywords"
-          content="train tickets, find train ticket, confirmed train tickets, Indian Railways, MyYatraExchange"
-        />
       </Helmet>
 
       <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
@@ -228,54 +216,74 @@ const FindTicket = () => {
           No matching tickets found
         </p>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredTickets.map((ticket) => (
-            <div
-              key={ticket._id}
-              className="bg-white shadow-md rounded p-4 border hover:shadow-xl transition"
-            >
-              <h3 className="font-semibold text-lg text-blue-600">
-                {ticket.trainName} ({ticket.trainNumber})
-              </h3>
-              <p>
-                <strong>From → To:</strong> {ticket.from} → {ticket.to}
-              </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {ticket.date
-                  ? new Date(ticket.date).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>Tickets:</strong> {ticket.ticketCount}
-              </p>
-              <p>
-                <strong>Class:</strong> {ticket.seatType}
-              </p>
-              <p>
-                <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
-                {ticket.age})
-              </p>
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredTickets.slice(0, visibleCount).map((ticket) => (
+              <div
+                key={ticket._id}
+                className="bg-white shadow-md rounded p-4 border hover:shadow-xl transition"
+              >
+                <h3 className="font-semibold text-lg text-blue-600">
+                  {ticket.trainName} ({ticket.trainNumber})
+                </h3>
+                <p>
+                  <strong>From → To:</strong> {ticket.from} → {ticket.to}
+                </p>
+                <p>
+                  <strong>Departure:</strong>{" "}
+                  {ticket.fromDateTime
+                    ? new Date(ticket.fromDateTime).toLocaleString()
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Arrival:</strong>{" "}
+                  {ticket.toDateTime
+                    ? new Date(ticket.toDateTime).toLocaleString()
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>Tickets:</strong> {ticket.ticketCount}
+                </p>
+                <p>
+                  <strong>Class:</strong> {ticket.seatType}
+                </p>
+                <p>
+                  <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
+                  {ticket.age})
+                </p>
 
-              <p>
-                {ticket.contactVisible ? (
-                  <span className="text-green-600 font-semibold">
-                    Contact: {ticket.contactNumber}
-                  </span>
-                ) : unlocking ? (
-                  <Loader message="Unlocking contact..." />
-                ) : (
-                  <button
-                    onClick={() => handlePayment(ticket._id)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
-                  >
-                    Pay ₹20 to Unlock Contact
-                  </button>
-                )}
-              </p>
+                <p>
+                  {ticket.contactVisible ? (
+                    <span className="text-green-600 font-semibold">
+                      Contact: {ticket.contactNumber}
+                    </span>
+                  ) : unlocking ? (
+                    <Loader message="Unlocking contact..." />
+                  ) : (
+                    <button
+                      onClick={() => handlePayment(ticket._id)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                    >
+                      Pay ₹20 to Unlock Contact
+                    </button>
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {visibleCount < filteredTickets.length && (
+            <div className="text-center mt-6">
+              <button
+                onClick={() => setVisibleCount((prev) => prev + 6)}
+                className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+              >
+                Load More
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

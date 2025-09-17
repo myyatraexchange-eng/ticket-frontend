@@ -10,13 +10,16 @@ const Post = () => {
     trainName: "",
     from: "",
     to: "",
-    date: "",
-    ticketCount: "",      // ✅ backend field
+    fromDate: "",
+    fromTime: "",
+    toDate: "",
+    toTime: "",
+    ticketCount: "",
     holderName: "",
-    contactNumber: "",    // ✅ backend field
+    contactNumber: "",
     age: "",
     gender: "",
-    seatType: "",         // ✅ backend field
+    seatType: "",
     description: "",
   });
 
@@ -52,7 +55,10 @@ const Post = () => {
         trainName: "",
         from: "",
         to: "",
-        date: "",
+        fromDate: "",
+        fromTime: "",
+        toDate: "",
+        toTime: "",
         ticketCount: "",
         holderName: "",
         contactNumber: "",
@@ -122,16 +128,56 @@ const Post = () => {
           </div>
         </div>
 
-        <div>
-          <label className="block">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded"
-          />
+        {/* ✅ From Date & Time */}
+        <div className="flex space-x-4">
+          <div className="w-1/2">
+            <label className="block">From Date</label>
+            <input
+              type="date"
+              name="fromDate"
+              value={formData.fromDate}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block">From Time</label>
+            <input
+              type="time"
+              name="fromTime"
+              value={formData.fromTime}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded"
+            />
+          </div>
+        </div>
+
+        {/* ✅ To Date & Time */}
+        <div className="flex space-x-4">
+          <div className="w-1/2">
+            <label className="block">To Date</label>
+            <input
+              type="date"
+              name="toDate"
+              value={formData.toDate}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block">To Time</label>
+            <input
+              type="time"
+              name="toTime"
+              value={formData.toTime}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded"
+            />
+          </div>
         </div>
 
         <div>
@@ -238,3 +284,4 @@ const Post = () => {
 };
 
 export default Post;
+
