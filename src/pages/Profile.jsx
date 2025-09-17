@@ -6,31 +6,48 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
+  const [user, setUser] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newPassword, setNewPassword] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // ✅ Fetch my tickets
+  // ✅ Fetch profile + tickets
   useEffect(() => {
-    const fetchTickets = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`${API_BASE}/tickets/my`, {
+        // User info
+        const resUser = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error("Failed to fetch tickets");
-        const data = await res.json();
-        setTickets(data);
+        if (!resUser.ok) throw new Error("Failed to fetch user");
+        const userData = await resUser.json();
+        setUser(userData);
+
+        // User tickets
+        const resTickets = await fetch(`${API_BASE}/tickets/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!resTickets.ok) throw new Error("Failed to fetch tickets");
+        const ticketData = await resTickets.json();
+        setTickets(ticketData);
       } catch (err) {
         console.error(err);
-        alert("❌ Could not load your tickets");
+        alert("❌ Could not load profile or tickets");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTickets();
+    fetchData();
   }, [token]);
+
+  // ✅ Logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   // ✅ Delete Ticket
   const handleDelete = async (id) => {
@@ -52,12 +69,82 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-6">Loading your tickets...</p>;
+  // ✅ Change Password
+  const handleChangePassword = async () => {
+    if (!newPassword.trim()) return alert("Please enter a new password");
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
+
+      if (!res.ok) throw new Error("Failed to change password");
+
+      alert("✅ Password changed successfully!");
+      setNewPassword("");
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  };
+
+  if (loading) return <p className="text-center mt-6">Loading profile...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 mt-6">
-      <h1 className="text-2xl font-bold mb-6 text-blue-600">My Tickets</h1>
+    <div className="max-w-5xl mx-auto p-6 mt-6">
+      <h1 className="text-2xl font-bold mb-6 text-blue-600 text-center">
+        My Profile
+      </h1>
 
+      {/* User Info */}
+      {user && (
+        <div className="bg-white shadow-md rounded-lg p-4 mb-6 border">
+          <p>
+            <strong>Name:</strong> {user.name}
+          </p>
+          <p>
+            <strong>Phone:</strong> {user.phone}
+          </p>
+          <p>
+            <strong>Unique ID:</strong> {user.uniqueId}
+          </p>
+          <p>
+            <strong>Password:</strong> ********
+          </p>
+
+          {/* Change Password */}
+          <div className="mt-4">
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="border p-2 rounded mr-2"
+            />
+            <button
+              onClick={handleChangePassword}
+              className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
+            >
+              Change Password
+            </button>
+          </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 mt-4 rounded hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+
+      {/* Tickets */}
+      <h2 className="text-xl font-semibold mb-4">My Tickets</h2>
       {tickets.length === 0 ? (
         <p className="text-gray-600">You haven’t created any tickets yet.</p>
       ) : (
@@ -72,7 +159,10 @@ const Profile = () => {
                   {ticket.trainName} ({ticket.trainNumber})
                 </p>
                 <p className="text-sm text-gray-600">
-                  {ticket.from} → {ticket.to} | {new Date(ticket.date).toDateString()}
+                  {ticket.from} → {ticket.to} |{" "}
+                  {ticket.date
+                    ? new Date(ticket.date).toLocaleDateString()
+                    : "N/A"}
                 </p>
                 <p className="text-sm">
                   Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
