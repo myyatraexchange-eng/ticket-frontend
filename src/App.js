@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Loader from "./components/Loader"; // ✅ Correct path
+import Loader from "./components/Loader";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -37,6 +37,7 @@ function Layout() {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  // Single loader for route changes
   if (routeLoading) return <Loader message="Loading page..." />;
 
   return (
@@ -47,38 +48,10 @@ function Layout() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route
-            path="/find"
-            element={
-              <PrivateRoute>
-                <FindTicket />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/post"
-            element={
-              <PrivateRoute>
-                <Post />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/edit-ticket/:id"
-            element={
-              <PrivateRoute>
-                <EditTicket />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
+          <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -100,10 +73,12 @@ function App() {
     if (window.location.protocol !== "https:") {
       window.location.href = window.location.href.replace("http:", "https:");
     }
+
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
+  // Single splash loader
   if (loading) return <Loader message="Please wait..." />;
 
   return <Layout />;

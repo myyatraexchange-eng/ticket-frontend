@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.png"; // ✅ correct path
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,8 +18,8 @@ const Navbar = () => {
   return (
     <nav className="bg-blue-600 text-white shadow-md text-sm relative">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center text-base md:text-lg font-bold">
-          <img src={logo} alt="Logo" className="w-8 h-8 mr-2" />
+        {/* Brand without logo */}
+        <div className="text-base md:text-lg font-bold">
           <NavLink to="/" onClick={handleLinkClick} className="hover:underline">
             <span className="text-orange-400">My</span>
             <span className="text-white">Yatra</span>
@@ -28,6 +27,7 @@ const Navbar = () => {
           </NavLink>
         </div>
 
+        {/* Hamburger for mobile */}
         <button
           className="md:hidden text-white text-2xl focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -35,6 +35,7 @@ const Navbar = () => {
           ☰
         </button>
 
+        {/* Nav Links */}
         <div
           className={`flex-col md:flex md:flex-row md:space-x-4 ${
             menuOpen ? "flex" : "hidden"
@@ -56,6 +57,7 @@ const Navbar = () => {
             Contact
           </NavLink>
 
+          {/* More Dropdown */}
           <div className="relative">
             <button onClick={() => setMoreOpen(!moreOpen)} className="py-1 hover:underline">
               More ▾
@@ -82,6 +84,7 @@ const Navbar = () => {
             )}
           </div>
 
+          {/* Auth Buttons */}
           {user ? (
             <NavLink
               to="/profile"
