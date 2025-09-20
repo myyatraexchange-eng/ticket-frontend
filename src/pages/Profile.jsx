@@ -10,6 +10,7 @@ const Profile = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -17,18 +18,22 @@ const Profile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resUser = await fetch(`${API_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!resUser.ok) throw new Error("Failed to fetch user");
-        const userData = await resUser.json();
-        setUser(userData);
+        const [resUser, resTickets] = await Promise.all([
+          fetch(`${API_BASE}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_BASE}/tickets/my`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        const resTickets = await fetch(`${API_BASE}/tickets/my`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        if (!resUser.ok) throw new Error("Failed to fetch user");
         if (!resTickets.ok) throw new Error("Failed to fetch tickets");
+
+        const userData = await resUser.json();
         const ticketData = await resTickets.json();
+
+        setUser(userData);
         setTickets(ticketData);
       } catch (err) {
         console.error(err);
@@ -85,35 +90,59 @@ const Profile = () => {
   };
 
   if (loading)
-    return <p className="text-center mt-10 text-lg text-gray-600">Loading profile...</p>;
+    return (
+      <p className="text-center mt-10 text-lg text-gray-600 animate-pulse">
+        Loading profile...
+      </p>
+    );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center text-blue-700">My Profile</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center text-blue-700">
+        My Profile
+      </h1>
 
       {/* User Info Card */}
       {user && (
         <div className="bg-white shadow-lg rounded-xl p-6 mb-10 border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">User Information</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            User Information
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <p><span className="font-medium text-gray-700">Name:</span> {user.name}</p>
-            <p><span className="font-medium text-gray-700">Phone:</span> {user.phone}</p>
-            <p><span className="font-medium text-gray-700">Unique ID:</span> {user.uniqueId}</p>
-            <p><span className="font-medium text-gray-700">Password:</span> ********</p>
+            <p>
+              <span className="font-medium text-gray-700">Name:</span> {user.name}
+            </p>
+            <p>
+              <span className="font-medium text-gray-700">Phone:</span> {user.phone}
+            </p>
+            <p>
+              <span className="font-medium text-gray-700">Unique ID:</span>{" "}
+              {user.uniqueId}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-medium text-gray-700">Password:</span>{" "}
+              {showPassword ? user.password : "********"}
+              <button
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-blue-600 text-sm underline hover:text-blue-800"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </p>
           </div>
 
           {/* Change Password */}
-          <div className="mt-6 flex flex-col md:flex-row items-center gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
             <input
               type="password"
               placeholder="Enter new password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="border p-2 rounded w-full md:w-auto flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border p-2 rounded w-full sm:flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
             <button
               onClick={handleChangePassword}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition w-full sm:w-auto"
             >
               Change Password
             </button>
@@ -122,7 +151,7 @@ const Profile = () => {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="mt-6 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition"
+            className="mt-6 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition w-full sm:w-auto"
           >
             Logout
           </button>
@@ -132,7 +161,9 @@ const Profile = () => {
       {/* Tickets Section */}
       <h2 className="text-2xl font-bold mb-6 text-gray-800">My Tickets</h2>
       {tickets.length === 0 ? (
-        <p className="text-gray-600 text-center">You haven’t created any tickets yet.</p>
+        <p className="text-gray-600 text-center">
+          You haven’t created any tickets yet.
+        </p>
       ) : (
         <div className="grid gap-6">
           {tickets.map((ticket) => (
@@ -146,22 +177,24 @@ const Profile = () => {
                 </p>
                 <p className="text-gray-600 text-sm">
                   {ticket.from} → {ticket.to} |{" "}
-                  {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                  {ticket.date
+                    ? new Date(ticket.date).toLocaleDateString()
+                    : "N/A"}
                 </p>
                 <p className="text-gray-600 text-sm">
                   Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
                 </p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 w-full md:w-auto">
                 <button
                   onClick={() => navigate(`/edit-ticket/${ticket._id}`)}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition w-full md:w-auto"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(ticket._id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition w-full md:w-auto"
                 >
                   Delete
                 </button>

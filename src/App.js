@@ -1,4 +1,3 @@
-// App.js
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -20,6 +19,8 @@ import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 
+import { LoaderProvider, useLoader } from "./context/LoaderContext";
+
 // 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -27,7 +28,27 @@ function ScrollToTop() {
   return null;
 }
 
-function App() {
+// 🔹 Loader Overlay
+const LoaderOverlay = () => {
+  const { loading } = useLoader();
+  return loading ? (
+    <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+      <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16"></div>
+      <style>{`
+        .loader {
+          border-top-color: #3498db;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  ) : null;
+};
+
+function AppContent() {
   const location = useLocation();
   const isHome = location.pathname === "/";
 
@@ -35,6 +56,7 @@ function App() {
     <>
       <Navbar />
       <ScrollToTop />
+      <LoaderOverlay />
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -54,6 +76,14 @@ function App() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function App() {
+  return (
+    <LoaderProvider>
+      <AppContent />
+    </LoaderProvider>
   );
 }
 

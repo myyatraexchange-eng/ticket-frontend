@@ -10,6 +10,8 @@ const Signup = () => {
   const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ show/hide password
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -21,6 +23,7 @@ const Signup = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
@@ -29,15 +32,14 @@ const Signup = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Signup failed");
-      }
-
       const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+
       if (data.token) {
-        login(data.token); // ✅ AuthContext me set karo
-        navigate("/profile");
+        login(data.token);
+        setSuccess("Signup successful! 🎉 Redirecting...");
+        setTimeout(() => navigate("/profile"), 1200);
       }
     } catch (err) {
       setError(err.message);
@@ -54,6 +56,7 @@ const Signup = () => {
         </h2>
 
         {error && <p className="text-red-600 text-center mb-2">{error}</p>}
+        {success && <p className="text-green-600 text-center mb-2">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -78,16 +81,23 @@ const Signup = () => {
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block mb-1 font-medium text-sm">Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // ✅ toggle type
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-blue-600"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
           </div>
           <button
             type="submit"
@@ -103,3 +113,4 @@ const Signup = () => {
 };
 
 export default Signup;
+

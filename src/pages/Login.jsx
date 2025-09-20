@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -8,10 +9,10 @@ const API_BASE =
 
 const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showLoader, hideLoader } = useLoader(); // ✅ use loader
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -19,8 +20,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    showLoader(); // show global loader
 
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -35,14 +36,14 @@ const Login = () => {
       }
 
       const data = await res.json();
-      if (data.token) {
-        login(data.token); // ✅ context me save
+      if (data.token && data.user) {
+        login(data.token, data.user);
         navigate("/profile");
       }
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      hideLoader(); // hide global loader
     }
   };
 
@@ -61,17 +62,17 @@ const Login = () => {
               Phone Number
             </label>
             <input
-              type="text"
+              type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 outline-none"
-              placeholder="Enter your phone number"
+              placeholder="Enter your 10-digit phone number"
               required
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-700">
               Password
             </label>
@@ -88,10 +89,9 @@ const Login = () => {
 
           <button
             type="submit"
-            disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
           >
-            {loading ? "Logging in..." : "Login"}
+            Login
           </button>
         </form>
 
@@ -107,3 +107,4 @@ const Login = () => {
 };
 
 export default Login;
+
