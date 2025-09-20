@@ -1,10 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { Helmet } from "react-helmet-async";
 import stations from "../data/stations.json";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
+
+// ✅ Ticket Card Component (Memoized)
+const TicketCard = memo(({ ticket, handlePayment, unlocking }) => (
+  <div className="bg-white shadow-md rounded p-4 border hover:shadow-xl transition">
+    <h3 className="font-semibold text-lg sm:text-xl text-blue-600">
+      {ticket.trainName} ({ticket.trainNumber})
+    </h3>
+    <p className="text-sm sm:text-base"><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
+    <p className="text-sm sm:text-base">
+      <strong>Departure:</strong>{" "}
+      {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString() : "N/A"}
+    </p>
+    <p className="text-sm sm:text-base">
+      <strong>Arrival:</strong>{" "}
+      {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString() : "N/A"}
+    </p>
+    <p className="text-sm sm:text-base"><strong>Tickets:</strong> {ticket.ticketCount}</p>
+    <p className="text-sm sm:text-base"><strong>Class:</strong> {ticket.seatType}</p>
+    <p className="text-sm sm:text-base">
+      <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})
+    </p>
+
+    <p className="mt-2">
+      {ticket.contactVisible ? (
+        <span className="text-green-600 font-semibold">
+          Contact: {ticket.contactNumber}
+        </span>
+      ) : (
+        <button
+          onClick={() => handlePayment(ticket._id)}
+          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm sm:text-base w-full sm:w-auto"
+          disabled={unlocking}
+        >
+          {unlocking ? "Processing Payment..." : "Pay ₹20 to Unlock Contact"}
+        </button>
+      )}
+    </p>
+  </div>
+));
 
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
@@ -13,32 +52,43 @@ const FindTicket = () => {
   const [toFilter, setToFilter] = useState("");
   const [dateTimeFilter, setDateTimeFilter] = useState("");
   const [unlocking, setUnlocking] = useState(false);
+  const [searchParams, setSearchParams] = useState({ from: "", to: "", fromDateTime: "" });
 
-  const [searchParams, setSearchParams] = useState({
-    from: "",
-    to: "",
-    fromDateTime: "",
-  });
+  const [page, setPage] = useState(1);
+  const [totalTickets, setTotalTickets] = useState(0);
+  const limit = 6;
 
-  const [visibleCount, setVisibleCount] = useState(6);
-
+  // ✅ Fetch tickets from backend (paginated)
   useEffect(() => {
-    const fetchTickets = async () => {
+    const fetchTickets = async (page = 1, limit = 6) => {
       try {
-        const res = await fetch(`${API_BASE}/tickets`);
+        const res = await fetch(`${API_BASE}/tickets?page=${page}&limit=${limit}`);
         if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
-        setTickets(data || []);
-        setFilteredTickets(data || []);
+
+        if(page === 1) {
+          setTickets(data.tickets || []);
+          setFilteredTickets(data.tickets || []);
+        } else {
+          setTickets((prev) => [...prev, ...(data.tickets || [])]);
+          setFilteredTickets((prev) => [...prev, ...(data.tickets || [])]);
+        }
+
+        setTotalTickets(data.total || 0);
+
       } catch (err) {
         console.error("Error fetching tickets:", err);
-        setTickets([]);
-        setFilteredTickets([]);
+        if(page === 1) {
+          setTickets([]);
+          setFilteredTickets([]);
+        }
       }
     };
-    fetchTickets();
-  }, []);
 
+    fetchTickets(page, limit);
+  }, [page]);
+
+  // ✅ Filters
   useEffect(() => {
     const filtered = tickets.filter((ticket) => {
       const from = ticket.from?.toLowerCase() || "";
@@ -61,15 +111,10 @@ const FindTicket = () => {
     });
 
     setFilteredTickets(filtered);
-    setVisibleCount(6);
   }, [searchParams, tickets]);
 
   const handleSearch = () => {
-    setSearchParams({
-      from: fromFilter,
-      to: toFilter,
-      fromDateTime: dateTimeFilter,
-    });
+    setSearchParams({ from: fromFilter, to: toFilter, fromDateTime: dateTimeFilter });
   };
 
   const handlePayment = async (ticketId) => {
@@ -100,10 +145,7 @@ const FindTicket = () => {
             const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...response,
-                ticketId,
-              }),
+              body: JSON.stringify({ ...response, ticketId }),
             });
 
             const result = await verifyRes.json();
@@ -113,12 +155,6 @@ const FindTicket = () => {
                   t._id === ticketId ? { ...t, contactVisible: true } : t
                 )
               );
-              setFilteredTickets((prev) =>
-                prev.map((t) =>
-                  t._id === ticketId ? { ...t, contactVisible: true } : t
-                )
-              );
-              alert("Contact unlocked successfully!");
             } else {
               alert(result.message || "Payment verification failed!");
             }
@@ -129,11 +165,7 @@ const FindTicket = () => {
             setUnlocking(false);
           }
         },
-        prefill: {
-          name: "Demo User",
-          email: "demo@example.com",
-          contact: "9999999999",
-        },
+        prefill: { name: "Demo User", email: "demo@example.com", contact: "9999999999" },
         theme: { color: "#3399cc" },
       };
 
@@ -155,48 +187,44 @@ const FindTicket = () => {
         <title>Find Train Tickets | MyYatraExchange</title>
       </Helmet>
 
-      <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
+      <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-blue-600">
         Find Your Ticket
       </h2>
 
       {/* Filters */}
-      <div className="grid gap-4 md:grid-cols-4 mb-6">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 mb-6">
         <input
           list="fromStationsList"
           placeholder="From"
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
           value={fromFilter}
           onChange={(e) => setFromFilter(e.target.value)}
         />
         <datalist id="fromStationsList">
-          {fromStations.map((station) => (
-            <option key={station} value={station} />
-          ))}
+          {fromStations.map((station) => <option key={station} value={station} />)}
         </datalist>
 
         <input
           list="toStationsList"
           placeholder="To"
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
         />
         <datalist id="toStationsList">
-          {toStations.map((station) => (
-            <option key={station} value={station} />
-          ))}
+          {toStations.map((station) => <option key={station} value={station} />)}
         </datalist>
 
         <input
           type="datetime-local"
           value={dateTimeFilter}
           onChange={(e) => setDateTimeFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
 
         <button
           onClick={handleSearch}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full sm:w-auto"
         >
           Search
         </button>
@@ -204,70 +232,26 @@ const FindTicket = () => {
 
       {/* Tickets List */}
       {filteredTickets.length === 0 ? (
-        <p className="text-center text-red-600 font-medium">
-          No matching tickets found
-        </p>
+        <p className="text-center text-red-600 font-medium">No matching tickets found</p>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredTickets.slice(0, visibleCount).map((ticket) => (
-              <div
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {filteredTickets.map((ticket) => (
+              <TicketCard
                 key={ticket._id}
-                className="bg-white shadow-md rounded p-4 border hover:shadow-xl transition"
-              >
-                <h3 className="font-semibold text-lg text-blue-600">
-                  {ticket.trainName} ({ticket.trainNumber})
-                </h3>
-                <p>
-                  <strong>From → To:</strong> {ticket.from} → {ticket.to}
-                </p>
-                <p>
-                  <strong>Departure:</strong>{" "}
-                  {ticket.fromDateTime
-                    ? new Date(ticket.fromDateTime).toLocaleString()
-                    : "N/A"}
-                </p>
-                <p>
-                  <strong>Arrival:</strong>{" "}
-                  {ticket.toDateTime
-                    ? new Date(ticket.toDateTime).toLocaleString()
-                    : "N/A"}
-                </p>
-                <p>
-                  <strong>Tickets:</strong> {ticket.ticketCount}
-                </p>
-                <p>
-                  <strong>Class:</strong> {ticket.seatType}</p>
-                <p>
-                  <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
-                  {ticket.age})
-                </p>
-
-                <p>
-                  {ticket.contactVisible ? (
-                    <span className="text-green-600 font-semibold">
-                      Contact: {ticket.contactNumber}
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => handlePayment(ticket._id)}
-                      className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
-                      disabled={unlocking}
-                    >
-                      {unlocking ? "Processing Payment..." : "Pay ₹20 to Unlock Contact"}
-                    </button>
-                  )}
-                </p>
-              </div>
+                ticket={ticket}
+                handlePayment={handlePayment}
+                unlocking={unlocking}
+              />
             ))}
           </div>
 
           {/* Load More Button */}
-          {visibleCount < filteredTickets.length && (
+          {tickets.length < totalTickets && (
             <div className="text-center mt-6">
               <button
-                onClick={() => setVisibleCount((prev) => prev + 6)}
-                className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+                onClick={() => setPage((prev) => prev + 1)}
+                className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-800 transition w-full sm:w-auto"
               >
                 Load More
               </button>
