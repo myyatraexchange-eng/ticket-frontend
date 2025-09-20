@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Loader from "./components/Loader"; // ✅ Corrected path
+import Loader from "./components/Loader"; // ✅ Correct path
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -20,16 +20,12 @@ import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 
-// 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
-// 🔹 Layout with route loader
 function Layout() {
   const location = useLocation();
   const [routeLoading, setRouteLoading] = useState(false);
@@ -37,7 +33,7 @@ function Layout() {
 
   useEffect(() => {
     setRouteLoading(true);
-    const timer = setTimeout(() => setRouteLoading(false), 800); // small delay for UX
+    const timer = setTimeout(() => setRouteLoading(false), 800);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
@@ -51,8 +47,6 @@ function Layout() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-
-          {/* ✅ Protected routes */}
           <Route
             path="/find"
             element={
@@ -85,8 +79,6 @@ function Layout() {
               </PrivateRoute>
             }
           />
-
-          {/* Public routes */}
           <Route path="/contact" element={<Contact />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -105,12 +97,9 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Force HTTPS
     if (window.location.protocol !== "https:") {
       window.location.href = window.location.href.replace("http:", "https:");
     }
-
-    // Initial splash loader
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
