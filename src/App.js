@@ -26,25 +26,34 @@ function ScrollToTop() {
   return null;
 }
 
-function Layout() {
-  const location = useLocation();
+function App() {
+  const [loading, setLoading] = useState(true);
   const [routeLoading, setRouteLoading] = useState(false);
-  const isHome = location.pathname === "/";
+  const location = useLocation();
 
+  // Initial splash loader
   useEffect(() => {
-    setRouteLoading(true);
-    const timer = setTimeout(() => setRouteLoading(false), 800);
+    const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, []);
 
-  // Single loader for route changes
+  // Route change loader
+  useEffect(() => {
+    if (!loading) {
+      setRouteLoading(true);
+      const timer = setTimeout(() => setRouteLoading(false), 800); // route loading duration
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname, loading]);
+
+  if (loading) return <Loader message="Please wait..." />;
   if (routeLoading) return <Loader message="Loading page..." />;
 
   return (
     <>
       <Navbar />
       <ScrollToTop />
-      <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
+      <main className="min-h-screen px-4 md:px-8 py-6">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -64,24 +73,6 @@ function Layout() {
       <Footer />
     </>
   );
-}
-
-function App() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (window.location.protocol !== "https:") {
-      window.location.href = window.location.href.replace("http:", "https:");
-    }
-
-    const timer = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Single splash loader
-  if (loading) return <Loader message="Please wait..." />;
-
-  return <Layout />;
 }
 
 export default App;
