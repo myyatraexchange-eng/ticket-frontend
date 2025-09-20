@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import Loader from "../components/Loader"; 
 import stations from "../data/stations.json";
 
 const API_BASE =
@@ -13,7 +12,6 @@ const FindTicket = () => {
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateTimeFilter, setDateTimeFilter] = useState("");
-  const [loading, setLoading] = useState(true);
   const [unlocking, setUnlocking] = useState(false);
 
   const [searchParams, setSearchParams] = useState({
@@ -22,13 +20,11 @@ const FindTicket = () => {
     fromDateTime: "",
   });
 
-  // ✅ Pagination state
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        setLoading(true);
         const res = await fetch(`${API_BASE}/tickets`);
         if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
@@ -38,8 +34,6 @@ const FindTicket = () => {
         console.error("Error fetching tickets:", err);
         setTickets([]);
         setFilteredTickets([]);
-      } finally {
-        setLoading(false);
       }
     };
     fetchTickets();
@@ -50,7 +44,7 @@ const FindTicket = () => {
       const from = ticket.from?.toLowerCase() || "";
       const to = ticket.to?.toLowerCase() || "";
       const ticketDateTime = ticket.fromDateTime
-        ? new Date(ticket.fromDateTime).toISOString().slice(0, 16) // yyyy-MM-ddTHH:mm
+        ? new Date(ticket.fromDateTime).toISOString().slice(0, 16)
         : "";
 
       const matchesFrom = searchParams.from
@@ -67,7 +61,7 @@ const FindTicket = () => {
     });
 
     setFilteredTickets(filtered);
-    setVisibleCount(6); // ✅ Reset pagination when filters change
+    setVisibleCount(6);
   }, [searchParams, tickets]);
 
   const handleSearch = () => {
@@ -193,7 +187,6 @@ const FindTicket = () => {
           ))}
         </datalist>
 
-        {/* ✅ Calendar + Watch (date + time + AM/PM) */}
         <input
           type="datetime-local"
           value={dateTimeFilter}
@@ -210,9 +203,7 @@ const FindTicket = () => {
       </div>
 
       {/* Tickets List */}
-      {loading ? (
-        <Loader message="Fetching tickets..." />
-      ) : filteredTickets.length === 0 ? (
+      {filteredTickets.length === 0 ? (
         <p className="text-center text-red-600 font-medium">
           No matching tickets found
         </p>
@@ -246,8 +237,7 @@ const FindTicket = () => {
                   <strong>Tickets:</strong> {ticket.ticketCount}
                 </p>
                 <p>
-                  <strong>Class:</strong> {ticket.seatType}
-                </p>
+                  <strong>Class:</strong> {ticket.seatType}</p>
                 <p>
                   <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender},{" "}
                   {ticket.age})
@@ -258,14 +248,13 @@ const FindTicket = () => {
                     <span className="text-green-600 font-semibold">
                       Contact: {ticket.contactNumber}
                     </span>
-                  ) : unlocking ? (
-                    <Loader message="Unlocking contact..." />
                   ) : (
                     <button
                       onClick={() => handlePayment(ticket._id)}
                       className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                      disabled={unlocking}
                     >
-                      Pay ₹20 to Unlock Contact
+                      {unlocking ? "Processing Payment..." : "Pay ₹20 to Unlock Contact"}
                     </button>
                   )}
                 </p>
