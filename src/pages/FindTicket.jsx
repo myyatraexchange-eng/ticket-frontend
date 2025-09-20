@@ -1,6 +1,7 @@
 import React, { useEffect, useState, memo } from "react";
 import { Helmet } from "react-helmet-async";
 import stations from "../data/stations.json";
+import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
@@ -37,6 +38,8 @@ const TicketCard = memo(({ ticket, handlePayment, unlocking }) => (
           onClick={() => handlePayment(ticket._id)}
           className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm sm:text-base w-full sm:w-auto"
           disabled={unlocking}
+          aria-busy={unlocking}
+          aria-disabled={unlocking}
         >
           {unlocking ? "Processing Payment..." : "Pay ₹20 to Unlock Contact"}
         </button>
@@ -46,21 +49,24 @@ const TicketCard = memo(({ ticket, handlePayment, unlocking }) => (
 ));
 
 const FindTicket = () => {
+  const { showLoader, hideLoader } = useLoader(); // ✅ Loader
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateTimeFilter, setDateTimeFilter] = useState("");
   const [unlocking, setUnlocking] = useState(false);
+  const [error, setError] = useState("");
   const [searchParams, setSearchParams] = useState({ from: "", to: "", fromDateTime: "" });
-
   const [page, setPage] = useState(1);
   const [totalTickets, setTotalTickets] = useState(0);
   const limit = 6;
 
-  // ✅ Fetch tickets from backend (paginated)
+  // ✅ Fetch tickets from backend
   useEffect(() => {
     const fetchTickets = async (page = 1, limit = 6) => {
+      setError("");
+      showLoader();
       try {
         const res = await fetch(`${API_BASE}/tickets?page=${page}&limit=${limit}`);
         if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
@@ -78,10 +84,13 @@ const FindTicket = () => {
 
       } catch (err) {
         console.error("Error fetching tickets:", err);
+        setError(err.message || "Error fetching tickets");
         if(page === 1) {
           setTickets([]);
           setFilteredTickets([]);
         }
+      } finally {
+        hideLoader();
       }
     };
 
@@ -118,8 +127,10 @@ const FindTicket = () => {
   };
 
   const handlePayment = async (ticketId) => {
+    setError("");
+    setUnlocking(true);
+    showLoader();
     try {
-      setUnlocking(true);
       const res = await fetch(`${API_BASE}/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -128,8 +139,7 @@ const FindTicket = () => {
 
       const order = await res.json();
       if (!order || !order.id) {
-        alert("Order creation failed!");
-        setUnlocking(false);
+        setError("Order creation failed!");
         return;
       }
 
@@ -156,13 +166,11 @@ const FindTicket = () => {
                 )
               );
             } else {
-              alert(result.message || "Payment verification failed!");
+              setError(result.message || "Payment verification failed!");
             }
           } catch (err) {
             console.error("Verify Error:", err);
-            alert("Error verifying payment!");
-          } finally {
-            setUnlocking(false);
+            setError("Error verifying payment!");
           }
         },
         prefill: { name: "Demo User", email: "demo@example.com", contact: "9999999999" },
@@ -173,8 +181,10 @@ const FindTicket = () => {
       rzp.open();
     } catch (err) {
       console.error("Payment Error:", err);
-      alert("Something went wrong during payment.");
+      setError("Something went wrong during payment.");
+    } finally {
       setUnlocking(false);
+      hideLoader();
     }
   };
 
@@ -229,6 +239,9 @@ const FindTicket = () => {
           Search
         </button>
       </div>
+
+      {/* Error Message */}
+      {error && <p className="text-center text-red-600 font-medium mb-4">{error}</p>}
 
       {/* Tickets List */}
       {filteredTickets.length === 0 ? (

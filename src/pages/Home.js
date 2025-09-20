@@ -2,6 +2,7 @@ import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import trainImage from "../assets/train.webp";
+import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
@@ -34,12 +35,12 @@ const TicketCard = memo(({ ticket }) => (
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { showLoader, hideLoader } = useLoader(); // ✅ Loader
 
   useEffect(() => {
     const fetchTickets = async () => {
+      showLoader();
       try {
-        setLoading(true);
         const res = await fetch(`${API_BASE}/tickets?page=1&limit=6`);
         if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
@@ -48,7 +49,7 @@ const Home = () => {
         console.error("Error fetching tickets:", err);
         setTickets([]);
       } finally {
-        setLoading(false);
+        hideLoader();
       }
     };
     fetchTickets();
@@ -61,17 +62,6 @@ const Home = () => {
         <title>MyYatraExchange - Exchange & Find Confirmed Train Tickets</title>
         <meta name="description" content="MyYatraExchange helps travelers connect to exchange or find confirmed train tickets and save cancellation charges. A simple and secure ticket exchange platform." />
         <meta name="keywords" content="train ticket exchange, confirmed train ticket, save cancellation charges, railway ticket, indian railways ticket exchange" />
-        <meta name="author" content="MyYatraExchange" />
-        <link rel="canonical" href="https://www.myyatraexchange.com/" />
-        <meta property="og:title" content="MyYatraExchange - Confirmed Train Ticket Exchange" />
-        <meta property="og:description" content="Save cancellation charges and connect with people who need confirmed train tickets easily." />
-        <meta property="og:image" content="https://www.myyatraexchange.com/logo.png" />
-        <meta property="og:url" content="https://www.myyatraexchange.com/" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="MyYatraExchange - Train Ticket Exchange" />
-        <meta name="twitter:description" content="Find and exchange confirmed train tickets securely at MyYatraExchange." />
-        <meta name="twitter:image" content="https://www.myyatraexchange.com/logo.png" />
       </Helmet>
 
       {/* Hero Section */}
@@ -106,14 +96,7 @@ const Home = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-blue-600">Recent Tickets</h2>
 
-        {loading ? (
-          // Skeleton Loader
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-200 animate-pulse h-40 rounded"></div>
-            ))}
-          </div>
-        ) : tickets.length === 0 ? (
+        {tickets.length === 0 ? (
           <p className="text-center text-red-600 font-medium">No tickets available</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
