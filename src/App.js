@@ -1,10 +1,9 @@
 // App.js
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Loader from "./components/Loader"; // ✅ आपका blue spinner loader
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -24,34 +23,13 @@ import PrivateRoute from "./routes/PrivateRoute.jsx";
 // 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
 function App() {
-  const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const [routeLoading, setRouteLoading] = useState(false);
   const isHome = location.pathname === "/";
-
-  // 🔹 Initial splash loader (Please wait...)
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // 🔹 Loader on route changes
-  useEffect(() => {
-    setRouteLoading(true);
-    const timer = setTimeout(() => setRouteLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
-
-  // 🔹 Show initial loader
-  if (loading) return <Loader message="Please wait..." />;
-
-  // 🔹 Show loader during route change
-  if (routeLoading) return <Loader message="Loading page..." />;
 
   return (
     <>
