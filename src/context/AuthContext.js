@@ -1,44 +1,63 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useLoader } from "./LoaderContext";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const { showLoader, hideLoader } = useLoader();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
 
-  // ✅ Check token from localStorage on load
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-
-    if (storedToken) setToken(storedToken);
-    if (storedUser) setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user")) || null;
+      const storedToken = localStorage.getItem("token") || null;
+      setUser(storedUser);
+      setToken(storedToken);
+    } catch {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    }
   }, []);
 
-  // ✅ Login -> save token + user
-  const login = (token, user) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setToken(token);
-    setUser(user);
+  const login = (jwtToken, userData) => {
+    setToken(jwtToken);
+    setUser(userData || null);
+    localStorage.setItem("token", jwtToken);
+    if (userData) localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  // ✅ Logout -> clear everything
   const logout = () => {
+    setUser(null);
+    setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
+  };
+
+  const fetchUser = async () => {
+    if (!token) return;
+    showLoader();
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch user");
+      const data = await res.json();
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
+    } catch {
+      logout();
+    } finally {
+      hideLoader();
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, fetchUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
