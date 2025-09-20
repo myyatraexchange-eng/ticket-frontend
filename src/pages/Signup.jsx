@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -8,12 +9,12 @@ const API_BASE =
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // ✅ show/hide password
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showLoader, hideLoader } = useLoader();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,9 +22,9 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccess("");
+    showLoader();
 
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
@@ -32,19 +33,24 @@ const Signup = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Invalid server response");
+      }
 
       if (!res.ok) throw new Error(data.message || "Signup failed");
 
       if (data.token) {
-        login(data.token);
+        login(data.token, data.user || null);
         setSuccess("Signup successful! 🎉 Redirecting...");
         setTimeout(() => navigate("/profile"), 1200);
       }
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      hideLoader();
     }
   };
 
@@ -84,7 +90,7 @@ const Signup = () => {
           <div className="relative">
             <label className="block mb-1 font-medium text-sm">Password</label>
             <input
-              type={showPassword ? "text" : "password"} // ✅ toggle type
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
@@ -101,10 +107,9 @@ const Signup = () => {
           </div>
           <button
             type="submit"
-            disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
           >
-            {loading ? "Signing Up..." : "Sign Up"}
+            {success ? "Redirecting..." : "Sign Up"}
           </button>
         </form>
       </div>

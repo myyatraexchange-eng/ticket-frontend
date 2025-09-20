@@ -12,7 +12,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { showLoader, hideLoader } = useLoader(); // ✅ use loader
+  const { showLoader, hideLoader } = useLoader();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,7 +21,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    showLoader(); // show global loader
+    showLoader();
 
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -30,20 +30,25 @@ const Login = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Login failed");
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Invalid server response");
       }
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
       if (data.token && data.user) {
-        login(data.token, data.user);
+        login(data.token, data.user); // ✅ AuthContext update
         navigate("/profile");
       }
     } catch (err) {
       setError(err.message);
     } finally {
-      hideLoader(); // hide global loader
+      hideLoader();
     }
   };
 
