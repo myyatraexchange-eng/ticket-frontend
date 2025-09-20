@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Loader from "./component/Loader"; // ✅ Corrected path
+import Loader from "./components/Loader"; // ✅ Corrected path
 
 import Home from "./pages/Home";
 import About from "./pages/About";
