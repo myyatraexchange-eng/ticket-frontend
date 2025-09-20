@@ -1,9 +1,10 @@
+// App.js
 import React, { useEffect, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Loader from "./components/Loader";
+import Loader from "./components/Loader"; // ✅ आपका blue spinner loader
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -20,6 +21,7 @@ import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 
+// 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => window.scrollTo(0, 0), [pathname]);
@@ -28,32 +30,34 @@ function ScrollToTop() {
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const [routeLoading, setRouteLoading] = useState(false);
   const location = useLocation();
+  const [routeLoading, setRouteLoading] = useState(false);
+  const isHome = location.pathname === "/";
 
-  // Initial splash loader
+  // 🔹 Initial splash loader (Please wait...)
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Route change loader
+  // 🔹 Loader on route changes
   useEffect(() => {
-    if (!loading) {
-      setRouteLoading(true);
-      const timer = setTimeout(() => setRouteLoading(false), 800); // route loading duration
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, loading]);
+    setRouteLoading(true);
+    const timer = setTimeout(() => setRouteLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
+  // 🔹 Show initial loader
   if (loading) return <Loader message="Please wait..." />;
+
+  // 🔹 Show loader during route change
   if (routeLoading) return <Loader message="Loading page..." />;
 
   return (
     <>
       <Navbar />
       <ScrollToTop />
-      <main className="min-h-screen px-4 md:px-8 py-6">
+      <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

@@ -4,16 +4,26 @@ import React from "react";
 const Loader = ({ message = "Please wait..." }) => {
   return (
     <div className="fixed inset-0 bg-blue-600 flex flex-col items-center justify-center z-50">
-      {/* Spinner */}
-      <div
-        className="w-16 h-16 mb-4 border-4 border-t-white border-white rounded-full animate-spin"
-        style={{ borderStyle: "solid" }}
-      ></div>
+      {/* Gradient Circular Spinner */}
+      <div className="relative w-24 h-24 mb-6">
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-white border-b-white animate-spin"></div>
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-l-white border-r-white animate-spin reverse"></div>
+      </div>
 
       {/* Message */}
-      <p className="text-white text-lg font-semibold text-center">{message}</p>
+      <p className="text-white text-xl font-semibold text-center">{message}</p>
+
+      {/* Extra inline style for reverse spin */}
+      <style>
+        {`
+          .reverse {
+            animation-direction: reverse;
+          }
+        `}
+      </style>
     </div>
   );
 };
 
 export default Loader;
+

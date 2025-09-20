@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- 🔑 Title -->
     <title>MyYatraExchange - Confirmed Train Ticket Exchange</title>
@@ -69,100 +66,12 @@
     <!-- 🚀 Security Best Practices -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Cache-Control" content="max-age=31536000, must-revalidate" />
-
-    <!-- 🎨 Splash + Loader CSS -->
-    <style>
-      #splash {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #2563eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        z-index: 9999;
-        color: white;
-        font-family: Arial, sans-serif;
-      }
-      #splash img {
-        width: 100px;
-        margin-bottom: 20px;
-      }
-      #splash h1 {
-        font-size: 24px;
-        font-weight: bold;
-      }
-      #splash.fade-out {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
-      }
-
-      /* Loader Icon */
-      #loader-icon {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 20px;
-      }
-
-      .rotate {
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
-    <!-- 🔹 Splash Screen -->
-    <div id="splash">
-      <img src="/logo.png" alt="MyYatraExchange Logo" />
-      <div id="loader-icon">
-        <svg
-          class="rotate"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="white"
-            stroke-width="4"
-            class="opacity-25"
-          ></circle>
-          <path
-            fill="white"
-            d="M4 12a8 8 0 018-8v8H4z"
-            class="opacity-75"
-          ></path>
-        </svg>
-        <span>Loading MyYatraExchange...</span>
-      </div>
-    </div>
-
     <!-- 🔹 React Root -->
     <div id="root"></div>
-
-    <!-- 🎬 Hide Splash after React loads -->
-    <script>
-      window.addEventListener("load", () => {
-        const splash = document.getElementById("splash");
-        if (splash) splash.classList.add("fade-out");
-      });
-    </script>
   </body>
 </html>
 
