@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Loader from "./Loader"; // ✅ Loader import
+import Loader from "./Loader"; // ✅ Logo wala loader
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -29,7 +29,6 @@ function ScrollToTop() {
   return null;
 }
 
-// 🔹 Layout with route loader
 function Layout() {
   const location = useLocation();
   const [routeLoading, setRouteLoading] = useState(false);
@@ -37,11 +36,15 @@ function Layout() {
 
   useEffect(() => {
     setRouteLoading(true);
-    const timer = setTimeout(() => setRouteLoading(false), 800); // small delay for UX
+
+    // simulate page fetch delay
+    const timer = setTimeout(() => setRouteLoading(false), 1000);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  if (routeLoading) return <Loader message="Loading page..." />;
+  if (routeLoading) {
+    return <Loader message="Loading page..." />;
+  }
 
   return (
     <>
@@ -101,24 +104,5 @@ function Layout() {
   );
 }
 
-function App() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Force HTTPS
-    if (window.location.protocol !== "https:") {
-      window.location.href = window.location.href.replace("http:", "https:");
-    }
-
-    // Initial splash loader
-    const timer = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) return <Loader message="Please wait..." />;
-
-  return <Layout />;
-}
-
-export default App;
+export default Layout;
 
