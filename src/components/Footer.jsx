@@ -33,13 +33,12 @@ const Footer = () => {
             <li><Link to="/disclaimer" className="hover:underline">Disclaimer</Link></li>
             <li><Link to="/terms" className="hover:underline">Terms of Use</Link></li>
             <li><Link to="/refund-policy" className="hover:underline">Refund Policy</Link></li>
-            <li><Link to="/shipping-policy" className="hover:underline">Shipping Policy</Link></li>
           </ul>
           
           <div className="mt-4">
             <h2 className="font-bold text-lg mb-1">Contact</h2>
-            <p className="text-sm">Email: myyatraexchange@gmail.com.com</p>
-            <p className="text-sm">Location: India</p>
+            <p className="text-sm">Email: myyatraexchange@gmail.com</p>
+            <p className="text-sm">Location: khargone(mp),India</p>
           </div>
         </div>
       </div>

@@ -129,15 +129,6 @@ const Navbar = () => {
                 >
                   Refund Policy
                 </NavLink>
-                <NavLink
-                  to="/shipping-policy"
-                  onClick={handleLinkClick}
-                  className={({ isActive }) =>
-                    `block px-4 py-2 hover:bg-gray-100 ${isActive ? "font-bold text-blue-600" : ""}`
-                  }
-                >
-                  Shipping Policy
-                </NavLink>
               </div>
             )}
           </div>

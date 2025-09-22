@@ -13,7 +13,6 @@ import Privacy from "./pages/PrivacyPolicy";
 import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
 import RefundPolicy from "./pages/RefundPolicy";
-import ShippingPolicy from "./pages/ShippingPolicy";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
@@ -66,7 +65,6 @@ function AppContent() {
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
