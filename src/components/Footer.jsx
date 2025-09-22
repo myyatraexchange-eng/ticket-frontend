@@ -29,9 +29,11 @@ const Footer = () => {
           <h2 className="font-bold text-lg mb-2">Legal</h2>
           <ul className="space-y-1">
             <li><Link to="/policy" className="hover:underline">Policy</Link></li>
-            <li><Link to="/privacy" className="hover:underline">Privacy Policy</Link></li>
+            <li><Link to="/privacy" className="hover:underline">PrivacyPolicy</Link></li> {/* ✅ Corrected */}
             <li><Link to="/disclaimer" className="hover:underline">Disclaimer</Link></li>
             <li><Link to="/terms" className="hover:underline">Terms of Use</Link></li>
+            <li><Link to="/refund-policy" className="hover:underline">Refund Policy</Link></li>
+            <li><Link to="/shipping-policy" className="hover:underline">Shipping Policy</Link></li>
           </ul>
           
           <div className="mt-4">
@@ -63,3 +65,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

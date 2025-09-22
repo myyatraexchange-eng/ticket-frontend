@@ -9,9 +9,11 @@ import FindTicket from "./pages/FindTicket";
 import Post from "./pages/Post";
 import Contact from "./pages/Contact";
 import Policy from "./pages/Policy";
-import Privacy from "./pages/Privacy";
+import Privacy from "./pages/PrivacyPolicy";
 import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
+import RefundPolicy from "./pages/RefundPolicy.jsx"; 
+import ShippingPolicy from "./pages/ShippingPolicy.jsx"; // 👈 Import ShippingPolicy
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
@@ -60,9 +62,11 @@ function AppContent() {
           <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/policy" element={<Policy />} />
-          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/PrivacyPolicy" element={<Privacy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} /> {/* RefundPolicy Route */}
+          <Route path="/shipping-policy" element={<ShippingPolicy />} /> {/* 👈 ShippingPolicy Route */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
