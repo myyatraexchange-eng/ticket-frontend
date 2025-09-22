@@ -12,13 +12,13 @@ import Policy from "./pages/Policy";
 import Privacy from "./pages/PrivacyPolicy";
 import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
-import RefundPolicy from "./pages/RefundPolicy.jsx"; 
-import ShippingPolicy from "./pages/ShippingPolicy.jsx"; // 👈 Import ShippingPolicy
+import RefundPolicy from "./pages/RefundPolicy";
+import ShippingPolicy from "./pages/ShippingPolicy";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
-import PrivateRoute from "./routes/PrivateRoute.jsx";
+import PrivateRoute from "./routes/PrivateRoute";
 
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
 
@@ -62,11 +62,11 @@ function AppContent() {
           <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/policy" element={<Policy />} />
-          <Route path="/PrivacyPolicy" element={<Privacy />} />
+          <Route path="/privacy-policy" element={<Privacy />} /> {/* ✅ lowercase URL */}
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} /> {/* RefundPolicy Route */}
-          <Route path="/shipping-policy" element={<ShippingPolicy />} /> {/* 👈 ShippingPolicy Route */}
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>

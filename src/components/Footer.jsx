@@ -29,7 +29,7 @@ const Footer = () => {
           <h2 className="font-bold text-lg mb-2">Legal</h2>
           <ul className="space-y-1">
             <li><Link to="/policy" className="hover:underline">Policy</Link></li>
-            <li><Link to="/privacy" className="hover:underline">PrivacyPolicy</Link></li> {/* ✅ Corrected */}
+            <li><Link to="/privacy-policy" className="hover:underline">Privacy Policy</Link></li>
             <li><Link to="/disclaimer" className="hover:underline">Disclaimer</Link></li>
             <li><Link to="/terms" className="hover:underline">Terms of Use</Link></li>
             <li><Link to="/refund-policy" className="hover:underline">Refund Policy</Link></li>
@@ -45,10 +45,10 @@ const Footer = () => {
       </div>
 
       {/* Copyright */}
-      <div className="text-center mt-4 text-sm text-gray-300">
+      <div className="text-center mt-4 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1">
         © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. | 
-        <span className="ml-1 font-bold text-yellow-400 hover:text-yellow-300 transition duration-300">
-          Rohit Akodiya
+        <span className="font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300">
+          Developer
         </span>
       </div>
 
