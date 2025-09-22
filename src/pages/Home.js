@@ -8,7 +8,7 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// ✅ Ticket Card Component (Home version)
+// ✅ Ticket Card Component (Home version, no payment button)
 const TicketCard = memo(({ ticket }) => (
   <div className="bg-white shadow-md rounded p-4 border hover:shadow-lg transition duration-200">
     <h3 className="font-semibold text-lg sm:text-xl text-blue-600">
@@ -35,7 +35,7 @@ const TicketCard = memo(({ ticket }) => (
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
-  const { showLoader, hideLoader } = useLoader();
+  const { showLoader, hideLoader } = useLoader(); // ✅ Loader
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -65,7 +65,7 @@ const Home = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div className="relative w-full overflow-hidden h-64 sm:h-80 md:h-[60vh]">
+      <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
         <img
           src={trainImage}
           alt="Train"
@@ -78,20 +78,14 @@ const Home = () => {
             <span className="text-white">Yatra</span>
             <span className="text-green-500">Exchange.com</span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl mb-6 max-w-xl px-2 sm:px-0">
+          <p className="text-base sm:text-lg md:text-xl mb-6 max-w-xl">
             Share Your Unused Train Ticket — Save Cancellation Charges! Connect with people who need a ticket.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link
-              to="/find"
-              className="w-full sm:w-auto bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition"
-            >
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition">
               Find Ticket
             </Link>
-            <Link
-              to="/post"
-              className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition"
-            >
+            <Link to="/post" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition">
               Post Ticket
             </Link>
           </div>
@@ -129,4 +123,3 @@ const Home = () => {
 };
 
 export default Home;
-
