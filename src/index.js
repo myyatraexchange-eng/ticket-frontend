@@ -4,22 +4,23 @@ import App from "./App";
 import "./index.css";
 
 // ✅ Context & Providers
-import { HelmetProvider } from "react-helmet-async";   // SEO Helmet
-import { BrowserRouter } from "react-router-dom";      // Router
-import { AuthProvider } from "./context/AuthContext";  // Auth Context
+import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { LoaderProvider } from "./context/LoaderContext"; // 👈 Import LoaderProvider
 
-// ✅ Create root
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
-// ✅ Render app with providers
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <HelmetProvider>
-          <App />
-        </HelmetProvider>
-      </AuthProvider>
+      <LoaderProvider>   {/* 👈 LoaderProvider add */}
+        <AuthProvider>
+          <HelmetProvider>
+            <App />
+          </HelmetProvider>
+        </AuthProvider>
+      </LoaderProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
