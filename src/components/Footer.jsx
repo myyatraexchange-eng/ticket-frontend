@@ -38,7 +38,7 @@ const Footer = () => {
           
           <div className="mt-4">
             <h2 className="font-bold text-lg mb-1">Contact</h2>
-            <p className="text-sm">Email: support@myyatraexchange.com</p>
+            <p className="text-sm">Email: myyatraexchange@gmail.com.com</p>
             <p className="text-sm">Location: India</p>
           </div>
         </div>
@@ -48,7 +48,7 @@ const Footer = () => {
       <div className="text-center mt-4 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1">
         © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. | 
         <span className="font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300">
-          Developer
+          Developer by Rohit Akodiya
         </span>
       </div>
 
