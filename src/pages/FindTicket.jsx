@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import stations from "../data/stations.json"; // agar aapke paas stations ka JSON hai
+import stations from "../data/stations.json";
 
 function FindTicket() {
   const [tickets, setTickets] = useState([]);
@@ -26,7 +26,6 @@ function FindTicket() {
 
       if (!res.ok) throw new Error(data.message || "Failed to fetch tickets");
 
-      // data.tickets me array hai, isko state me set karo
       setTickets(data.tickets || []);
       setFilteredTickets(data.tickets || []);
     } catch (err) {
@@ -37,28 +36,15 @@ function FindTicket() {
     }
   };
 
-  // Filter tickets whenever filters change
   useEffect(() => {
     let filtered = tickets;
 
-    if (fromFilter) {
-      filtered = filtered.filter(
-        (t) => t.from.toLowerCase() === fromFilter.toLowerCase()
+    if (fromFilter) filtered = filtered.filter(t => t.from.toLowerCase() === fromFilter.toLowerCase());
+    if (toFilter) filtered = filtered.filter(t => t.to.toLowerCase() === toFilter.toLowerCase());
+    if (dateFilter)
+      filtered = filtered.filter(t =>
+        t.fromDateTime ? new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter : false
       );
-    }
-    if (toFilter) {
-      filtered = filtered.filter(
-        (t) => t.to.toLowerCase() === toFilter.toLowerCase()
-      );
-    }
-    if (dateFilter) {
-      filtered = filtered.filter((t) => {
-        const ticketDate = t.fromDateTime
-          ? new Date(t.fromDateTime).toISOString().slice(0, 10)
-          : "";
-        return ticketDate === dateFilter;
-      });
-    }
 
     setFilteredTickets(filtered);
   }, [fromFilter, toFilter, dateFilter, tickets]);
@@ -101,8 +87,8 @@ function FindTicket() {
 
       if (data.ok) {
         alert("Payment proof submitted! Wait for admin verification.");
-        setTickets((prev) =>
-          prev.map((t) =>
+        setTickets(prev =>
+          prev.map(t =>
             t._id === selectedOrder.ticketId
               ? { ...t, contactUnlocked: false, proofSubmitted: true }
               : t
@@ -132,9 +118,7 @@ function FindTicket() {
           className="border p-2 rounded"
         />
         <datalist id="fromStations">
-          {stations.stations.map((s) => (
-            <option key={s} value={s} />
-          ))}
+          {stations.stations.map((s) => <option key={s} value={s} />)}
         </datalist>
 
         <input
@@ -145,9 +129,7 @@ function FindTicket() {
           className="border p-2 rounded"
         />
         <datalist id="toStations">
-          {stations.stations.map((s) => (
-            <option key={s} value={s} />
-          ))}
+          {stations.stations.map((s) => <option key={s} value={s} />)}
         </datalist>
 
         <input
@@ -156,37 +138,18 @@ function FindTicket() {
           onChange={(e) => setDateFilter(e.target.value)}
           className="border p-2 rounded"
         />
-
-        <button
-          onClick={() => {}}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Filter
-        </button>
       </div>
 
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid gap-4">
-        {filteredTickets.map((ticket) => (
-          <div
-            key={ticket._id}
-            className="border rounded p-4 flex flex-col gap-2"
-          >
-            <p>
-              <strong>{ticket.trainName}</strong> ({ticket.trainNumber})
-            </p>
-            <p>
-              From {ticket.from} → {ticket.to}
-            </p>
-            <p>
-              Departure:{" "}
-              {new Date(ticket.fromDateTime).toLocaleString()}
-            </p>
-            <p>
-              Arrival: {new Date(ticket.toDateTime).toLocaleString()}
-            </p>
+        {filteredTickets.map(ticket => (
+          <div key={ticket._id} className="border rounded p-4 flex flex-col gap-2">
+            <p><strong>{ticket.trainName}</strong> ({ticket.trainNumber})</p>
+            <p>From {ticket.from} → {ticket.to}</p>
+            <p>Departure: {new Date(ticket.fromDateTime).toLocaleString()}</p>
+            <p>Arrival: {new Date(ticket.toDateTime).toLocaleString()}</p>
             <p>Price: ₹{ticket.price}</p>
 
             {ticket.contactUnlocked ? (
@@ -208,7 +171,7 @@ function FindTicket() {
         ))}
       </div>
 
-      {/* UPI QR + proof form */}
+      {/* Payment Proof Form */}
       {selectedOrder && (
         <div className="mt-6 p-4 border rounded bg-gray-100">
           <h3 className="text-lg font-semibold mb-2">
@@ -219,49 +182,27 @@ function FindTicket() {
 
           <div className="mt-3">
             <p className="mb-1">Scan QR to Pay:</p>
-            <img
-              src={selectedOrder.qrUrl}
-              alt="UPI QR"
-              className="w-48 h-48 border"
-            />
+            <img src={selectedOrder.qrUrl} alt="UPI QR" className="w-48 h-48 border" />
             <p className="mt-2">
               Or click this link:{" "}
-              <a
-                href={selectedOrder.upiLink}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 underline"
-              >
+              <a href={selectedOrder.upiLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">
                 Pay via UPI App
               </a>
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubmitProof}
-            className="mt-4 flex flex-col gap-2"
-          >
+          <form onSubmit={handleSubmitProof} className="mt-4 flex flex-col gap-2">
             <input type="hidden" name="orderId" value={selectedOrder.orderId} />
             <input type="hidden" name="ticketId" value={selectedOrder.ticketId} />
 
             <label>
               UTR Number:
-              <input
-                type="text"
-                name="utr"
-                required
-                className="border p-2 w-full"
-              />
+              <input type="text" name="utr" required className="border p-2 w-full" />
             </label>
 
             <label>
               Sender VPA:
-              <input
-                type="text"
-                name="senderVpa"
-                placeholder="your@upi"
-                className="border p-2 w-full"
-              />
+              <input type="text" name="senderVpa" placeholder="your@upi" className="border p-2 w-full" />
             </label>
 
             <label>
@@ -269,10 +210,7 @@ function FindTicket() {
               <input type="file" name="file" accept="image/*" />
             </label>
 
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
+            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
               Submit Payment Proof
             </button>
           </form>
