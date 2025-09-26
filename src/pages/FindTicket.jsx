@@ -1,280 +1,202 @@
-import React, { useEffect, useState, memo } from "react";
-import { Helmet } from "react-helmet-async";
-import stations from "../data/stations.json";
-import { useLoader } from "../context/LoaderContext";
+import React, { useEffect, useState } from "react";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://ticket-backend-g5da.onrender.com/api";
-
-// ✅ Ticket Card Component (Memoized)
-const TicketCard = memo(({ ticket, handlePayment, unlocking }) => (
-  <div className="bg-white shadow-md rounded p-4 border hover:shadow-xl transition">
-    <h3 className="font-semibold text-lg sm:text-xl text-blue-600">
-      {ticket.trainName} ({ticket.trainNumber})
-    </h3>
-    <p className="text-sm sm:text-base"><strong>From → To:</strong> {ticket.from} → {ticket.to}</p>
-    <p className="text-sm sm:text-base">
-      <strong>Departure:</strong>{" "}
-      {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString() : "N/A"}
-    </p>
-    <p className="text-sm sm:text-base">
-      <strong>Arrival:</strong>{" "}
-      {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString() : "N/A"}
-    </p>
-    <p className="text-sm sm:text-base"><strong>Tickets:</strong> {ticket.ticketCount}</p>
-    <p className="text-sm sm:text-base"><strong>Class:</strong> {ticket.seatType}</p>
-    <p className="text-sm sm:text-base">
-      <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})
-    </p>
-
-    <p className="mt-2">
-      {ticket.contactVisible ? (
-        <span className="text-green-600 font-semibold">
-          Contact: {ticket.contactNumber}
-        </span>
-      ) : (
-        <button
-          onClick={() => handlePayment(ticket._id)}
-          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm sm:text-base w-full sm:w-auto"
-          disabled={unlocking}
-          aria-busy={unlocking}
-          aria-disabled={unlocking}
-        >
-          {unlocking ? "Processing Payment..." : "Pay ₹20 to Unlock Contact"}
-        </button>
-      )}
-    </p>
-  </div>
-));
-
-const FindTicket = () => {
-  const { showLoader, hideLoader } = useLoader(); // ✅ Loader
+function FindTicket() {
   const [tickets, setTickets] = useState([]);
-  const [filteredTickets, setFilteredTickets] = useState([]);
-  const [fromFilter, setFromFilter] = useState("");
-  const [toFilter, setToFilter] = useState("");
-  const [dateTimeFilter, setDateTimeFilter] = useState("");
-  const [unlocking, setUnlocking] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchParams, setSearchParams] = useState({ from: "", to: "", fromDateTime: "" });
-  const [page, setPage] = useState(1);
-  const [totalTickets, setTotalTickets] = useState(0);
-  const limit = 6;
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [unlocking, setUnlocking] = useState(false);
 
-  // ✅ Fetch tickets from backend
   useEffect(() => {
-    const fetchTickets = async (page = 1, limit = 6) => {
-      setError("");
-      showLoader();
-      try {
-        const res = await fetch(`${API_BASE}/tickets?page=${page}&limit=${limit}`);
-        if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
-        const data = await res.json();
+    fetchTickets();
+  }, []);
 
-        if(page === 1) {
-          setTickets(data.tickets || []);
-          setFilteredTickets(data.tickets || []);
-        } else {
-          setTickets((prev) => [...prev, ...(data.tickets || [])]);
-          setFilteredTickets((prev) => [...prev, ...(data.tickets || [])]);
-        }
-
-        setTotalTickets(data.total || 0);
-
-      } catch (err) {
-        console.error("Error fetching tickets:", err);
-        setError(err.message || "Error fetching tickets");
-        if(page === 1) {
-          setTickets([]);
-          setFilteredTickets([]);
-        }
-      } finally {
-        hideLoader();
-      }
-    };
-
-    fetchTickets(page, limit);
-  }, [page]);
-
-  // ✅ Filters
-  useEffect(() => {
-    const filtered = tickets.filter((ticket) => {
-      const from = ticket.from?.toLowerCase() || "";
-      const to = ticket.to?.toLowerCase() || "";
-      const ticketDateTime = ticket.fromDateTime
-        ? new Date(ticket.fromDateTime).toISOString().slice(0, 16)
-        : "";
-
-      const matchesFrom = searchParams.from
-        ? from === searchParams.from.toLowerCase()
-        : true;
-      const matchesTo = searchParams.to
-        ? to === searchParams.to.toLowerCase()
-        : true;
-      const matchesDateTime = searchParams.fromDateTime
-        ? ticketDateTime.startsWith(searchParams.fromDateTime)
-        : true;
-
-      return matchesFrom && matchesTo && matchesDateTime;
-    });
-
-    setFilteredTickets(filtered);
-  }, [searchParams, tickets]);
-
-  const handleSearch = () => {
-    setSearchParams({ from: fromFilter, to: toFilter, fromDateTime: dateTimeFilter });
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/tickets");
+      const data = await res.json();
+      setTickets(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load tickets");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePayment = async (ticketId) => {
+  // ✅ Create Order for UPI
+  const handlePayment = async (ticket) => {
     setError("");
     setUnlocking(true);
-    showLoader();
     try {
-      const res = await fetch(`${API_BASE}/payment/create-order`, {
+      const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: 20 }),
+        body: JSON.stringify({
+          buyerName: "Demo User", // TODO: Replace with logged-in user
+          amount: ticket.price,
+        }),
       });
 
       const order = await res.json();
-      if (!order || !order.id) {
+      if (!order || !order.orderId) {
         setError("Order creation failed!");
         return;
       }
 
-      const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        order_id: order.id,
-        name: "MyYatraExchange",
-        description: "Unlock Contact Number",
-        handler: async function (response) {
-          try {
-            const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ...response, ticketId }),
-            });
-
-            const result = await verifyRes.json();
-            if (verifyRes.ok) {
-              setTickets((prev) =>
-                prev.map((t) =>
-                  t._id === ticketId ? { ...t, contactVisible: true } : t
-                )
-              );
-            } else {
-              setError(result.message || "Payment verification failed!");
-            }
-          } catch (err) {
-            console.error("Verify Error:", err);
-            setError("Error verifying payment!");
-          }
-        },
-        prefill: { name: "Demo User", email: "demo@example.com", contact: "9999999999" },
-        theme: { color: "#3399cc" },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      // Show QR + link
+      setSelectedOrder({ ...order, ticketId: ticket._id });
     } catch (err) {
-      console.error("Payment Error:", err);
-      setError("Something went wrong during payment.");
+      console.error(err);
+      setError("Payment failed to start");
     } finally {
       setUnlocking(false);
-      hideLoader();
     }
   };
 
-  const fromStations = stations?.stations || [];
-  const toStations = stations?.stations || [];
+  // ✅ Submit payment proof
+  const handleSubmitProof = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    try {
+      const res = await fetch("/api/payment/submit-payment-proof", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        alert("Payment proof submitted! Wait for admin verification.");
+
+        // Optional: update ticket state to show that proof is submitted
+        setTickets((prev) =>
+          prev.map((t) =>
+            t._id === selectedOrder.ticketId
+              ? { ...t, contactUnlocked: false, proofSubmitted: true }
+              : t
+          )
+        );
+
+        setSelectedOrder(null);
+      } else {
+        alert(data.error || "Failed to submit proof");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting proof");
+    }
+  };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
-      <Helmet>
-        <title>Find Train Tickets | MyYatraExchange</title>
-      </Helmet>
+    <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">Available Tickets</h2>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-      <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-blue-600">
-        Find Your Ticket
-      </h2>
-
-      {/* Filters */}
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 mb-6">
-        <input
-          list="fromStationsList"
-          placeholder="From"
-          className="border p-2 rounded w-full"
-          value={fromFilter}
-          onChange={(e) => setFromFilter(e.target.value)}
-        />
-        <datalist id="fromStationsList">
-          {fromStations.map((station) => <option key={station} value={station} />)}
-        </datalist>
-
-        <input
-          list="toStationsList"
-          placeholder="To"
-          className="border p-2 rounded w-full"
-          value={toFilter}
-          onChange={(e) => setToFilter(e.target.value)}
-        />
-        <datalist id="toStationsList">
-          {toStations.map((station) => <option key={station} value={station} />)}
-        </datalist>
-
-        <input
-          type="datetime-local"
-          value={dateTimeFilter}
-          onChange={(e) => setDateTimeFilter(e.target.value)}
-          className="border p-2 rounded w-full"
-        />
-
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full sm:w-auto"
-        >
-          Search
-        </button>
+      <div className="grid gap-4">
+        {tickets.map((ticket) => (
+          <div
+            key={ticket._id}
+            className="border rounded p-4 flex flex-col gap-2"
+          >
+            <p>
+              <strong>{ticket.title}</strong>
+            </p>
+            <p>Price: ₹{ticket.price}</p>
+            {ticket.contactUnlocked ? (
+              <p>Contact: {ticket.contactNumber}</p>
+            ) : ticket.proofSubmitted ? (
+              <p className="text-orange-600 font-medium">
+                Payment proof submitted, waiting for admin verification
+              </p>
+            ) : (
+              <button
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+                onClick={() => handlePayment(ticket)}
+                disabled={unlocking}
+              >
+                {unlocking ? "Processing..." : "Pay to Unlock Contact"}
+              </button>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* Error Message */}
-      {error && <p className="text-center text-red-600 font-medium mb-4">{error}</p>}
+      {/* ✅ Show UPI QR + Proof Form */}
+      {selectedOrder && (
+        <div className="mt-6 p-4 border rounded bg-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            Complete Payment for Order {selectedOrder.orderId}
+          </h3>
+          <p>Amount: ₹{selectedOrder.amount}</p>
+          <p>Buyer: {selectedOrder.buyerName}</p>
 
-      {/* Tickets List */}
-      {filteredTickets.length === 0 ? (
-        <p className="text-center text-red-600 font-medium">No matching tickets found</p>
-      ) : (
-        <>
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {filteredTickets.map((ticket) => (
-              <TicketCard
-                key={ticket._id}
-                ticket={ticket}
-                handlePayment={handlePayment}
-                unlocking={unlocking}
-              />
-            ))}
+          <div className="mt-3">
+            <p className="mb-1">Scan QR to Pay:</p>
+            <img
+              src={selectedOrder.qrUrl}
+              alt="UPI QR"
+              className="w-48 h-48 border"
+            />
+            <p className="mt-2">
+              Or click this link:{" "}
+              <a
+                href={selectedOrder.upiLink}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 underline"
+              >
+                Pay via UPI App
+              </a>
+            </p>
           </div>
 
-          {/* Load More Button */}
-          {tickets.length < totalTickets && (
-            <div className="text-center mt-6">
-              <button
-                onClick={() => setPage((prev) => prev + 1)}
-                className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-800 transition w-full sm:w-auto"
-              >
-                Load More
-              </button>
-            </div>
-          )}
-        </>
+          <form
+            onSubmit={handleSubmitProof}
+            className="mt-4 flex flex-col gap-2"
+          >
+            <input type="hidden" name="orderId" value={selectedOrder.orderId} />
+            <input type="hidden" name="ticketId" value={selectedOrder.ticketId} />
+
+            <label>
+              UTR Number:
+              <input
+                type="text"
+                name="utr"
+                required
+                className="border p-2 w-full"
+              />
+            </label>
+
+            <label>
+              Sender VPA:
+              <input
+                type="text"
+                name="senderVpa"
+                placeholder="your@upi"
+                className="border p-2 w-full"
+              />
+            </label>
+
+            <label>
+              Screenshot:
+              <input type="file" name="file" accept="image/*" />
+            </label>
+
+            <button
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Submit Payment Proof
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );
-};
+}
 
 export default FindTicket;
 
