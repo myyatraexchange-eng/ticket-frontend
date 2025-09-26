@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
+import stations from "../data/stations.json"; // agar tumhare paas stations ka JSON hai
 
 function FindTicket() {
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [unlocking, setUnlocking] = useState(false);
+
+  const [fromFilter, setFromFilter] = useState("");
+  const [toFilter, setToFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   useEffect(() => {
     fetchTickets();
@@ -16,7 +22,8 @@ function FindTicket() {
       setLoading(true);
       const res = await fetch("/api/tickets");
       const data = await res.json();
-      setTickets(data);
+      setTickets(data || []);
+      setFilteredTickets(data || []);
     } catch (err) {
       console.error(err);
       setError("Failed to load tickets");
@@ -25,7 +32,32 @@ function FindTicket() {
     }
   };
 
-  // ✅ Create Order for UPI
+  // Filter tickets whenever filters change
+  useEffect(() => {
+    let filtered = tickets;
+
+    if (fromFilter) {
+      filtered = filtered.filter(
+        (t) => t.from.toLowerCase() === fromFilter.toLowerCase()
+      );
+    }
+    if (toFilter) {
+      filtered = filtered.filter(
+        (t) => t.to.toLowerCase() === toFilter.toLowerCase()
+      );
+    }
+    if (dateFilter) {
+      filtered = filtered.filter((t) => {
+        const ticketDate = t.fromDateTime
+          ? new Date(t.fromDateTime).toISOString().slice(0, 10)
+          : "";
+        return ticketDate === dateFilter;
+      });
+    }
+
+    setFilteredTickets(filtered);
+  }, [fromFilter, toFilter, dateFilter, tickets]);
+
   const handlePayment = async (ticket) => {
     setError("");
     setUnlocking(true);
@@ -33,10 +65,7 @@ function FindTicket() {
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          buyerName: "Demo User", // TODO: Replace with logged-in user
-          amount: ticket.price,
-        }),
+        body: JSON.stringify({ buyerName: "Demo User", amount: ticket.price }),
       });
 
       const order = await res.json();
@@ -45,7 +74,6 @@ function FindTicket() {
         return;
       }
 
-      // Show QR + link
       setSelectedOrder({ ...order, ticketId: ticket._id });
     } catch (err) {
       console.error(err);
@@ -55,7 +83,6 @@ function FindTicket() {
     }
   };
 
-  // ✅ Submit payment proof
   const handleSubmitProof = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -69,8 +96,6 @@ function FindTicket() {
 
       if (data.ok) {
         alert("Payment proof submitted! Wait for admin verification.");
-
-        // Optional: update ticket state to show that proof is submitted
         setTickets((prev) =>
           prev.map((t) =>
             t._id === selectedOrder.ticketId
@@ -78,7 +103,6 @@ function FindTicket() {
               : t
           )
         );
-
         setSelectedOrder(null);
       } else {
         alert(data.error || "Failed to submit proof");
@@ -92,19 +116,69 @@ function FindTicket() {
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">Available Tickets</h2>
+
+      {/* Filters */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <input
+          list="fromStations"
+          placeholder="From"
+          value={fromFilter}
+          onChange={(e) => setFromFilter(e.target.value)}
+          className="border p-2 rounded"
+        />
+        <datalist id="fromStations">
+          {stations.stations.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+
+        <input
+          list="toStations"
+          placeholder="To"
+          value={toFilter}
+          onChange={(e) => setToFilter(e.target.value)}
+          className="border p-2 rounded"
+        />
+        <datalist id="toStations">
+          {stations.stations.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+
+        <input
+          type="date"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+          className="border p-2 rounded"
+        />
+
+        <button
+          onClick={() => {}}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Filter
+        </button>
+      </div>
+
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid gap-4">
-        {tickets.map((ticket) => (
+        {filteredTickets.map((ticket) => (
           <div
             key={ticket._id}
             className="border rounded p-4 flex flex-col gap-2"
           >
             <p>
-              <strong>{ticket.title}</strong>
+              <strong>{ticket.trainName}</strong> ({ticket.trainNumber})
             </p>
+            <p>
+              From {ticket.from} → {ticket.to}
+            </p>
+            <p>Departure: {ticket.fromDateTime}</p>
+            <p>Arrival: {ticket.toDateTime}</p>
             <p>Price: ₹{ticket.price}</p>
+
             {ticket.contactUnlocked ? (
               <p>Contact: {ticket.contactNumber}</p>
             ) : ticket.proofSubmitted ? (
@@ -124,7 +198,7 @@ function FindTicket() {
         ))}
       </div>
 
-      {/* ✅ Show UPI QR + Proof Form */}
+      {/* UPI QR + proof form */}
       {selectedOrder && (
         <div className="mt-6 p-4 border rounded bg-gray-100">
           <h3 className="text-lg font-semibold mb-2">
