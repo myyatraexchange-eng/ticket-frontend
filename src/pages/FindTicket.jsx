@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import stations from "../data/stations.json"; // agar tumhare paas stations ka JSON hai
+import stations from "../data/stations.json"; // agar aapke paas stations ka JSON hai
 
 function FindTicket() {
   const [tickets, setTickets] = useState([]);
@@ -20,13 +20,18 @@ function FindTicket() {
   const fetchTickets = async () => {
     try {
       setLoading(true);
+      setError("");
       const res = await fetch("/api/tickets");
       const data = await res.json();
-      setTickets(data || []);
-      setFilteredTickets(data || []);
+
+      if (!res.ok) throw new Error(data.message || "Failed to fetch tickets");
+
+      // data.tickets me array hai, isko state me set karo
+      setTickets(data.tickets || []);
+      setFilteredTickets(data.tickets || []);
     } catch (err) {
       console.error(err);
-      setError("Failed to load tickets");
+      setError(err.message || "Failed to load tickets");
     } finally {
       setLoading(false);
     }
@@ -175,8 +180,13 @@ function FindTicket() {
             <p>
               From {ticket.from} → {ticket.to}
             </p>
-            <p>Departure: {ticket.fromDateTime}</p>
-            <p>Arrival: {ticket.toDateTime}</p>
+            <p>
+              Departure:{" "}
+              {new Date(ticket.fromDateTime).toLocaleString()}
+            </p>
+            <p>
+              Arrival: {new Date(ticket.toDateTime).toLocaleString()}
+            </p>
             <p>Price: ₹{ticket.price}</p>
 
             {ticket.contactUnlocked ? (
