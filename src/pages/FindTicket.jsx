@@ -13,9 +13,7 @@ function FindTicket() {
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
+  useEffect(() => fetchTickets(), []);
 
   const fetchTickets = async () => {
     try {
@@ -23,7 +21,6 @@ function FindTicket() {
       setError("");
       const res = await fetch("/api/tickets");
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Failed to fetch tickets");
 
       setTickets(data.tickets || []);
@@ -38,62 +35,48 @@ function FindTicket() {
 
   useEffect(() => {
     let filtered = tickets;
-
     if (fromFilter) filtered = filtered.filter(t => t.from.toLowerCase() === fromFilter.toLowerCase());
     if (toFilter) filtered = filtered.filter(t => t.to.toLowerCase() === toFilter.toLowerCase());
     if (dateFilter)
       filtered = filtered.filter(t =>
         t.fromDateTime ? new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter : false
       );
-
     setFilteredTickets(filtered);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
   const handlePayment = async (ticket) => {
-    setError("");
-    setUnlocking(true);
+    setError(""); setUnlocking(true);
     try {
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ buyerName: "Demo User", amount: ticket.price }),
+        body: JSON.stringify({ buyerName: "Demo User", amount: ticket.price, ticketId: ticket._id }),
       });
-
       const order = await res.json();
       if (!order || !order.orderId) {
         setError("Order creation failed!");
         return;
       }
-
-      setSelectedOrder({ ...order, ticketId: ticket._id });
+      setSelectedOrder(order);
     } catch (err) {
       console.error(err);
       setError("Payment failed to start");
-    } finally {
-      setUnlocking(false);
-    }
+    } finally { setUnlocking(false); }
   };
 
   const handleSubmitProof = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-
     try {
-      const res = await fetch("/api/payment/submit-payment-proof", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch("/api/payment/submit-payment-proof", { method: "POST", body: formData });
       const data = await res.json();
-
       if (data.ok) {
         alert("Payment proof submitted! Wait for admin verification.");
-        setTickets(prev =>
-          prev.map(t =>
-            t._id === selectedOrder.ticketId
-              ? { ...t, contactUnlocked: false, proofSubmitted: true }
-              : t
-          )
-        );
+        setTickets(prev => prev.map(t =>
+          t._id === selectedOrder.ticketId
+            ? { ...t, contactUnlocked: false, proofSubmitted: true }
+            : t
+        ));
         setSelectedOrder(null);
       } else {
         alert(data.error || "Failed to submit proof");
@@ -110,34 +93,13 @@ function FindTicket() {
 
       {/* Filters */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        <input
-          list="fromStations"
-          placeholder="From"
-          value={fromFilter}
-          onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <datalist id="fromStations">
-          {stations.stations.map((s) => <option key={s} value={s} />)}
-        </datalist>
+        <input list="fromStations" placeholder="From" value={fromFilter} onChange={e => setFromFilter(e.target.value)} className="border p-2 rounded" />
+        <datalist id="fromStations">{stations.stations.map(s => <option key={s} value={s} />)}</datalist>
 
-        <input
-          list="toStations"
-          placeholder="To"
-          value={toFilter}
-          onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <datalist id="toStations">
-          {stations.stations.map((s) => <option key={s} value={s} />)}
-        </datalist>
+        <input list="toStations" placeholder="To" value={toFilter} onChange={e => setToFilter(e.target.value)} className="border p-2 rounded" />
+        <datalist id="toStations">{stations.stations.map(s => <option key={s} value={s} />)}</datalist>
 
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
+        <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="border p-2 rounded" />
       </div>
 
       {loading && <p>Loading...</p>}
@@ -155,15 +117,9 @@ function FindTicket() {
             {ticket.contactUnlocked ? (
               <p>Contact: {ticket.contactNumber}</p>
             ) : ticket.proofSubmitted ? (
-              <p className="text-orange-600 font-medium">
-                Payment proof submitted, waiting for admin verification
-              </p>
+              <p className="text-orange-600 font-medium">Payment proof submitted, waiting for admin verification</p>
             ) : (
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-                onClick={() => handlePayment(ticket)}
-                disabled={unlocking}
-              >
+              <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => handlePayment(ticket)} disabled={unlocking}>
                 {unlocking ? "Processing..." : "Pay to Unlock Contact"}
               </button>
             )}
@@ -174,9 +130,7 @@ function FindTicket() {
       {/* Payment Proof Form */}
       {selectedOrder && (
         <div className="mt-6 p-4 border rounded bg-gray-100">
-          <h3 className="text-lg font-semibold mb-2">
-            Complete Payment for Order {selectedOrder.orderId}
-          </h3>
+          <h3 className="text-lg font-semibold mb-2">Complete Payment for Order {selectedOrder.orderId}</h3>
           <p>Amount: ₹{selectedOrder.amount}</p>
           <p>Buyer: {selectedOrder.buyerName}</p>
 
@@ -195,24 +149,11 @@ function FindTicket() {
             <input type="hidden" name="orderId" value={selectedOrder.orderId} />
             <input type="hidden" name="ticketId" value={selectedOrder.ticketId} />
 
-            <label>
-              UTR Number:
-              <input type="text" name="utr" required className="border p-2 w-full" />
-            </label>
+            <label>UTR Number:<input type="text" name="utr" required className="border p-2 w-full" /></label>
+            <label>Sender VPA:<input type="text" name="senderVpa" placeholder="your@upi" className="border p-2 w-full" /></label>
+            <label>Screenshot:<input type="file" name="file" accept="image/*" /></label>
 
-            <label>
-              Sender VPA:
-              <input type="text" name="senderVpa" placeholder="your@upi" className="border p-2 w-full" />
-            </label>
-
-            <label>
-              Screenshot:
-              <input type="file" name="file" accept="image/*" />
-            </label>
-
-            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-              Submit Payment Proof
-            </button>
+            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Submit Payment Proof</button>
           </form>
         </div>
       )}
