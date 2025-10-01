@@ -4,7 +4,8 @@ import stations from "../data/stations.json";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080/api";
 
-async function safeParseJsonResponse(res) {
+// JSON safe parse
+const safeParseJsonResponse = async (res) => {
   const text = await res.text();
   const trimmed = text.trim();
   const ct = (res.headers && res.headers.get && res.headers.get("content-type")) || "";
@@ -12,10 +13,77 @@ async function safeParseJsonResponse(res) {
     try {
       return JSON.parse(trimmed);
     } catch (e) {
-      throw new Error("Invalid JSON from server: " + e.message + " — raw: " + trimmed.slice(0,300));
+      throw new Error("Invalid JSON: " + e.message + " — raw: " + trimmed.slice(0, 300));
     }
   }
-  throw new Error("Server returned non-JSON response: " + trimmed.slice(0,500));
+  throw new Error("Server returned non-JSON: " + trimmed.slice(0, 500));
+};
+
+function SearchableInput({ placeholder, value, onChange }) {
+  const [showList, setShowList] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+
+  const filteredStations = stations.stations.filter((s) =>
+    s.toLowerCase().includes(value.toLowerCase())
+  );
+
+  const handleKeyDown = (e) => {
+    if (!showList) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIndex((prev) => (prev + 1) % filteredStations.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev <= 0 ? filteredStations.length - 1 : prev - 1
+      );
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (highlightIndex >= 0 && highlightIndex < filteredStations.length) {
+        onChange(filteredStations[highlightIndex]);
+        setShowList(false);
+        setHighlightIndex(-1);
+      }
+    }
+  };
+
+  return (
+    <div className="relative w-60">
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setShowList(true);
+          setHighlightIndex(-1);
+        }}
+        onFocus={() => setShowList(true)}
+        onBlur={() => setTimeout(() => setShowList(false), 200)}
+        onKeyDown={handleKeyDown}
+        className="border p-2 rounded w-full"
+      />
+      {showList && value && (
+        <ul className="absolute bg-white border rounded shadow max-h-48 overflow-y-auto w-full z-10">
+          {filteredStations.map((s, idx) => (
+            <li
+              key={s}
+              className={`p-2 cursor-pointer ${
+                idx === highlightIndex ? "bg-blue-200" : "hover:bg-gray-200"
+              }`}
+              onMouseDown={() => {
+                onChange(s);
+                setShowList(false);
+              }}
+            >
+              {s}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export default function FindTicket() {
@@ -38,14 +106,7 @@ export default function FindTicket() {
     setError("");
     try {
       const res = await fetch(`${API_BASE}/tickets`);
-      if (!res.ok) {
-        try {
-          const body = await safeParseJsonResponse(res);
-          throw new Error(body.error || body.message || `Request failed ${res.status}`);
-        } catch (e) {
-          throw new Error(`Request failed ${res.status} ${res.statusText} — ${e.message}`);
-        }
-      }
+      if (!res.ok) throw new Error(`Request failed ${res.status} ${res.statusText}`);
       const data = await safeParseJsonResponse(res);
       setTickets(data.tickets || []);
       setFiltered(data.tickets || []);
@@ -57,18 +118,22 @@ export default function FindTicket() {
     }
   };
 
+  // Filters
   useEffect(() => {
     let out = tickets;
-    if (fromFilter) out = out.filter(t => t.from && t.from.toLowerCase().includes(fromFilter.toLowerCase()));
-    if (toFilter) out = out.filter(t => t.to && t.to.toLowerCase().includes(toFilter.toLowerCase()));
-    if (dateFilter) out = out.filter(t => {
-      if (!t.fromDateTime) return false;
-      const iso = new Date(t.fromDateTime).toISOString().slice(0,10);
-      return iso === dateFilter;
-    });
+    if (fromFilter) out = out.filter((t) => t.from?.toLowerCase().includes(fromFilter.toLowerCase()));
+    if (toFilter) out = out.filter((t) => t.to?.toLowerCase().includes(toFilter.toLowerCase()));
+    if (dateFilter) {
+      out = out.filter((t) => {
+        if (!t.fromDateTime) return false;
+        const iso = new Date(t.fromDateTime).toISOString().slice(0, 10);
+        return iso === dateFilter;
+      });
+    }
     setFiltered(out);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
+  // Pay handler
   const handlePay = async (ticket) => {
     setError("");
     try {
@@ -77,17 +142,8 @@ export default function FindTicket() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticketId: ticket._id, amount: ticket.price, buyerName: "User" }),
       });
-      if (!res.ok) {
-        try {
-          const body = await safeParseJsonResponse(res);
-          throw new Error(body.error || body.message || `Payment create failed ${res.status}`);
-        } catch (e) {
-          throw new Error(`Payment create failed ${res.status} ${res.statusText} — ${e.message}`);
-        }
-      }
       const data = await safeParseJsonResponse(res);
       if (data.upiLink) {
-        // redirect to UPI (mobile) or ask user to scan QR
         window.location.href = data.upiLink;
       } else {
         alert("UPI link not returned. Contact admin.");
@@ -102,26 +158,41 @@ export default function FindTicket() {
     <div className="p-4 container mx-auto">
       <h1 className="text-2xl font-bold mb-4">Find Tickets</h1>
 
+      {/* Filters */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        <input list="fromStations" placeholder="From" value={fromFilter} onChange={e=>setFromFilter(e.target.value)} className="border p-2 rounded" />
-        <datalist id="fromStations">{stations.stations && stations.stations.map(s => <option key={s} value={s} />)}</datalist>
-
-        <input list="toStations" placeholder="To" value={toFilter} onChange={e=>setToFilter(e.target.value)} className="border p-2 rounded" />
-        <datalist id="toStations">{stations.stations && stations.stations.map(s => <option key={s} value={s} />)}</datalist>
-
-        <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="border p-2 rounded" />
+        <SearchableInput
+          placeholder="From"
+          value={fromFilter}
+          onChange={setFromFilter}
+        />
+        <SearchableInput
+          placeholder="To"
+          value={toFilter}
+          onChange={setToFilter}
+        />
+        <input
+          type="date"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+          className="border p-2 rounded"
+        />
       </div>
 
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
+      {/* Tickets list */}
       <div className="grid gap-4">
-        {filtered.map(t => (
+        {filtered.map((t) => (
           <div key={t._id} className="border rounded p-4">
             <div className="flex justify-between">
               <div>
-                <div className="font-semibold">{t.trainName} ({t.trainNumber})</div>
-                <div>From {t.from} → {t.to}</div>
+                <div className="font-semibold">
+                  {t.trainName} ({t.trainNumber})
+                </div>
+                <div>
+                  From {t.from} → {t.to}
+                </div>
                 <div>Depart: {new Date(t.fromDateTime).toLocaleString()}</div>
                 <div>Price: ₹{t.price}</div>
               </div>
@@ -129,7 +200,10 @@ export default function FindTicket() {
                 {t.contactUnlocked ? (
                   <div>Contact: {t.contactNumber}</div>
                 ) : (
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => handlePay(t)}>
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                    onClick={() => handlePay(t)}
+                  >
                     Pay to Unlock
                   </button>
                 )}
