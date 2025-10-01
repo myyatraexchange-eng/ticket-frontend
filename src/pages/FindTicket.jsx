@@ -1,3 +1,4 @@
+// src/pages/FindTicket.jsx
 import React, { useEffect, useState } from "react";
 import stations from "../data/stations.json";
 import { QRCodeCanvas } from "qrcode.react";
@@ -14,9 +15,8 @@ export default function FindTicket() {
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  const [showQR, setShowQR] = useState(false);
+  const [currentQrTicketId, setCurrentQrTicketId] = useState(null);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
-  const [proofTicketId, setProofTicketId] = useState(null);
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
   const [payerMobile, setPayerMobile] = useState("");
@@ -49,16 +49,15 @@ export default function FindTicket() {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
     if (isMobile) { window.location.href = upiLink; }
-    else { setCurrentUpiLink(upiLink); setShowQR(true); }
+    else { setCurrentUpiLink(upiLink); setCurrentQrTicketId(ticket._id); }
 
-    setProofTicketId(ticket._id); setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
+    // Reset proof form
+    setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
   };
-
-  const closeQR = () => { setShowQR(false); setCurrentUpiLink(""); };
 
   const submitProof = async (e) => {
     e.preventDefault();
-    if (!proofTicketId || !txnId || !payerName || !payerMobile) { setProofMessage("Fill all fields"); return; }
+    if (!txnId || !payerName || !payerMobile) { setProofMessage("Fill all fields"); return; }
     if (!/^\d{10}$/.test(payerMobile)) { setProofMessage("Enter valid 10-digit mobile"); return; }
 
     setSubmittingProof(true); setProofMessage("");
@@ -66,12 +65,12 @@ export default function FindTicket() {
       const res = await fetch(`${API_BASE}/submit-payment-proof`, {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ ticketId: proofTicketId, txnId, payerName, payerMobile, amount: 20 })
+        body: JSON.stringify({ ticketId: currentQrTicketId, txnId, payerName, payerMobile, amount:20 })
       });
       const data = await res.json();
       setProofMessage(data.message || "Submitted for verification");
       setTxnId(""); setPayerName(""); setPayerMobile("");
-      setTimeout(closeQR, 1200);
+      setTimeout(() => setCurrentQrTicketId(null), 1200);
     } catch(err){ setProofMessage(err.message || "Failed to submit proof"); }
     finally{ setSubmittingProof(false); }
   };
@@ -80,6 +79,7 @@ export default function FindTicket() {
     <div className="p-6 container mx-auto flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 text-center">Find Tickets</h1>
 
+      {/* Filters */}
       <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-4xl">
         <input list="fromStations" placeholder="From" value={fromFilter} onChange={e=>setFromFilter(e.target.value)} className="border p-2 rounded w-44"/>
         <datalist id="fromStations">{stations.stations.map(s=><option key={s} value={s}/>)} </datalist>
@@ -92,6 +92,7 @@ export default function FindTicket() {
 
       {loading && <p>Loading...</p>} {error && <p className="text-red-600">{error}</p>}
 
+      {/* Tickets list */}
       <div className="grid gap-6 w-full max-w-4xl">
         {filtered.map(t=>(
           <div key={t._id} className="border rounded-lg p-5 shadow-lg w-full bg-white">
@@ -99,6 +100,10 @@ export default function FindTicket() {
               <div className="font-semibold text-xl">{t.trainName} ({t.trainNumber})</div>
               <div>From → To: {t.from} → {t.to}</div>
               <div>Departure: {new Date(t.fromDateTime).toLocaleString()}</div>
+              <div>Arrival: {new Date(t.toDateTime).toLocaleString()}</div>
+              <div>Tickets: {t.tickets}</div>
+              <div>Class: {t.class}</div>
+              <div>Passenger: {t.passengerName} ({t.gender}, {t.age})</div>
               {t.contactUnlocked && <div className="mt-2 font-medium">Contact: {t.contactNumber}</div>}
             </div>
 
@@ -108,27 +113,28 @@ export default function FindTicket() {
                   Pay 20 ₹ to Unlock Contact
                 </button>
 
-                {showQR && currentUpiLink && (
-                  <div className="mt-3 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
+                {/* QR code & proof form only for this ticket */}
+                {currentQrTicketId === t._id && currentUpiLink && (
+                  <div className="mt-3 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50 w-full max-w-md">
                     <p className="mb-2 font-medium text-center">Scan this QR with UPI app to pay ₹20:</p>
                     <QRCodeCanvas value={currentUpiLink} size={180}/>
-                    <button onClick={closeQR} className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Close QR</button>
-                  </div>
-                )}
+                    <button onClick={()=>setCurrentQrTicketId(null)} className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Close QR</button>
 
-                {proofTicketId===t._id && (
-                  <div className="mt-4 p-4 border rounded bg-gray-50">
-                    <div className="mb-2 font-medium">Already paid? Submit payment details:</div>
-                    <form onSubmit={submitProof} className="flex flex-col gap-2 max-w-md">
-                      <input placeholder="Transaction ID" value={txnId} onChange={e=>setTxnId(e.target.value)} className="border p-2 rounded" required/>
-                      <input placeholder="Payer Name" value={payerName} onChange={e=>setPayerName(e.target.value)} className="border p-2 rounded" required/>
-                      <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={e=>setPayerMobile(e.target.value)} className="border p-2 rounded" required/>
-                      <div className="flex gap-2 mt-2">
-                        <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60">{submittingProof?"Submitting...":"Submit Payment Proof"}</button>
-                        <button type="button" onClick={()=>{setProofTicketId(null);setProofMessage("")}} className="px-3 py-2 border rounded">Cancel</button>
-                      </div>
-                      {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
-                    </form>
+                    <div className="mt-4 p-4 border rounded bg-gray-50 w-full">
+                      <div className="mb-2 font-medium">Already paid? Submit payment details:</div>
+                      <form onSubmit={submitProof} className="flex flex-col gap-2">
+                        <input placeholder="Transaction ID" value={txnId} onChange={e=>setTxnId(e.target.value)} className="border p-2 rounded" required/>
+                        <input placeholder="Payer Name" value={payerName} onChange={e=>setPayerName(e.target.value)} className="border p-2 rounded" required/>
+                        <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={e=>setPayerMobile(e.target.value)} className="border p-2 rounded" required/>
+                        <div className="flex gap-2 mt-2">
+                          <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60">
+                            {submittingProof?"Submitting...":"Submit Payment Proof"}
+                          </button>
+                          <button type="button" onClick={()=>setCurrentQrTicketId(null)} className="px-3 py-2 border rounded">Cancel</button>
+                        </div>
+                        {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
+                      </form>
+                    </div>
                   </div>
                 )}
               </>
