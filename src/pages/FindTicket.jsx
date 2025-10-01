@@ -1,22 +1,8 @@
-// src/pages/FindTicket.jsx
 import React, { useEffect, useState } from "react";
 import stations from "../data/stations.json";
+import { QRCodeCanvas } from "qrcode.react";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
-
-const safeParseJsonResponse = async (res) => {
-  const text = await res.text();
-  const trimmed = text.trim();
-  const ct = (res.headers && res.headers.get && res.headers.get("content-type")) || "";
-  if (ct.includes("application/json") || trimmed.startsWith("{") || trimmed.startsWith("[")) {
-    try {
-      return JSON.parse(trimmed);
-    } catch (e) {
-      throw new Error("Invalid JSON: " + e.message + " — raw: " + trimmed.slice(0, 300));
-    }
-  }
-  throw new Error("Server returned non-JSON: " + trimmed.slice(0, 500));
-};
 
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
@@ -28,121 +14,124 @@ export default function FindTicket() {
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  useEffect(() => {
-    fetchTickets();
-    // eslint-disable-next-line
-  }, []);
+  const [showQR, setShowQR] = useState(false);
+  const [currentUpiLink, setCurrentUpiLink] = useState("");
+  const [proofTicketId, setProofTicketId] = useState(null);
+  const [txnId, setTxnId] = useState("");
+  const [payerName, setPayerName] = useState("");
+  const [payerMobile, setPayerMobile] = useState("");
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState("");
+
+  useEffect(() => { fetchTickets(); }, []);
 
   const fetchTickets = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     try {
       const res = await fetch(`${API_BASE}/tickets`);
-      if (!res.ok) throw new Error(`Request failed ${res.status} ${res.statusText}`);
-      const data = await safeParseJsonResponse(res);
+      if (!res.ok) throw new Error(`Request failed ${res.status}`);
+      const data = await res.json();
       setTickets(data.tickets || []);
       setFiltered(data.tickets || []);
-    } catch (err) {
-      console.error("fetchTickets error:", err);
-      setError(err.message || "Failed to load tickets");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { setError(err.message || "Failed to load tickets"); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => {
     let out = tickets;
-    if (fromFilter) out = out.filter((t) => t.from?.toLowerCase().includes(fromFilter.toLowerCase()));
-    if (toFilter) out = out.filter((t) => t.to?.toLowerCase().includes(toFilter.toLowerCase()));
-    if (dateFilter) {
-      out = out.filter((t) => {
-        if (!t.fromDateTime) return false;
-        const iso = new Date(t.fromDateTime).toISOString().slice(0, 10);
-        return iso === dateFilter;
-      });
-    }
+    if (fromFilter) out = out.filter(t => t.from?.toLowerCase().includes(fromFilter.toLowerCase()));
+    if (toFilter) out = out.filter(t => t.to?.toLowerCase().includes(toFilter.toLowerCase()));
+    if (dateFilter) out = out.filter(t => t.fromDateTime && new Date(t.fromDateTime).toISOString().slice(0,10) === dateFilter);
     setFiltered(out);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
-  const handlePay = async (ticket) => {
-    setError("");
-    try {
-      // Direct UPI link
-      const upiLink = `upi://pay?pa=myyatraexchange@ybl&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+  const handlePay = (ticket) => {
+    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    if (isMobile) { window.location.href = upiLink; }
+    else { setCurrentUpiLink(upiLink); setShowQR(true); }
 
-      // Redirect to UPI app
-      window.location.href = upiLink;
-    } catch (err) {
-      console.error("handlePay error:", err);
-      setError(err.message || "Payment failed");
-    }
+    setProofTicketId(ticket._id); setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
+  };
+
+  const closeQR = () => { setShowQR(false); setCurrentUpiLink(""); };
+
+  const submitProof = async (e) => {
+    e.preventDefault();
+    if (!proofTicketId || !txnId || !payerName || !payerMobile) { setProofMessage("Fill all fields"); return; }
+    if (!/^\d{10}$/.test(payerMobile)) { setProofMessage("Enter valid 10-digit mobile"); return; }
+
+    setSubmittingProof(true); setProofMessage("");
+    try {
+      const res = await fetch(`${API_BASE}/submit-payment-proof`, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ ticketId: proofTicketId, txnId, payerName, payerMobile, amount: 20 })
+      });
+      const data = await res.json();
+      setProofMessage(data.message || "Submitted for verification");
+      setTxnId(""); setPayerName(""); setPayerMobile("");
+      setTimeout(closeQR, 1200);
+    } catch(err){ setProofMessage(err.message || "Failed to submit proof"); }
+    finally{ setSubmittingProof(false); }
   };
 
   return (
-    <div className="p-4 container mx-auto flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-6">Find Tickets</h1>
+    <div className="p-6 container mx-auto flex flex-col items-center">
+      <h1 className="text-3xl font-bold mb-6 text-center">Find Tickets</h1>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-6 flex-wrap justify-center w-full max-w-4xl">
-        <input
-          list="fromStations"
-          placeholder="From"
-          value={fromFilter}
-          onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded w-40"
-        />
-        <datalist id="fromStations">
-          {stations.stations.map((s) => (
-            <option key={s} value={s} />
-          ))}
-        </datalist>
+      <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-4xl">
+        <input list="fromStations" placeholder="From" value={fromFilter} onChange={e=>setFromFilter(e.target.value)} className="border p-2 rounded w-44"/>
+        <datalist id="fromStations">{stations.stations.map(s=><option key={s} value={s}/>)} </datalist>
 
-        <input
-          list="toStations"
-          placeholder="To"
-          value={toFilter}
-          onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded w-40"
-        />
-        <datalist id="toStations">
-          {stations.stations.map((s) => (
-            <option key={s} value={s} />
-          ))}
-        </datalist>
+        <input list="toStations" placeholder="To" value={toFilter} onChange={e=>setToFilter(e.target.value)} className="border p-2 rounded w-44"/>
+        <datalist id="toStations">{stations.stations.map(s=><option key={s} value={s}/>)} </datalist>
 
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
+        <input type="date" value={dateFilter} onChange={e=>setDateFilter(e.target.value)} className="border p-2 rounded"/>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {loading && <p>Loading...</p>} {error && <p className="text-red-600">{error}</p>}
 
-      {/* Tickets list */}
       <div className="grid gap-6 w-full max-w-4xl">
-        {filtered.map((t) => (
-          <div
-            key={t._id}
-            className="border rounded p-4 flex flex-col items-center shadow-md"
-          >
-            <div className="text-center mb-4">
-              <div className="font-semibold text-lg">{t.trainName} ({t.trainNumber})</div>
-              <div>From {t.from} → {t.to}</div>
-              <div>Depart: {new Date(t.fromDateTime).toLocaleString()}</div>
-              <div>Price: ₹{t.price}</div>
-              {t.contactUnlocked && <div className="mt-2">Contact: {t.contactNumber}</div>}
+        {filtered.map(t=>(
+          <div key={t._id} className="border rounded-lg p-5 shadow-lg w-full bg-white">
+            <div className="mb-4">
+              <div className="font-semibold text-xl">{t.trainName} ({t.trainNumber})</div>
+              <div>From → To: {t.from} → {t.to}</div>
+              <div>Departure: {new Date(t.fromDateTime).toLocaleString()}</div>
+              {t.contactUnlocked && <div className="mt-2 font-medium">Contact: {t.contactNumber}</div>}
             </div>
 
             {!t.contactUnlocked && (
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-                onClick={() => handlePay(t)}
-              >
-                Pay 20 ₹ to Unlock Contact
-              </button>
+              <>
+                <button onClick={()=>handlePay(t)} className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 mb-2">
+                  Pay 20 ₹ to Unlock Contact
+                </button>
+
+                {showQR && currentUpiLink && (
+                  <div className="mt-3 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
+                    <p className="mb-2 font-medium text-center">Scan this QR with UPI app to pay ₹20:</p>
+                    <QRCodeCanvas value={currentUpiLink} size={180}/>
+                    <button onClick={closeQR} className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Close QR</button>
+                  </div>
+                )}
+
+                {proofTicketId===t._id && (
+                  <div className="mt-4 p-4 border rounded bg-gray-50">
+                    <div className="mb-2 font-medium">Already paid? Submit payment details:</div>
+                    <form onSubmit={submitProof} className="flex flex-col gap-2 max-w-md">
+                      <input placeholder="Transaction ID" value={txnId} onChange={e=>setTxnId(e.target.value)} className="border p-2 rounded" required/>
+                      <input placeholder="Payer Name" value={payerName} onChange={e=>setPayerName(e.target.value)} className="border p-2 rounded" required/>
+                      <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={e=>setPayerMobile(e.target.value)} className="border p-2 rounded" required/>
+                      <div className="flex gap-2 mt-2">
+                        <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60">{submittingProof?"Submitting...":"Submit Payment Proof"}</button>
+                        <button type="button" onClick={()=>{setProofTicketId(null);setProofMessage("")}} className="px-3 py-2 border rounded">Cancel</button>
+                      </div>
+                      {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
+                    </form>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}

@@ -44,7 +44,7 @@ const Contact = () => {
               📞 <strong>Phone:</strong> +91 9753060916
             </li>
             <li>
-              📍 <strong>Location:</strong> Khargone(mp), India. 
+              📍 <strong>Location:</strong> indore , India. 
             </li>
             <li>
               🕒 <strong>Support Hours:</strong> 10:00 AM – 6:00 PM (Mon–Sat)

@@ -38,7 +38,7 @@ const Footer = () => {
           <div className="mt-4">
             <h2 className="font-bold text-lg mb-1">Contact</h2>
             <p className="text-sm">Email: myyatraexchange@gmail.com</p>
-            <p className="text-sm">Location: khargone(mp),India</p>
+            <p className="text-sm">Location: INDORE,INDIA</p>
           </div>
         </div>
       </div>
