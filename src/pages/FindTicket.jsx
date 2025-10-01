@@ -2,9 +2,8 @@
 import React, { useEffect, useState } from "react";
 import stations from "../data/stations.json";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080/api";
+const API_BASE = process.env.REACT_APP_API_BASE;
 
-// JSON safe parse
 const safeParseJsonResponse = async (res) => {
   const text = await res.text();
   const trimmed = text.trim();
@@ -18,73 +17,6 @@ const safeParseJsonResponse = async (res) => {
   }
   throw new Error("Server returned non-JSON: " + trimmed.slice(0, 500));
 };
-
-function SearchableInput({ placeholder, value, onChange }) {
-  const [showList, setShowList] = useState(false);
-  const [highlightIndex, setHighlightIndex] = useState(-1);
-
-  const filteredStations = stations.stations.filter((s) =>
-    s.toLowerCase().includes(value.toLowerCase())
-  );
-
-  const handleKeyDown = (e) => {
-    if (!showList) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev + 1) % filteredStations.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev <= 0 ? filteredStations.length - 1 : prev - 1
-      );
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (highlightIndex >= 0 && highlightIndex < filteredStations.length) {
-        onChange(filteredStations[highlightIndex]);
-        setShowList(false);
-        setHighlightIndex(-1);
-      }
-    }
-  };
-
-  return (
-    <div className="relative w-60">
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-          setShowList(true);
-          setHighlightIndex(-1);
-        }}
-        onFocus={() => setShowList(true)}
-        onBlur={() => setTimeout(() => setShowList(false), 200)}
-        onKeyDown={handleKeyDown}
-        className="border p-2 rounded w-full"
-      />
-      {showList && value && (
-        <ul className="absolute bg-white border rounded shadow max-h-48 overflow-y-auto w-full z-10">
-          {filteredStations.map((s, idx) => (
-            <li
-              key={s}
-              className={`p-2 cursor-pointer ${
-                idx === highlightIndex ? "bg-blue-200" : "hover:bg-gray-200"
-              }`}
-              onMouseDown={() => {
-                onChange(s);
-                setShowList(false);
-              }}
-            >
-              {s}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
@@ -118,7 +50,6 @@ export default function FindTicket() {
     }
   };
 
-  // Filters
   useEffect(() => {
     let out = tickets;
     if (fromFilter) out = out.filter((t) => t.from?.toLowerCase().includes(fromFilter.toLowerCase()));
@@ -133,21 +64,14 @@ export default function FindTicket() {
     setFiltered(out);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
-  // Pay handler
   const handlePay = async (ticket) => {
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/payments/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: ticket._id, amount: ticket.price, buyerName: "User" }),
-      });
-      const data = await safeParseJsonResponse(res);
-      if (data.upiLink) {
-        window.location.href = data.upiLink;
-      } else {
-        alert("UPI link not returned. Contact admin.");
-      }
+      // Direct UPI link
+      const upiLink = `upi://pay?pa=myyatraexchange@ybl&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+
+      // Redirect to UPI app
+      window.location.href = upiLink;
     } catch (err) {
       console.error("handlePay error:", err);
       setError(err.message || "Payment failed");
@@ -155,21 +79,37 @@ export default function FindTicket() {
   };
 
   return (
-    <div className="p-4 container mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Find Tickets</h1>
+    <div className="p-4 container mx-auto flex flex-col items-center">
+      <h1 className="text-2xl font-bold mb-6">Find Tickets</h1>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <SearchableInput
+      <div className="flex gap-2 mb-6 flex-wrap justify-center w-full max-w-4xl">
+        <input
+          list="fromStations"
           placeholder="From"
           value={fromFilter}
-          onChange={setFromFilter}
+          onChange={(e) => setFromFilter(e.target.value)}
+          className="border p-2 rounded w-40"
         />
-        <SearchableInput
+        <datalist id="fromStations">
+          {stations.stations.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+
+        <input
+          list="toStations"
           placeholder="To"
           value={toFilter}
-          onChange={setToFilter}
+          onChange={(e) => setToFilter(e.target.value)}
+          className="border p-2 rounded w-40"
         />
+        <datalist id="toStations">
+          {stations.stations.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+
         <input
           type="date"
           value={dateFilter}
@@ -182,33 +122,28 @@ export default function FindTicket() {
       {error && <p className="text-red-600">{error}</p>}
 
       {/* Tickets list */}
-      <div className="grid gap-4">
+      <div className="grid gap-6 w-full max-w-4xl">
         {filtered.map((t) => (
-          <div key={t._id} className="border rounded p-4">
-            <div className="flex justify-between">
-              <div>
-                <div className="font-semibold">
-                  {t.trainName} ({t.trainNumber})
-                </div>
-                <div>
-                  From {t.from} → {t.to}
-                </div>
-                <div>Depart: {new Date(t.fromDateTime).toLocaleString()}</div>
-                <div>Price: ₹{t.price}</div>
-              </div>
-              <div>
-                {t.contactUnlocked ? (
-                  <div>Contact: {t.contactNumber}</div>
-                ) : (
-                  <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                    onClick={() => handlePay(t)}
-                  >
-                    Pay to Unlock
-                  </button>
-                )}
-              </div>
+          <div
+            key={t._id}
+            className="border rounded p-4 flex flex-col items-center shadow-md"
+          >
+            <div className="text-center mb-4">
+              <div className="font-semibold text-lg">{t.trainName} ({t.trainNumber})</div>
+              <div>From {t.from} → {t.to}</div>
+              <div>Depart: {new Date(t.fromDateTime).toLocaleString()}</div>
+              <div>Price: ₹{t.price}</div>
+              {t.contactUnlocked && <div className="mt-2">Contact: {t.contactNumber}</div>}
             </div>
+
+            {!t.contactUnlocked && (
+              <button
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+                onClick={() => handlePay(t)}
+              >
+                Pay 20 ₹ to Unlock Contact
+              </button>
+            )}
           </div>
         ))}
       </div>
