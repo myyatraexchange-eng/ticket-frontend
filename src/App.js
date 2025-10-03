@@ -9,7 +9,6 @@ import FindTicket from "./pages/FindTicket";
 import Post from "./pages/Post";
 import Contact from "./pages/Contact";
 import Policy from "./pages/Policy";
-import Privacy from "./pages/PrivacyPolicy";
 import Disclaimer from "./pages/Disclaimer";
 import TermsOfUse from "./pages/TermsOfUse";
 import RefundPolicy from "./pages/RefundPolicy";
@@ -53,18 +52,24 @@ function AppContent() {
       <LoaderOverlay />
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
+          {/* Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Private Pages */}
           <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
           <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
-          <Route path="/contact" element={<Contact />} />
+
+          {/* Legal Pages */}
           <Route path="/policy" element={<Policy />} />
-          <Route path="/privacy-policy" element={<Privacy />} /> {/* ✅ lowercase URL */}
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
+
+          {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>

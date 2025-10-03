@@ -20,7 +20,6 @@ const Post = () => {
     age: "",
     gender: "",
     seatType: "",
-    description: "",
   });
 
   const handleChange = (e) => {
@@ -35,9 +34,19 @@ const Post = () => {
     e.preventDefault();
 
     const payload = {
-      ...formData,
+      trainName: formData.trainName,
+      trainNumber: formData.trainNumber,
+      from: formData.from,
+      to: formData.to,
       fromDateTime: formData.fromDateTime,
       toDateTime: formData.toDateTime,
+      tickets: Number(formData.ticketCount),      // renamed
+      class: formData.seatType,                   // renamed
+      passengerName: formData.holderName,        // renamed
+      gender: formData.gender,
+      age: Number(formData.age),
+      contactNumber: formData.contactNumber,
+      price: 20,                                  // fixed 20₹ for contact unlock
     };
 
     try {
@@ -70,7 +79,6 @@ const Post = () => {
         age: "",
         gender: "",
         seatType: "",
-        description: "",
       });
     } catch (err) {
       console.error("Post Ticket Error:", err);
@@ -136,7 +144,7 @@ const Post = () => {
           </div>
         </div>
 
-        {/* ✅ From DateTime */}
+        {/* From DateTime */}
         <div>
           <label className="block">From Date & Time</label>
           <Datetime
@@ -148,7 +156,7 @@ const Post = () => {
           />
         </div>
 
-        {/* ✅ To DateTime */}
+        {/* To DateTime */}
         <div>
           <label className="block">To Date & Time</label>
           <Datetime
@@ -246,17 +254,6 @@ const Post = () => {
             <option value="1ac">1AC</option>
             <option value="general">General</option>
           </select>
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
         </div>
 
         <button

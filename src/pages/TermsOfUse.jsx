@@ -1,28 +1,41 @@
+// src/pages/TermsOfUse.jsx
 import React from "react";
-import Footer from "../components/Footer";
 
-export default function Terms() {
+const TermsOfUse = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-blue-600 text-white p-4 text-center text-2xl font-bold">
-        Terms & Conditions
-      </header>
+    <div className="max-w-4xl mx-auto py-10 px-4 md:px-0">
+      <h1 className="text-3xl font-bold mb-6 text-center">Terms of Use</h1>
 
-      <main className="flex-1 container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4">Terms & Conditions</h1>
-        <p className="mb-2">
-          All users must provide accurate ticket information and personal details.
-        </p>
-        <p className="mb-2">
-          Contact sharing occurs only after payment verification. MyYatraExchange.com is not responsible for user disputes.
-        </p>
-        <p>
-          Use of this platform constitutes agreement to these terms.
-        </p>
-      </main>
+      <p className="mb-4">
+        By using MyYatraExchange.com, you agree to the following terms and conditions.
+      </p>
 
-      <Footer />
+      <h2 className="text-2xl font-semibold mb-3 mt-6">1. Purpose</h2>
+      <p className="mb-4">
+        Our platform is intended to connect travelers who want to share unused tickets. We do not sell, resell, or alter train tickets.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">2. User Conduct</h2>
+      <p className="mb-4">
+        Users must provide accurate information and respect other users. MyYatraExchange.com reserves the right to suspend or ban accounts violating rules.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">3. Unlock Fee</h2>
+      <p className="mb-4">
+        A ₹20 unlock fee is charged to view contact numbers. This fee is non-refundable.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">4. Liability</h2>
+      <p className="mb-4">
+        MyYatraExchange.com is not responsible for tickets booked outside our platform or any travel-related issues. All ticket and refund matters are governed by Indian Railways.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">5. Contact</h2>
+      <p>Email: <strong>myyatraexchange@gmail.com</strong></p>
+      <p>Location: <strong>Indore, India</strong></p>
     </div>
   );
-}
+};
+
+export default TermsOfUse;
 

@@ -1,25 +1,41 @@
+// src/pages/PrivacyPolicy.jsx
 import React from "react";
-import Footer from "../components/Footer";
 
-export default function PrivacyPolicy() {
+const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-blue-600 text-white p-4 text-center text-2xl font-bold">
-        Privacy Policy
-      </header>
+    <div className="max-w-4xl mx-auto py-10 px-4 md:px-0">
+      <h1 className="text-3xl font-bold mb-6 text-center">Privacy Policy</h1>
 
-      <main className="flex-1 container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
-        <p className="mb-2">
-          We respect your privacy. Contact information is shared only after payment verification.
-        </p>
-        <p>
-          We do not store unnecessary personal data. All submitted data is used solely for ticket sharing coordination.
-        </p>
-      </main>
+      <p className="mb-4">
+        MyYatraExchange.com respects your privacy. This page explains how we collect, use, and protect your information.
+      </p>
 
-      <Footer />
+      <h2 className="text-2xl font-semibold mb-3 mt-6">1. Information Collection</h2>
+      <p className="mb-4">
+        We collect only the information necessary to connect travelers, including name, contact number, and ticket details voluntarily shared by users.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">2. Use of Information</h2>
+      <p className="mb-4">
+        Information is used solely to facilitate connections between travelers. We do not sell or share personal data with third parties.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">3. Security</h2>
+      <p className="mb-4">
+        We implement industry-standard measures to protect your data. However, users are responsible for verifying the identity of others before sharing tickets or traveling.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">4. Unlock Fee</h2>
+      <p className="mb-4">
+        ₹20 unlock fee is collected to view contact numbers. This fee is non-refundable.
+      </p>
+
+      <h2 className="text-2xl font-semibold mb-3 mt-6">5. Contact</h2>
+      <p>Email: <strong>myyatraexchange@gmail.com</strong></p>
+      <p>Location: <strong>Indore, India</strong></p>
     </div>
   );
-}
+};
+
+export default PrivacyPolicy;
 

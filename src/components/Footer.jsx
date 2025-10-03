@@ -9,7 +9,7 @@ const Footer = () => {
         {/* Brand Info */}
         <div>
           <h2 className="font-bold text-lg mb-2">MyYatraExchange.com</h2>
-          <p>Helping you share unused train tickets to avoid cancellation losses.</p>
+          <p>Helping you share unused train tickets safely without cancellation losses.</p>
         </div>
 
         {/* Navigation Links */}
@@ -38,7 +38,7 @@ const Footer = () => {
           <div className="mt-4">
             <h2 className="font-bold text-lg mb-1">Contact</h2>
             <p className="text-sm">Email: myyatraexchange@gmail.com</p>
-            <p className="text-sm">Location: INDORE,INDIA</p>
+            <p className="text-sm">Location: INDORE, INDIA</p>
           </div>
         </div>
       </div>
@@ -51,12 +51,12 @@ const Footer = () => {
         </span>
       </div>
 
-      {/* Moving Disclaimer */}
+      {/* Updated Disclaimer */}
       <div className="bg-yellow-200 text-yellow-900 py-2 text-sm mt-4">
-        <marquee behavior="scroll" direction="left" scrollAmount="4">
-          <strong>Disclaimer:</strong> MyYatraExchange.com is an independent platform for connecting travellers. 
-          We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with Indian Railways. 
-          All train names and numbers are the property of Indian Railways and are used for identification purposes only.
+        <marquee behavior="scroll" direction="left" scrollAmount="8">
+          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers to share contact information for unused tickets. 
+          We do not sell, resell, transfer, modify, or issue tickets in any way. All coordination is directly between users. 
+          This platform is independent and not affiliated with Indian Railways. All train details are for identification purposes only.
         </marquee>
       </div>
     </footer>
