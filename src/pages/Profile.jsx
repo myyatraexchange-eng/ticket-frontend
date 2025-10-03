@@ -10,7 +10,6 @@ const Profile = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -118,16 +117,6 @@ const Profile = () => {
             <p>
               <span className="font-medium text-gray-700">Unique ID:</span>{" "}
               {user.uniqueId}
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="font-medium text-gray-700">Password:</span>{" "}
-              {showPassword ? user.password : "********"}
-              <button
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-blue-600 text-sm underline hover:text-blue-800"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
             </p>
           </div>
 

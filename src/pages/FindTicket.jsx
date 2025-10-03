@@ -126,6 +126,19 @@ export default function FindTicket() {
     }
   };
 
+  // Utility function to format date & time nicely
+  const formatDateTime = (dt) => {
+    if (!dt) return "N/A";
+    return new Date(dt).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 text-center">🎟 Find Tickets</h1>
@@ -175,14 +188,12 @@ export default function FindTicket() {
 
               <p className="text-gray-700">
                 <span className="font-medium">⏰ Departure:</span>{" "}
-                {new Date(t.fromDateTime).toLocaleString()}
+                {formatDateTime(t.fromDateTime)}
               </p>
 
               <p className="text-gray-700">
                 <span className="font-medium">🛬 Arrival:</span>{" "}
-                {t.toDateTime
-                  ? new Date(t.toDateTime).toLocaleString()
-                  : "N/A"}
+                {formatDateTime(t.toDateTime)}
               </p>
 
               <p className="text-gray-700">
@@ -197,7 +208,9 @@ export default function FindTicket() {
 
               <p className="text-gray-700">
                 <span className="font-medium">👤 Passenger:</span>{" "}
-                {t.passengerName} ({t.passengerGender}, {t.passengerAge})
+                {t.passengerName
+                  ? `${t.passengerName} (${t.passengerGender}, ${t.passengerAge})`
+                  : "N/A"}
               </p>
 
               {t.contactUnlocked ? (

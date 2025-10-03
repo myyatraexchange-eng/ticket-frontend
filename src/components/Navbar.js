@@ -94,15 +94,6 @@ const Navbar = () => {
                   Policy
                 </NavLink>
                 <NavLink
-                  to="/privacy-policy"
-                  onClick={handleLinkClick}
-                  className={({ isActive }) =>
-                    `block px-4 py-2 hover:bg-gray-100 ${isActive ? "font-bold text-blue-600" : ""}`
-                  }
-                >
-                  Privacy Policy
-                </NavLink>
-                <NavLink
                   to="/disclaimer"
                   onClick={handleLinkClick}
                   className={({ isActive }) =>
