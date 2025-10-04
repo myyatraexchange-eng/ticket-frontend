@@ -92,9 +92,18 @@ const Profile = () => {
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg rounded-2xl p-8 mb-12 border border-blue-200">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">User Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700">
-            <p><span className="font-medium">Name:</span> {user.name}</p>
-            <p><span className="font-medium">Phone:</span> {user.phone}</p>
-            <p><span className="font-medium">Unique ID:</span> {user.uniqueId}</p>
+            <p>
+              <span className="font-semibold text-blue-600 uppercase">Name:</span>{" "}
+              <span className="font-medium text-gray-800 uppercase">{user.name}</span>
+            </p>
+            <p>
+              <span className="font-semibold text-blue-600 uppercase">Phone:</span>{" "}
+              <span className="font-medium text-gray-800">{user.phone}</span>
+            </p>
+            <p>
+              <span className="font-semibold text-blue-600 uppercase">Unique ID:</span>{" "}
+              <span className="font-medium text-gray-800 uppercase">{user.uniqueId}</span>
+            </p>
           </div>
 
           {/* Change Password */}
@@ -138,14 +147,13 @@ const Profile = () => {
               className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between"
             >
               <div>
-                <h3 className="font-bold text-xl text-blue-700 mb-2">
-                  {ticket.trainName} ({ticket.trainNumber})
+                <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">
+                  {ticket.trainName}
                 </h3>
-                <p className="text-gray-600 mb-1">
-                  {ticket.from} → {ticket.to} |{" "}
-                  {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                <p className="text-gray-600 mb-1 uppercase">
+                  {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 uppercase">
                   Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
                 </p>
               </div>

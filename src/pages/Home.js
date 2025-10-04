@@ -1,6 +1,8 @@
+// src/pages/Home.jsx
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { QRCodeCanvas } from "qrcode.react";
 import trainImage from "../assets/train.webp";
 import { useLoader } from "../context/LoaderContext";
 
@@ -8,34 +10,132 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// ✅ Ticket Card Component (Home version, no payment button)
-const TicketCard = memo(({ ticket }) => (
-  <div className="bg-white shadow-md rounded p-4 border hover:shadow-lg transition duration-200">
-    <h3 className="font-semibold text-lg sm:text-xl text-blue-600">
-      {ticket.trainName} ({ticket.trainNumber})
-    </h3>
-    <p className="text-sm sm:text-base">
-      <strong>From → To:</strong> {ticket.from} → {ticket.to}
-    </p>
-    <p className="text-sm sm:text-base">
-      <strong>Departure:</strong>{" "}
-      {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString() : "N/A"}
-    </p>
-    <p className="text-sm sm:text-base">
-      <strong>Arrival:</strong>{" "}
-      {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString() : "N/A"}
-    </p>
-    <p className="text-sm sm:text-base"><strong>Tickets:</strong> {ticket.ticketCount}</p>
-    <p className="text-sm sm:text-base"><strong>Class:</strong> {ticket.seatType}</p>
-    <p className="text-sm sm:text-base">
-      <strong>Passenger:</strong> {ticket.holderName} ({ticket.gender}, {ticket.age})
-    </p>
+// Ticket Card with Pay / Contact unlock
+const TicketCard = memo(({ ticket, onPayClick, currentTicketId, showQR, currentUpiLink, closeQR, submitProof, txnId, setTxnId, payerName, setPayerName, payerMobile, setPayerMobile, submittingProof, proofMessage }) => (
+  <div className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
+    <div className="flex flex-col gap-2">
+      <h2 className="text-2xl font-bold text-blue-700 mb-2 uppercase">
+        🚆 {ticket.trainName ? ticket.trainName.toUpperCase() : "UNKNOWN TRAIN"} ({ticket.trainNumber || "N/A"})
+      </h2>
+
+      <p className="text-gray-700 uppercase">
+        <span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase() || "N/A"} → {ticket.to?.toUpperCase() || "N/A"}
+      </p>
+
+      <p className="text-gray-700 uppercase">
+        <span className="font-semibold">⏰ Departure:</span> {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true }) : "N/A"}
+      </p>
+
+      <p className="text-gray-700 uppercase">
+        <span className="font-semibold">🛬 Arrival:</span> {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true }) : "N/A"}
+      </p>
+
+      <p className="text-gray-700 uppercase">
+        <span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}
+      </p>
+
+      <p className="text-gray-700 uppercase">
+        <span className="font-semibold">🎟 Tickets Available:</span> {ticket.ticketNumber || "N/A"}
+      </p>
+
+      <p className="text-gray-700 uppercase">
+        <span className="font-semibold">👤 Passenger:</span> {ticket.passengerName ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender.toUpperCase()}, ${ticket.passengerAge})` : "N/A"}
+      </p>
+
+      {ticket.contactUnlocked ? (
+        <p className="mt-2 text-green-700 font-semibold uppercase">
+          📞 Contact: {ticket.contactNumber}
+        </p>
+      ) : (
+        <button
+          onClick={() => onPayClick(ticket)}
+          className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase"
+        >
+          Pay ₹20 to Unlock Contact
+        </button>
+      )}
+    </div>
+
+    {/* QR & Proof Form */}
+    {!ticket.contactUnlocked &&
+      currentTicketId === ticket._id &&
+      showQR &&
+      currentUpiLink && (
+        <div className="mt-4 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
+          <p className="mb-2 font-medium text-center uppercase">
+            Scan this QR with UPI app to pay ₹20:
+          </p>
+          <QRCodeCanvas value={currentUpiLink} size={180} />
+          <button
+            onClick={closeQR}
+            className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase"
+          >
+            Close QR
+          </button>
+
+          <div className="mt-4 w-full max-w-md">
+            <div className="mb-2 font-medium uppercase">
+              Already paid? Submit payment details:
+            </div>
+            <form className="flex flex-col gap-2" onSubmit={submitProof}>
+              <input
+                placeholder="Transaction ID"
+                value={txnId}
+                onChange={(e) => setTxnId(e.target.value)}
+                className="border p-2 rounded uppercase"
+                required
+              />
+              <input
+                placeholder="Payer Name"
+                value={payerName}
+                onChange={(e) => setPayerName(e.target.value)}
+                className="border p-2 rounded uppercase"
+                required
+              />
+              <input
+                placeholder="Payer Mobile (10 digits)"
+                value={payerMobile}
+                onChange={(e) => setPayerMobile(e.target.value)}
+                className="border p-2 rounded"
+                required
+              />
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="submit"
+                  disabled={submittingProof}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase"
+                >
+                  {submittingProof ? "Submitting..." : "Submit Payment Proof"}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeQR}
+                  className="px-3 py-2 border rounded uppercase"
+                >
+                  Cancel
+                </button>
+              </div>
+              {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
+            </form>
+          </div>
+        </div>
+      )}
   </div>
 ));
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
-  const { showLoader, hideLoader } = useLoader(); // ✅ Loader
+  const { showLoader, hideLoader } = useLoader();
+
+  // Payment/QR states
+  const [currentTicketId, setCurrentTicketId] = useState(null);
+  const [showQR, setShowQR] = useState(false);
+  const [currentUpiLink, setCurrentUpiLink] = useState("");
+  const [txnId, setTxnId] = useState("");
+  const [payerName, setPayerName] = useState("");
+  const [payerMobile, setPayerMobile] = useState("");
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState("");
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -55,23 +155,76 @@ const Home = () => {
     fetchTickets();
   }, []);
 
+  const handlePayClick = (ticket) => {
+    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    if (isMobile) window.location.href = upiLink;
+    else {
+      setCurrentUpiLink(upiLink);
+      setShowQR(true);
+    }
+    setCurrentTicketId(ticket._id);
+    setTxnId("");
+    setPayerName("");
+    setPayerMobile("");
+    setProofMessage("");
+  };
+
+  const closeQR = () => {
+    setShowQR(false);
+    setCurrentUpiLink("");
+    setCurrentTicketId(null);
+  };
+
+  const submitProof = async (e) => {
+    e.preventDefault();
+    if (!txnId || !payerName || !payerMobile) {
+      setProofMessage("Fill all fields");
+      return;
+    }
+    if (!/^\d{10}$/.test(payerMobile)) {
+      setProofMessage("Enter valid 10-digit mobile");
+      return;
+    }
+
+    setSubmittingProof(true);
+    setProofMessage("");
+    try {
+      const res = await fetch(`${API_BASE}/submit-payment-proof`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: currentTicketId,
+          txnId,
+          payerName,
+          payerMobile,
+          amount: 20,
+        }),
+      });
+      const data = await res.json();
+      setProofMessage(data.message || "Submitted for verification");
+      setTxnId("");
+      setPayerName("");
+      setPayerMobile("");
+      setTimeout(closeQR, 1500);
+    } catch (err) {
+      setProofMessage(err.message || "Failed to submit proof");
+    } finally {
+      setSubmittingProof(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
-      {/* SEO Meta Tags */}
       <Helmet>
         <title>MyYatraExchange - Exchange & Find Confirmed Train Tickets</title>
-        <meta name="description" content="MyYatraExchange helps travelers connect to exchange or find confirmed train tickets and save cancellation charges. A simple and secure ticket exchange platform." />
-        <meta name="keywords" content="train ticket exchange, confirmed train ticket, save cancellation charges, railway ticket, indian railways ticket exchange" />
+        <meta name="description" content="MyYatraExchange helps travelers connect to exchange or find confirmed train tickets and save cancellation charges." />
+        <meta name="keywords" content="train ticket exchange, confirmed train ticket, save cancellation charges" />
       </Helmet>
 
       {/* Hero Section */}
       <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
-        <img
-          src={trainImage}
-          alt="Train"
-          className="w-full h-full object-cover object-center"
-          loading="lazy"
-        />
+        <img src={trainImage} alt="Train" className="w-full h-full object-cover object-center" loading="lazy" />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
             <span className="text-orange-500">My</span>
@@ -82,12 +235,8 @@ const Home = () => {
             Share Your Unused Train Ticket — Save Cancellation Charges! Connect with people who need a ticket.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition">
-              Find Ticket
-            </Link>
-            <Link to="/post" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition">
-              Post Ticket
-            </Link>
+            <Link to="/find" className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-200 transition">Find Ticket</Link>
+            <Link to="/post" className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition">Post Ticket</Link>
           </div>
         </div>
       </div>
@@ -101,20 +250,31 @@ const Home = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map(ticket => (
-              <TicketCard key={ticket._id} ticket={ticket} />
+              <TicketCard
+                key={ticket._id}
+                ticket={ticket}
+                onPayClick={handlePayClick}
+                currentTicketId={currentTicketId}
+                showQR={showQR}
+                currentUpiLink={currentUpiLink}
+                closeQR={closeQR}
+                submitProof={submitProof}
+                txnId={txnId}
+                setTxnId={setTxnId}
+                payerName={payerName}
+                setPayerName={setPayerName}
+                payerMobile={payerMobile}
+                setPayerMobile={setPayerMobile}
+                submittingProof={submittingProof}
+                proofMessage={proofMessage}
+              />
             ))}
           </div>
         )}
 
-        {/* Link to full ticket page */}
         {tickets.length > 0 && (
           <div className="text-center mt-6">
-            <Link
-              to="/find"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-            >
-              See All Tickets
-            </Link>
+            <Link to="/find" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">See All Tickets</Link>
           </div>
         )}
       </div>
@@ -123,3 +283,4 @@ const Home = () => {
 };
 
 export default Home;
+

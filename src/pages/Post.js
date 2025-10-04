@@ -16,8 +16,8 @@ const Post = () => {
     trainName: "",
     from: "",
     to: "",
-    fromDate: null, // ✅ date only
-    fromTime: null, // ✅ time only
+    fromDate: null,
+    fromTime: null,
     toDate: null,
     toTime: null,
     tickets: "",
@@ -29,14 +29,13 @@ const Post = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value.toUpperCase() }); // ✅ auto uppercase
   };
 
-  // Form Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Merge date + time into one DateTime string
     const fromDateTime =
       formData.fromDate && formData.fromTime
         ? new Date(
@@ -59,33 +58,31 @@ const Post = () => {
           ).toISOString()
         : null;
 
-    const payload = {
-      ...formData,
-      fromDateTime,
-      toDateTime,
-    };
+    const payload = { ...formData, fromDateTime, toDateTime };
 
     try {
-      const token = localStorage.getItem("token"); // ✅ token le rahe hain
+      const token = localStorage.getItem("token");
 
       await axios.post(`${API_BASE}/tickets`, payload, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ token bhejna zaroori hai
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      alert("Ticket posted successfully!");
+      alert("✅ Ticket posted successfully!");
       navigate("/profile");
     } catch (error) {
       console.error("Ticket Post Error:", error.response?.data || error.message);
-      alert("Failed to post ticket");
+      alert("❌ Failed to post ticket");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white shadow-md p-6 rounded mt-6">
-      <h2 className="text-xl font-bold mb-4">Post Your Ticket</h2>
+    <div className="max-w-2xl mx-auto bg-white shadow-lg p-6 rounded-2xl mt-6">
+      <h2 className="text-2xl font-bold mb-6 text-center text-blue-700 uppercase">
+        Post Your Ticket
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Train Details */}
         <input
@@ -94,7 +91,7 @@ const Post = () => {
           placeholder="Train Number"
           value={formData.trainNumber}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
           required
         />
         <input
@@ -103,7 +100,7 @@ const Post = () => {
           placeholder="Train Name"
           value={formData.trainName}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
           required
         />
         <input
@@ -112,7 +109,7 @@ const Post = () => {
           placeholder="From"
           value={formData.from}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
           required
         />
         <input
@@ -121,7 +118,7 @@ const Post = () => {
           placeholder="To"
           value={formData.to}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
           required
         />
 
@@ -134,7 +131,7 @@ const Post = () => {
           }
           dateFormat="dd/MM/yyyy"
           placeholderText="Select Departure Date"
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg"
           minDate={new Date()}
           required
         />
@@ -143,16 +140,14 @@ const Post = () => {
             <label className="block font-semibold">Departure Time</label>
             <DatePicker
               selected={formData.fromTime}
-              onChange={(time) =>
-                setFormData({ ...formData, fromTime: time })
-              }
+              onChange={(time) => setFormData({ ...formData, fromTime: time })}
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={15}
               timeCaption="Time"
               dateFormat="hh:mm aa"
               placeholderText="Select Departure Time"
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border rounded-lg"
               required
             />
           </>
@@ -167,7 +162,7 @@ const Post = () => {
           }
           dateFormat="dd/MM/yyyy"
           placeholderText="Select Arrival Date"
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg"
           minDate={formData.fromDate || new Date()}
           required
         />
@@ -183,7 +178,7 @@ const Post = () => {
               timeCaption="Time"
               dateFormat="hh:mm aa"
               placeholderText="Select Arrival Time"
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border rounded-lg"
               required
             />
           </>
@@ -196,7 +191,7 @@ const Post = () => {
           placeholder="Number of Tickets"
           value={formData.tickets}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg"
           required
         />
 
@@ -207,7 +202,7 @@ const Post = () => {
           placeholder="Passenger Name"
           value={formData.passengerName}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
           required
         />
         <input
@@ -216,18 +211,18 @@ const Post = () => {
           placeholder="Passenger Age"
           value={formData.age}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg"
         />
         <select
           name="gender"
           value={formData.gender}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
         >
           <option value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
         </select>
 
         {/* Contact */}
@@ -237,7 +232,7 @@ const Post = () => {
           placeholder="Contact Number"
           value={formData.contactNumber}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg"
           required
         />
 
@@ -246,20 +241,20 @@ const Post = () => {
           name="class"
           value={formData.class}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-lg uppercase"
           required
         >
           <option value="">Select Class</option>
-          <option value="general">General</option>
-          <option value="sleeper">Sleeper</option>
-          <option value="3ac">3AC</option>
-          <option value="2ac">2AC</option>
-          <option value="1ac">1AC</option>
+          <option value="GENERAL">General</option>
+          <option value="SLEEPER">Sleeper</option>
+          <option value="3AC">3AC</option>
+          <option value="2AC">2AC</option>
+          <option value="1AC">1AC</option>
         </select>
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 uppercase font-semibold w-full"
         >
           Post Ticket
         </button>

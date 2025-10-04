@@ -1,244 +1,171 @@
-// src/pages/FindTicket.jsx
-import React, { useEffect, useState, useCallback } from "react";
-import stations from "../data/stations.json";
+// src/pages/EditTicket.jsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080/api";
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
-// JSON safe parse
-const safeParseJsonResponse = async (res) => {
-  const text = await res.text();
-  const trimmed = text.trim();
-  const ct = (res.headers && res.headers.get && res.headers.get("content-type")) || "";
-  if (ct.includes("application/json") || trimmed.startsWith("{") || trimmed.startsWith("[")) {
-    try {
-      return JSON.parse(trimmed);
-    } catch (e) {
-      throw new Error("Invalid JSON: " + e.message + " — raw: " + trimmed.slice(0, 300));
-    }
-  }
-  throw new Error("Server returned non-JSON: " + trimmed.slice(0, 500));
-};
+export default function EditTicket() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-// ✅ debounce helper
-function useDebounce(callback, delay) {
-  const timeoutRef = React.useRef(null);
+  const [formData, setFormData] = useState({
+    trainNumber: "",
+    trainName: "",
+    from: "",
+    to: "",
+    fromDate: null,
+    fromTime: null,
+    toDate: null,
+    toTime: null,
+    tickets: "",
+    passengerName: "",
+    age: "",
+    gender: "",
+    contactNumber: "",
+    class: "",
+  });
 
-  const debouncedFn = useCallback(
-    (...args) => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    },
-    [callback, delay]
-  );
-
-  return debouncedFn;
-}
-
-function SearchableInput({ placeholder, value, onChange }) {
-  const [showList, setShowList] = useState(false);
-  const [highlightIndex, setHighlightIndex] = useState(-1);
-  const [inputValue, setInputValue] = useState(value);
-
-  // ✅ Debounced onChange
-  const debouncedOnChange = useDebounce((val) => {
-    onChange(val);
-  }, 300);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    debouncedOnChange(inputValue);
-  }, [inputValue, debouncedOnChange]);
+    const fetchTicket = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_BASE}/tickets/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const t = res.data.ticket;
 
-  const filteredStations = stations.stations.filter((s) =>
-    s.toLowerCase().includes(inputValue.toLowerCase())
-  );
-
-  const handleKeyDown = (e) => {
-    if (!showList) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev + 1) % filteredStations.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev <= 0 ? filteredStations.length - 1 : prev - 1
-      );
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (highlightIndex >= 0 && highlightIndex < filteredStations.length) {
-        setInputValue(filteredStations[highlightIndex]);
-        setShowList(false);
-        setHighlightIndex(-1);
+        // Pre-fill form
+        setFormData({
+          trainNumber: t.trainNumber || "",
+          trainName: t.trainName || "",
+          from: t.from || "",
+          to: t.to || "",
+          fromDate: t.fromDateTime ? new Date(t.fromDateTime) : null,
+          fromTime: t.fromDateTime ? new Date(t.fromDateTime) : null,
+          toDate: t.toDateTime ? new Date(t.toDateTime) : null,
+          toTime: t.toDateTime ? new Date(t.toDateTime) : null,
+          tickets: t.ticketNumber || "",
+          passengerName: t.passengerName || "",
+          age: t.passengerAge || "",
+          gender: t.passengerGender || "",
+          contactNumber: t.contactNumber || "",
+          class: t.classType || "",
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load ticket data");
+      } finally {
+        setLoading(false);
       }
+    };
+    fetchTicket();
+  }, [id]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Merge date + time into ISO
+    const fromDateTime =
+      formData.fromDate && formData.fromTime
+        ? new Date(
+            formData.fromDate.getFullYear(),
+            formData.fromDate.getMonth(),
+            formData.fromDate.getDate(),
+            formData.fromTime.getHours(),
+            formData.fromTime.getMinutes()
+          ).toISOString()
+        : null;
+
+    const toDateTime =
+      formData.toDate && formData.toTime
+        ? new Date(
+            formData.toDate.getFullYear(),
+            formData.toDate.getMonth(),
+            formData.toDate.getDate(),
+            formData.toTime.getHours(),
+            formData.toTime.getMinutes()
+          ).toISOString()
+        : null;
+
+    const payload = { ...formData, fromDateTime, toDateTime };
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(`${API_BASE}/tickets/${id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert("Ticket updated successfully!");
+      navigate("/profile");
+    } catch (err) {
+      console.error("Update error:", err.response?.data || err.message);
+      alert("Failed to update ticket");
     }
   };
+
+  if (loading) return <p className="text-center mt-10 animate-pulse">Loading ticket...</p>;
 
   return (
-    <div className="relative w-60">
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={inputValue}
-        onChange={(e) => {
-          setInputValue(e.target.value);
-          setShowList(true);
-          setHighlightIndex(-1);
-        }}
-        onFocus={() => setShowList(true)}
-        onBlur={() => setTimeout(() => setShowList(false), 200)}
-        onKeyDown={handleKeyDown}
-        className="border p-2 rounded w-full"
-      />
-      {showList && inputValue && (
-        <ul className="absolute bg-white border rounded shadow max-h-48 overflow-y-auto w-full z-10">
-          {filteredStations.map((s, idx) => (
-            <li
-              key={s}
-              className={`p-2 cursor-pointer ${
-                idx === highlightIndex ? "bg-blue-200" : "hover:bg-gray-200"
-              }`}
-              onMouseDown={() => {
-                setInputValue(s);
-                setShowList(false);
-              }}
-            >
-              {s}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+    <div className="max-w-2xl mx-auto bg-white shadow-md p-6 rounded mt-6">
+      <h2 className="text-xl font-bold mb-4 text-blue-700 uppercase">Edit Ticket</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="text" name="trainNumber" placeholder="Train Number" value={formData.trainNumber} onChange={handleChange} className="w-full p-2 border rounded" required/>
+        <input type="text" name="trainName" placeholder="Train Name" value={formData.trainName} onChange={handleChange} className="w-full p-2 border rounded uppercase" required/>
+        <input type="text" name="from" placeholder="From" value={formData.from} onChange={handleChange} className="w-full p-2 border rounded uppercase" required/>
+        <input type="text" name="to" placeholder="To" value={formData.to} onChange={handleChange} className="w-full p-2 border rounded uppercase" required/>
 
-export default function FindTicket() {
-  const [tickets, setTickets] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+        {/* Departure */}
+        <label className="block font-semibold">Departure Date</label>
+        <DatePicker selected={formData.fromDate} onChange={(date)=>setFormData({...formData, fromDate: date, fromTime: null})} dateFormat="dd/MM/yyyy" placeholderText="Select Departure Date" className="w-full p-2 border rounded" required/>
+        {formData.fromDate && (
+          <>
+            <label className="block font-semibold">Departure Time</label>
+            <DatePicker selected={formData.fromTime} onChange={(time)=>setFormData({...formData, fromTime: time})} showTimeSelect showTimeSelectOnly timeIntervals={15} timeCaption="Time" dateFormat="hh:mm aa" className="w-full p-2 border rounded" required/>
+          </>
+        )}
 
-  const [fromFilter, setFromFilter] = useState("");
-  const [toFilter, setToFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+        {/* Arrival */}
+        <label className="block font-semibold">Arrival Date</label>
+        <DatePicker selected={formData.toDate} onChange={(date)=>setFormData({...formData, toDate: date, toTime: null})} dateFormat="dd/MM/yyyy" placeholderText="Select Arrival Date" className="w-full p-2 border rounded" minDate={formData.fromDate || new Date()} required/>
+        {formData.toDate && (
+          <>
+            <label className="block font-semibold">Arrival Time</label>
+            <DatePicker selected={formData.toTime} onChange={(time)=>setFormData({...formData, toTime: time})} showTimeSelect showTimeSelectOnly timeIntervals={15} timeCaption="Time" dateFormat="hh:mm aa" className="w-full p-2 border rounded" required/>
+          </>
+        )}
 
-  useEffect(() => {
-    fetchTickets();
-    // eslint-disable-next-line
-  }, []);
+        <input type="number" name="tickets" placeholder="Number of Tickets" value={formData.tickets} onChange={handleChange} className="w-full p-2 border rounded" required/>
+        <input type="text" name="passengerName" placeholder="Passenger Name" value={formData.passengerName} onChange={handleChange} className="w-full p-2 border rounded uppercase" required/>
+        <input type="number" name="age" placeholder="Passenger Age" value={formData.age} onChange={handleChange} className="w-full p-2 border rounded"/>
+        <select name="gender" value={formData.gender} onChange={handleChange} className="w-full p-2 border rounded">
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        <input type="text" name="contactNumber" placeholder="Contact Number" value={formData.contactNumber} onChange={handleChange} className="w-full p-2 border rounded" required/>
+        <select name="class" value={formData.class} onChange={handleChange} className="w-full p-2 border rounded" required>
+          <option value="">Select Class</option>
+          <option value="general">General</option>
+          <option value="sleeper">Sleeper</option>
+          <option value="3ac">3AC</option>
+          <option value="2ac">2AC</option>
+          <option value="1ac">1AC</option>
+        </select>
 
-  const fetchTickets = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/tickets`);
-      if (!res.ok) throw new Error(`Request failed ${res.status} ${res.statusText}`);
-      const data = await safeParseJsonResponse(res);
-      setTickets(data.tickets || []);
-      setFiltered(data.tickets || []);
-    } catch (err) {
-      console.error("fetchTickets error:", err);
-      setError(err.message || "Failed to load tickets");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Filters
-  useEffect(() => {
-    let out = tickets;
-    if (fromFilter) out = out.filter((t) => t.from?.toLowerCase().includes(fromFilter.toLowerCase()));
-    if (toFilter) out = out.filter((t) => t.to?.toLowerCase().includes(toFilter.toLowerCase()));
-    if (dateFilter) {
-      out = out.filter((t) => {
-        if (!t.fromDateTime) return false;
-        const iso = new Date(t.fromDateTime).toISOString().slice(0, 10);
-        return iso === dateFilter;
-      });
-    }
-    setFiltered(out);
-  }, [fromFilter, toFilter, dateFilter, tickets]);
-
-  // Pay handler
-  const handlePay = async (ticket) => {
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/payments/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: ticket._id, amount: ticket.price, buyerName: "User" }),
-      });
-      const data = await safeParseJsonResponse(res);
-      if (data.upiLink) {
-        window.location.href = data.upiLink;
-      } else {
-        alert("UPI link not returned. Contact admin.");
-      }
-    } catch (err) {
-      console.error("handlePay error:", err);
-      setError(err.message || "Payment failed");
-    }
-  };
-
-  return (
-    <div className="p-4 container mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Find Tickets</h1>
-
-      {/* Filters */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <SearchableInput
-          placeholder="From"
-          value={fromFilter}
-          onChange={setFromFilter}
-        />
-        <SearchableInput
-          placeholder="To"
-          value={toFilter}
-          onChange={setToFilter}
-        />
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
-      </div>
-
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
-      {/* Tickets list */}
-      <div className="grid gap-4">
-        {filtered.map((t) => (
-          <div key={t._id} className="border rounded p-4">
-            <div className="flex justify-between">
-              <div>
-                <div className="font-semibold">
-                  {t.trainName} ({t.trainNumber})
-                </div>
-                <div>
-                  From {t.from} → {t.to}
-                </div>
-                <div>Depart: {new Date(t.fromDateTime).toLocaleString()}</div>
-                <div>Price: ₹{t.price}</div>
-              </div>
-              <div>
-                {t.contactUnlocked ? (
-                  <div>Contact: {t.contactNumber}</div>
-                ) : (
-                  <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                    onClick={() => handlePay(t)}
-                  >
-                    Pay to Unlock
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+        <button type="submit" className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Update Ticket</button>
+      </form>
     </div>
   );
 }
