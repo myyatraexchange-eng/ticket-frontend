@@ -1,3 +1,4 @@
+// src/pages/FindTicket.jsx
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -6,6 +7,7 @@ const API_BASE = process.env.REACT_APP_API_BASE;
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [visibleTickets, setVisibleTickets] = useState(3); // show 3 initially
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,8 +24,6 @@ export default function FindTicket() {
 
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
-
-  const [visibleCount, setVisibleCount] = useState(6); // Initially show 6 tickets
 
   useEffect(() => {
     fetchTickets();
@@ -45,7 +45,6 @@ export default function FindTicket() {
     }
   };
 
-  // Apply filters
   useEffect(() => {
     let out = tickets;
     if (fromFilter)
@@ -63,7 +62,7 @@ export default function FindTicket() {
           new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
       );
     setFiltered(out);
-    setVisibleCount(6); // Reset visible count on filter change
+    setVisibleTickets(3); // reset visible tickets on filter change
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
   const handlePay = (ticket) => {
@@ -141,8 +140,6 @@ export default function FindTicket() {
     });
   };
 
-  const loadMore = () => setVisibleCount((prev) => prev + 6); // Load next 6 tickets
-
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
@@ -155,19 +152,19 @@ export default function FindTicket() {
           placeholder="From"
           value={fromFilter}
           onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded w-44 uppercase"
+          className="border p-2 rounded w-44 uppercase text-sm"
         />
         <input
           placeholder="To"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded w-44 uppercase"
+          className="border p-2 rounded w-44 uppercase text-sm"
         />
         <input
           type="date"
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded text-sm"
         />
       </div>
 
@@ -175,57 +172,51 @@ export default function FindTicket() {
       {error && <p className="text-red-600">{error}</p>}
 
       {/* Ticket List */}
-      <div className="grid gap-6 w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        {filtered.slice(0, visibleCount).map((t) => (
+      <div className="grid gap-6 w-full max-w-6xl sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {filtered.slice(0, visibleTickets).map((t) => (
           <div
             key={t._id}
-            className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
+            className="rounded-xl shadow-lg p-4 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
           >
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-bold text-blue-700 mb-2 uppercase">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-lg font-bold text-blue-700 mb-1 uppercase">
                 🚆 {t.trainName ? t.trainName.toUpperCase() : "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})
               </h2>
 
-              <p className="text-gray-700 uppercase">
-                <span className="font-semibold">📍 Route:</span>{" "}
-                {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}
+              <p className="text-xs text-gray-700 uppercase">
+                <span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}
               </p>
 
-              <p className="text-gray-700 uppercase">
-                <span className="font-semibold">⏰ Departure:</span>{" "}
-                {formatDateTime(t.fromDateTime)}
+              <p className="text-xs text-gray-700 uppercase">
+                <span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}
               </p>
 
-              <p className="text-gray-700 uppercase">
-                <span className="font-semibold">🛬 Arrival:</span>{" "}
-                {formatDateTime(t.toDateTime)}
+              <p className="text-xs text-gray-700 uppercase">
+                <span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}
               </p>
 
-              <p className="text-gray-700 uppercase">
-                <span className="font-semibold">🪑 Class:</span>{" "}
-                {t.classType?.toUpperCase() || "GENERAL"}
+              <p className="text-xs text-gray-700 uppercase">
+                <span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}
               </p>
 
-              <p className="text-gray-700 uppercase">
-                <span className="font-semibold">🎟 Tickets Available:</span>{" "}
-                {t.ticketNumber || "N/A"}
+              <p className="text-xs text-gray-700 uppercase">
+                <span className="font-semibold">🎟 Tickets Available:</span> {t.ticketNumber || "N/A"}
               </p>
 
-              <p className="text-gray-700 uppercase">
-                <span className="font-semibold">👤 Passenger:</span>{" "}
-                {t.passengerName
+              <p className="text-xs text-gray-700 uppercase">
+                <span className="font-semibold">👤 Passenger:</span> {t.passengerName
                   ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})`
                   : "N/A"}
               </p>
 
               {t.contactUnlocked ? (
-                <p className="mt-2 text-green-700 font-semibold uppercase">
+                <p className="mt-1 text-green-700 font-semibold uppercase text-sm">
                   📞 Contact: {t.contactNumber}
                 </p>
               ) : (
                 <button
                   onClick={() => handlePay(t)}
-                  className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase"
+                  className="mt-2 w-fit bg-blue-600 text-white px-4 py-1 rounded shadow hover:bg-blue-700 uppercase text-xs sm:text-sm"
                 >
                   Pay ₹20 to Unlock Contact
                 </button>
@@ -238,19 +229,19 @@ export default function FindTicket() {
               showQR &&
               currentUpiLink && (
                 <div className="mt-4 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
-                  <p className="mb-2 font-medium text-center uppercase">
+                  <p className="mb-2 font-medium text-center uppercase text-sm">
                     Scan this QR with UPI app to pay ₹20:
                   </p>
-                  <QRCodeCanvas value={currentUpiLink} size={180} />
+                  <QRCodeCanvas value={currentUpiLink} size={160} />
                   <button
                     onClick={closeQR}
-                    className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase"
+                    className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm"
                   >
                     Close QR
                   </button>
 
                   <div className="mt-4 w-full max-w-md">
-                    <div className="mb-2 font-medium uppercase">
+                    <div className="mb-2 font-medium uppercase text-sm">
                       Already paid? Submit payment details:
                     </div>
                     <form
@@ -261,37 +252,35 @@ export default function FindTicket() {
                         placeholder="Transaction ID"
                         value={txnId}
                         onChange={(e) => setTxnId(e.target.value)}
-                        className="border p-2 rounded uppercase"
+                        className="border p-2 rounded uppercase text-sm"
                         required
                       />
                       <input
                         placeholder="Payer Name"
                         value={payerName}
                         onChange={(e) => setPayerName(e.target.value)}
-                        className="border p-2 rounded uppercase"
+                        className="border p-2 rounded uppercase text-sm"
                         required
                       />
                       <input
                         placeholder="Payer Mobile (10 digits)"
                         value={payerMobile}
                         onChange={(e) => setPayerMobile(e.target.value)}
-                        className="border p-2 rounded"
+                        className="border p-2 rounded text-sm"
                         required
                       />
                       <div className="flex gap-2 mt-2">
                         <button
                           type="submit"
                           disabled={submittingProof}
-                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase"
+                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-xs sm:text-sm"
                         >
-                          {submittingProof
-                            ? "Submitting..."
-                            : "Submit Payment Proof"}
+                          {submittingProof ? "Submitting..." : "Submit Payment Proof"}
                         </button>
                         <button
                           type="button"
                           onClick={closeQR}
-                          className="px-3 py-2 border rounded uppercase"
+                          className="px-3 py-2 border rounded uppercase text-xs sm:text-sm"
                         >
                           Cancel
                         </button>
@@ -307,11 +296,11 @@ export default function FindTicket() {
         ))}
       </div>
 
-      {/* Load More */}
-      {filtered.length > visibleCount && (
+      {/* Load More Button */}
+      {filtered.length > visibleTickets && visibleTickets < 6 && (
         <button
-          onClick={loadMore}
-          className="mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition uppercase"
+          onClick={() => setVisibleTickets((prev) => Math.min(prev + 3, 6))}
+          className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 uppercase text-sm"
         >
           Load More
         </button>

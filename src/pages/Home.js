@@ -11,45 +11,49 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 // Ticket Card with Pay / Contact unlock
-const TicketCard = memo(({ ticket, onPayClick, currentTicketId, showQR, currentUpiLink, closeQR, submitProof, txnId, setTxnId, payerName, setPayerName, payerMobile, setPayerMobile, submittingProof, proofMessage }) => (
-  <div className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
-    <div className="flex flex-col gap-2">
-      <h2 className="text-2xl font-bold text-blue-700 mb-2 uppercase">
+const TicketCard = memo(({
+  ticket, onPayClick, currentTicketId, showQR, currentUpiLink,
+  closeQR, submitProof, txnId, setTxnId, payerName, setPayerName,
+  payerMobile, setPayerMobile, submittingProof, proofMessage
+}) => (
+  <div className="rounded-xl shadow-lg p-4 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
+    <div className="flex flex-col gap-1">
+      <h2 className="text-lg font-bold text-blue-700 uppercase">
         🚆 {ticket.trainName ? ticket.trainName.toUpperCase() : "UNKNOWN TRAIN"} ({ticket.trainNumber || "N/A"})
       </h2>
 
-      <p className="text-gray-700 uppercase">
+      <p className="text-xs text-gray-700 uppercase">
         <span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase() || "N/A"} → {ticket.to?.toUpperCase() || "N/A"}
       </p>
 
-      <p className="text-gray-700 uppercase">
+      <p className="text-xs text-gray-700 uppercase">
         <span className="font-semibold">⏰ Departure:</span> {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true }) : "N/A"}
       </p>
 
-      <p className="text-gray-700 uppercase">
+      <p className="text-xs text-gray-700 uppercase">
         <span className="font-semibold">🛬 Arrival:</span> {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true }) : "N/A"}
       </p>
 
-      <p className="text-gray-700 uppercase">
+      <p className="text-xs text-gray-700 uppercase">
         <span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}
       </p>
 
-      <p className="text-gray-700 uppercase">
+      <p className="text-xs text-gray-700 uppercase">
         <span className="font-semibold">🎟 Tickets Available:</span> {ticket.ticketNumber || "N/A"}
       </p>
 
-      <p className="text-gray-700 uppercase">
+      <p className="text-xs text-gray-700 uppercase">
         <span className="font-semibold">👤 Passenger:</span> {ticket.passengerName ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender.toUpperCase()}, ${ticket.passengerAge})` : "N/A"}
       </p>
 
       {ticket.contactUnlocked ? (
-        <p className="mt-2 text-green-700 font-semibold uppercase">
+        <p className="mt-1 text-green-700 font-semibold uppercase text-sm">
           📞 Contact: {ticket.contactNumber}
         </p>
       ) : (
         <button
           onClick={() => onPayClick(ticket)}
-          className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase"
+          className="mt-2 w-fit bg-blue-600 text-white px-4 py-1 rounded shadow hover:bg-blue-700 uppercase text-xs sm:text-sm"
         >
           Pay ₹20 to Unlock Contact
         </button>
@@ -57,69 +61,66 @@ const TicketCard = memo(({ ticket, onPayClick, currentTicketId, showQR, currentU
     </div>
 
     {/* QR & Proof Form */}
-    {!ticket.contactUnlocked &&
-      currentTicketId === ticket._id &&
-      showQR &&
-      currentUpiLink && (
-        <div className="mt-4 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
-          <p className="mb-2 font-medium text-center uppercase">
-            Scan this QR with UPI app to pay ₹20:
-          </p>
-          <QRCodeCanvas value={currentUpiLink} size={180} />
-          <button
-            onClick={closeQR}
-            className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase"
-          >
-            Close QR
-          </button>
+    {!ticket.contactUnlocked && currentTicketId === ticket._id && showQR && currentUpiLink && (
+      <div className="mt-4 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
+        <p className="mb-2 font-medium text-center uppercase text-sm">
+          Scan this QR with UPI app to pay ₹20:
+        </p>
+        <QRCodeCanvas value={currentUpiLink} size={160} />
+        <button
+          onClick={closeQR}
+          className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm"
+        >
+          Close QR
+        </button>
 
-          <div className="mt-4 w-full max-w-md">
-            <div className="mb-2 font-medium uppercase">
-              Already paid? Submit payment details:
-            </div>
-            <form className="flex flex-col gap-2" onSubmit={submitProof}>
-              <input
-                placeholder="Transaction ID"
-                value={txnId}
-                onChange={(e) => setTxnId(e.target.value)}
-                className="border p-2 rounded uppercase"
-                required
-              />
-              <input
-                placeholder="Payer Name"
-                value={payerName}
-                onChange={(e) => setPayerName(e.target.value)}
-                className="border p-2 rounded uppercase"
-                required
-              />
-              <input
-                placeholder="Payer Mobile (10 digits)"
-                value={payerMobile}
-                onChange={(e) => setPayerMobile(e.target.value)}
-                className="border p-2 rounded"
-                required
-              />
-              <div className="flex gap-2 mt-2">
-                <button
-                  type="submit"
-                  disabled={submittingProof}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase"
-                >
-                  {submittingProof ? "Submitting..." : "Submit Payment Proof"}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeQR}
-                  className="px-3 py-2 border rounded uppercase"
-                >
-                  Cancel
-                </button>
-              </div>
-              {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
-            </form>
+        <div className="mt-4 w-full max-w-md">
+          <div className="mb-2 font-medium uppercase text-sm">
+            Already paid? Submit payment details:
           </div>
+          <form className="flex flex-col gap-2" onSubmit={submitProof}>
+            <input
+              placeholder="Transaction ID"
+              value={txnId}
+              onChange={(e) => setTxnId(e.target.value)}
+              className="border p-2 rounded uppercase text-sm"
+              required
+            />
+            <input
+              placeholder="Payer Name"
+              value={payerName}
+              onChange={(e) => setPayerName(e.target.value)}
+              className="border p-2 rounded uppercase text-sm"
+              required
+            />
+            <input
+              placeholder="Payer Mobile (10 digits)"
+              value={payerMobile}
+              onChange={(e) => setPayerMobile(e.target.value)}
+              className="border p-2 rounded text-sm"
+              required
+            />
+            <div className="flex gap-2 mt-2">
+              <button
+                type="submit"
+                disabled={submittingProof}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-xs sm:text-sm"
+              >
+                {submittingProof ? "Submitting..." : "Submit Payment Proof"}
+              </button>
+              <button
+                type="button"
+                onClick={closeQR}
+                className="px-3 py-2 border rounded uppercase text-xs sm:text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+            {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
+          </form>
         </div>
-      )}
+      </div>
+    )}
   </div>
 ));
 
