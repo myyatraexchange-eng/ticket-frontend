@@ -1,55 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // ✅ import useAuth
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
-  const token = localStorage.getItem("token");
+  const { user, token, logout } = useAuth(); // ✅ from AuthContext
   const navigate = useNavigate();
 
-  // ✅ Fetch profile + tickets
+  // ✅ Fetch tickets only (user data already in context)
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTickets = async () => {
+      if (!token) {
+        navigate("/login");
+        return;
+      }
       try {
-        const [resUser, resTickets] = await Promise.all([
-          fetch(`${API_BASE}/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_BASE}/tickets/my`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        if (!resUser.ok) throw new Error("Failed to fetch user");
-        if (!resTickets.ok) throw new Error("Failed to fetch tickets");
-
-        const userData = await resUser.json();
-        const ticketData = await resTickets.json();
-
-        setUser(userData);
+        const res = await fetch(`${API_BASE}/tickets/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch tickets");
+        const ticketData = await res.json();
         setTickets(ticketData);
       } catch (err) {
         console.error(err);
-        alert("❌ Could not load profile or tickets");
+        alert("❌ Could not load tickets");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [token]);
-
-  // ✅ Logout
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+    fetchTickets();
+  }, [token, navigate]);
 
   // ✅ Delete Ticket
   const handleDelete = async (id) => {
@@ -139,7 +126,10 @@ const Profile = () => {
 
           {/* Logout */}
           <button
-            onClick={handleLogout}
+            onClick={() => {
+              logout(); // ✅ direct useAuth logout
+              navigate("/login");
+            }}
             className="mt-6 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition w-full sm:w-auto"
           >
             Logout

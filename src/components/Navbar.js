@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // ✅ token bhi le liya
 
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
@@ -44,42 +44,55 @@ const Navbar = () => {
           <NavLink
             to="/"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Home
           </NavLink>
           <NavLink
             to="/find"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Find Ticket
           </NavLink>
           <NavLink
             to="/post"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Post Ticket
           </NavLink>
           <NavLink
             to="/about"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             About
           </NavLink>
           <NavLink
             to="/contact"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Contact
           </NavLink>
 
           {/* More Dropdown */}
           <div className="relative">
-            <button onClick={() => setMoreOpen(!moreOpen)} className="py-1 hover:underline">
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className="py-1 hover:underline"
+            >
               More ▾
             </button>
             {moreOpen && (
@@ -88,7 +101,9 @@ const Navbar = () => {
                   to="/policy"
                   onClick={handleLinkClick}
                   className={({ isActive }) =>
-                    `block px-4 py-2 hover:bg-gray-100 ${isActive ? "font-bold text-blue-600" : ""}`
+                    `block px-4 py-2 hover:bg-gray-100 ${
+                      isActive ? "font-bold text-blue-600" : ""
+                    }`
                   }
                 >
                   Policy
@@ -97,7 +112,9 @@ const Navbar = () => {
                   to="/disclaimer"
                   onClick={handleLinkClick}
                   className={({ isActive }) =>
-                    `block px-4 py-2 hover:bg-gray-100 ${isActive ? "font-bold text-blue-600" : ""}`
+                    `block px-4 py-2 hover:bg-gray-100 ${
+                      isActive ? "font-bold text-blue-600" : ""
+                    }`
                   }
                 >
                   Disclaimer
@@ -106,7 +123,9 @@ const Navbar = () => {
                   to="/terms"
                   onClick={handleLinkClick}
                   className={({ isActive }) =>
-                    `block px-4 py-2 hover:bg-gray-100 ${isActive ? "font-bold text-blue-600" : ""}`
+                    `block px-4 py-2 hover:bg-gray-100 ${
+                      isActive ? "font-bold text-blue-600" : ""
+                    }`
                   }
                 >
                   Terms
@@ -115,7 +134,9 @@ const Navbar = () => {
                   to="/refund-policy"
                   onClick={handleLinkClick}
                   className={({ isActive }) =>
-                    `block px-4 py-2 hover:bg-gray-100 ${isActive ? "font-bold text-blue-600" : ""}`
+                    `block px-4 py-2 hover:bg-gray-100 ${
+                      isActive ? "font-bold text-blue-600" : ""
+                    }`
                   }
                 >
                   Refund Policy
@@ -125,7 +146,7 @@ const Navbar = () => {
           </div>
 
           {/* Auth Buttons */}
-          {user ? (
+          {token && user ? ( // ✅ token + user dono check
             <NavLink
               to="/profile"
               onClick={handleLinkClick}

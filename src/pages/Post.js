@@ -5,7 +5,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const API_BASE =
-  process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
 const Post = () => {
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ const Post = () => {
     trainName: "",
     from: "",
     to: "",
-    fromDate: null,   // ✅ date only
-    fromTime: null,   // ✅ time only
+    fromDate: null, // ✅ date only
+    fromTime: null, // ✅ time only
     toDate: null,
     toTime: null,
     tickets: "",
@@ -65,11 +66,19 @@ const Post = () => {
     };
 
     try {
-      await axios.post(`${API_BASE}/tickets`, payload, { withCredentials: true });
+      const token = localStorage.getItem("token"); // ✅ token le rahe hain
+
+      await axios.post(`${API_BASE}/tickets`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ token bhejna zaroori hai
+        },
+      });
+
       alert("Ticket posted successfully!");
       navigate("/profile");
     } catch (error) {
-      console.error(error);
+      console.error("Ticket Post Error:", error.response?.data || error.message);
       alert("Failed to post ticket");
     }
   };
@@ -120,7 +129,9 @@ const Post = () => {
         <label className="block font-semibold">Departure Date</label>
         <DatePicker
           selected={formData.fromDate}
-          onChange={(date) => setFormData({ ...formData, fromDate: date, fromTime: null })}
+          onChange={(date) =>
+            setFormData({ ...formData, fromDate: date, fromTime: null })
+          }
           dateFormat="dd/MM/yyyy"
           placeholderText="Select Departure Date"
           className="w-full p-2 border rounded"
@@ -132,7 +143,9 @@ const Post = () => {
             <label className="block font-semibold">Departure Time</label>
             <DatePicker
               selected={formData.fromTime}
-              onChange={(time) => setFormData({ ...formData, fromTime: time })}
+              onChange={(time) =>
+                setFormData({ ...formData, fromTime: time })
+              }
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={15}
@@ -149,7 +162,9 @@ const Post = () => {
         <label className="block font-semibold">Arrival Date</label>
         <DatePicker
           selected={formData.toDate}
-          onChange={(date) => setFormData({ ...formData, toDate: date, toTime: null })}
+          onChange={(date) =>
+            setFormData({ ...formData, toDate: date, toTime: null })
+          }
           dateFormat="dd/MM/yyyy"
           placeholderText="Select Arrival Date"
           className="w-full p-2 border rounded"

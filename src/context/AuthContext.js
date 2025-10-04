@@ -8,25 +8,41 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
 
+  // ✅ Load from localStorage when app starts
   useEffect(() => {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user")) || null;
       const storedToken = localStorage.getItem("token") || null;
-      setUser(storedUser);
-      setToken(storedToken);
+      if (storedToken) setToken(storedToken);
+      if (storedUser) setUser(storedUser);
     } catch {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     }
   }, []);
 
+  // ✅ Save to localStorage whenever token or user changes
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [token, user]);
+
+  // ✅ Login function
   const login = (jwtToken, userData) => {
     setToken(jwtToken);
     setUser(userData || null);
-    localStorage.setItem("token", jwtToken);
-    if (userData) localStorage.setItem("user", JSON.stringify(userData));
   };
 
+  // ✅ Logout function
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -34,23 +50,40 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  // ✅ Fetch fresh user data if token exists
   const fetchUser = async () => {
     if (!token) return;
     showLoader();
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_BASE}/auth/me`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.status === 401) {
+        // Token expired / invalid
+        logout();
+        return;
+      }
+
       if (!res.ok) throw new Error("Failed to fetch user");
+
       const data = await res.json();
       setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-    } catch {
+    } catch (err) {
+      console.error("Auth fetchUser error:", err);
       logout();
     } finally {
       hideLoader();
     }
   };
+
+  // ✅ Auto fetch user whenever token changes
+  useEffect(() => {
+    if (token) fetchUser();
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout, fetchUser }}>
