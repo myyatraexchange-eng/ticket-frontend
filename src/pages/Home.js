@@ -1,16 +1,18 @@
-// src/pages/Home.jsx
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { QRCodeCanvas } from "qrcode.react";
 import trainImage from "../assets/train.webp";
 import { useLoader } from "../context/LoaderContext";
+import { QRCodeCanvas } from "qrcode.react";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
-const TicketCard = memo(({ ticket }) => (
-  <div className="rounded-xl shadow-lg p-4 bg-white border border-gray-200 hover:shadow-2xl transition duration-300 text-sm">
-    <h2 className="font-bold text-blue-700 mb-1 uppercase text-base">
+// Ticket Card for Home page
+const TicketCard = memo(({ ticket, onPayClick, currentTicketId, showQR, currentUpiLink, closeQR, submitProof, txnId, setTxnId, payerName, setPayerName, payerMobile, setPayerMobile, submittingProof, proofMessage }) => (
+  <div className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl transition duration-300 text-sm flex flex-col justify-start gap-2.5">
+    <h2 className="font-bold text-blue-700 mb-2 uppercase text-base">
       🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({ticket.trainNumber || "N/A"})
     </h2>
     <p className="text-gray-700 uppercase">
@@ -31,12 +33,98 @@ const TicketCard = memo(({ ticket }) => (
     <p className="text-gray-700 uppercase">
       <span className="font-semibold">👤 Passenger:</span> {ticket.holderName ? `${ticket.holderName.toUpperCase()} (${ticket.gender.toUpperCase()}, ${ticket.age})` : "N/A"}
     </p>
+
+    {ticket.contactUnlocked ? (
+      <p className="mt-2 text-green-700 font-semibold uppercase">
+        📞 Contact: {ticket.contactNumber}
+      </p>
+    ) : (
+      <button
+        onClick={() => onPayClick(ticket)}
+        className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase"
+      >
+        Pay ₹20 to Unlock Contact
+      </button>
+    )}
+
+    {!ticket.contactUnlocked &&
+      currentTicketId === ticket._id &&
+      showQR &&
+      currentUpiLink && (
+        <div className="mt-4 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
+          <p className="mb-2 font-medium text-center uppercase">
+            Scan this QR with UPI app to pay ₹20:
+          </p>
+          <QRCodeCanvas value={currentUpiLink} size={180} />
+          <button
+            onClick={closeQR}
+            className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase"
+          >
+            Close QR
+          </button>
+
+          <div className="mt-4 w-full max-w-md">
+            <div className="mb-2 font-medium uppercase">
+              Already paid? Submit payment details:
+            </div>
+            <form className="flex flex-col gap-2" onSubmit={submitProof}>
+              <input
+                placeholder="Transaction ID"
+                value={txnId}
+                onChange={(e) => setTxnId(e.target.value)}
+                className="border p-2 rounded uppercase"
+                required
+              />
+              <input
+                placeholder="Payer Name"
+                value={payerName}
+                onChange={(e) => setPayerName(e.target.value)}
+                className="border p-2 rounded uppercase"
+                required
+              />
+              <input
+                placeholder="Payer Mobile (10 digits)"
+                value={payerMobile}
+                onChange={(e) => setPayerMobile(e.target.value)}
+                className="border p-2 rounded"
+                required
+              />
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="submit"
+                  disabled={submittingProof}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase"
+                >
+                  {submittingProof ? "Submitting..." : "Submit Payment Proof"}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeQR}
+                  className="px-3 py-2 border rounded uppercase"
+                >
+                  Cancel
+                </button>
+              </div>
+              {proofMessage && <div className="text-sm mt-2">{proofMessage}</div>}
+            </form>
+          </div>
+        </div>
+      )}
   </div>
 ));
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
   const { showLoader, hideLoader } = useLoader();
+
+  const [currentTicketId, setCurrentTicketId] = useState(null);
+  const [showQR, setShowQR] = useState(false);
+  const [currentUpiLink, setCurrentUpiLink] = useState("");
+  const [txnId, setTxnId] = useState("");
+  const [payerName, setPayerName] = useState("");
+  const [payerMobile, setPayerMobile] = useState("");
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState("");
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -47,7 +135,7 @@ const Home = () => {
         const data = await res.json();
         setTickets(data.tickets || []);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching tickets:", err);
         setTickets([]);
       } finally {
         hideLoader();
@@ -56,11 +144,71 @@ const Home = () => {
     fetchTickets();
   }, []);
 
+  const handlePayClick = (ticket) => {
+    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    if (isMobile) window.location.href = upiLink;
+    else {
+      setCurrentUpiLink(upiLink);
+      setShowQR(true);
+    }
+    setCurrentTicketId(ticket._id);
+    setTxnId("");
+    setPayerName("");
+    setPayerMobile("");
+    setProofMessage("");
+  };
+
+  const closeQR = () => {
+    setShowQR(false);
+    setCurrentUpiLink("");
+    setCurrentTicketId(null);
+  };
+
+  const submitProof = async (e) => {
+    e.preventDefault();
+    if (!txnId || !payerName || !payerMobile) {
+      setProofMessage("Fill all fields");
+      return;
+    }
+    if (!/^\d{10}$/.test(payerMobile)) {
+      setProofMessage("Enter valid 10-digit mobile");
+      return;
+    }
+
+    setSubmittingProof(true);
+    setProofMessage("");
+    try {
+      const res = await fetch(`${API_BASE}/submit-payment-proof`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: currentTicketId,
+          txnId,
+          payerName,
+          payerMobile,
+          amount: 20,
+        }),
+      });
+      const data = await res.json();
+      setProofMessage(data.message || "Submitted for verification");
+      setTxnId("");
+      setPayerName("");
+      setPayerMobile("");
+      setTimeout(closeQR, 1500);
+    } catch (err) {
+      setProofMessage(err.message || "Failed to submit proof");
+    } finally {
+      setSubmittingProof(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <Helmet>
         <title>MyYatraExchange - Exchange & Find Confirmed Train Tickets</title>
         <meta name="description" content="MyYatraExchange helps travelers connect to exchange or find confirmed train tickets and save cancellation charges." />
+        <meta name="keywords" content="train ticket exchange, confirmed train ticket, save cancellation charges" />
       </Helmet>
 
       {/* Hero Section */}
@@ -91,7 +239,24 @@ const Home = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map(ticket => (
-              <TicketCard key={ticket._id} ticket={ticket} />
+              <TicketCard
+                key={ticket._id}
+                ticket={ticket}
+                onPayClick={handlePayClick}
+                currentTicketId={currentTicketId}
+                showQR={showQR}
+                currentUpiLink={currentUpiLink}
+                closeQR={closeQR}
+                submitProof={submitProof}
+                txnId={txnId}
+                setTxnId={setTxnId}
+                payerName={payerName}
+                setPayerName={setPayerName}
+                payerMobile={payerMobile}
+                setPayerMobile={setPayerMobile}
+                submittingProof={submittingProof}
+                proofMessage={proofMessage}
+              />
             ))}
           </div>
         )}
