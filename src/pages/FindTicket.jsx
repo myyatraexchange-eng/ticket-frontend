@@ -1,4 +1,3 @@
-// src/pages/FindTicket.jsx
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -24,6 +23,8 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
+  const [visibleCount, setVisibleCount] = useState(6); // Initially show 6 tickets
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -44,6 +45,7 @@ export default function FindTicket() {
     }
   };
 
+  // Apply filters
   useEffect(() => {
     let out = tickets;
     if (fromFilter)
@@ -61,6 +63,7 @@ export default function FindTicket() {
           new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
       );
     setFiltered(out);
+    setVisibleCount(6); // Reset visible count on filter change
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
   const handlePay = (ticket) => {
@@ -138,6 +141,8 @@ export default function FindTicket() {
     });
   };
 
+  const loadMore = () => setVisibleCount((prev) => prev + 6); // Load next 6 tickets
+
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
@@ -170,8 +175,8 @@ export default function FindTicket() {
       {error && <p className="text-red-600">{error}</p>}
 
       {/* Ticket List */}
-      <div className="grid gap-6 w-full max-w-4xl">
-        {filtered.map((t) => (
+      <div className="grid gap-6 w-full max-w-4xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        {filtered.slice(0, visibleCount).map((t) => (
           <div
             key={t._id}
             className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
@@ -301,6 +306,16 @@ export default function FindTicket() {
           </div>
         ))}
       </div>
+
+      {/* Load More */}
+      {filtered.length > visibleCount && (
+        <button
+          onClick={loadMore}
+          className="mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition uppercase"
+        >
+          Load More
+        </button>
+      )}
     </div>
   );
 }
