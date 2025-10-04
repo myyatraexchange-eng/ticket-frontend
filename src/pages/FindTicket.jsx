@@ -7,7 +7,6 @@ const API_BASE = process.env.REACT_APP_API_BASE;
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [visibleTickets, setVisibleTickets] = useState(3); // show 3 initially
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -62,7 +61,6 @@ export default function FindTicket() {
           new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
       );
     setFiltered(out);
-    setVisibleTickets(3); // reset visible tickets on filter change
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
   const handlePay = (ticket) => {
@@ -172,139 +170,47 @@ export default function FindTicket() {
       {error && <p className="text-red-600">{error}</p>}
 
       {/* Ticket List */}
-      <div className="grid gap-6 w-full max-w-6xl sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.slice(0, visibleTickets).map((t) => (
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
+        {filtered.map((t) => (
           <div
             key={t._id}
-            className="rounded-xl shadow-lg p-4 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
+            className="rounded-xl shadow-lg p-4 bg-white border border-gray-200 hover:shadow-2xl transition duration-300 text-sm"
           >
-            <div className="flex flex-col gap-1">
-              <h2 className="text-lg font-bold text-blue-700 mb-1 uppercase">
-                🚆 {t.trainName ? t.trainName.toUpperCase() : "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})
-              </h2>
+            <h2 className="font-bold text-blue-700 mb-1 uppercase text-base">
+              🚆 {t.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})
+            </h2>
+            <p className="text-gray-700 uppercase">
+              <span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}
+            </p>
+            <p className="text-gray-700 uppercase">
+              <span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}
+            </p>
+            <p className="text-gray-700 uppercase">
+              <span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}
+            </p>
+            <p className="text-gray-700 uppercase">
+              <span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}
+            </p>
+            <p className="text-gray-700 uppercase">
+              <span className="font-semibold">🎟 Tickets:</span> {t.ticketNumber || "N/A"}
+            </p>
+            <p className="text-gray-700 uppercase">
+              <span className="font-semibold">👤 Passenger:</span> {t.passengerName ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})` : "N/A"}
+            </p>
 
-              <p className="text-xs text-gray-700 uppercase">
-                <span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}
-              </p>
-
-              <p className="text-xs text-gray-700 uppercase">
-                <span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}
-              </p>
-
-              <p className="text-xs text-gray-700 uppercase">
-                <span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}
-              </p>
-
-              <p className="text-xs text-gray-700 uppercase">
-                <span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}
-              </p>
-
-              <p className="text-xs text-gray-700 uppercase">
-                <span className="font-semibold">🎟 Tickets Available:</span> {t.ticketNumber || "N/A"}
-              </p>
-
-              <p className="text-xs text-gray-700 uppercase">
-                <span className="font-semibold">👤 Passenger:</span> {t.passengerName
-                  ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})`
-                  : "N/A"}
-              </p>
-
-              {t.contactUnlocked ? (
-                <p className="mt-1 text-green-700 font-semibold uppercase text-sm">
-                  📞 Contact: {t.contactNumber}
-                </p>
-              ) : (
-                <button
-                  onClick={() => handlePay(t)}
-                  className="mt-2 w-fit bg-blue-600 text-white px-4 py-1 rounded shadow hover:bg-blue-700 uppercase text-xs sm:text-sm"
-                >
-                  Pay ₹20 to Unlock Contact
-                </button>
-              )}
-            </div>
-
-            {/* QR & Proof Form */}
-            {!t.contactUnlocked &&
-              currentTicketId === t._id &&
-              showQR &&
-              currentUpiLink && (
-                <div className="mt-4 flex flex-col items-center p-4 border rounded-lg shadow-md bg-gray-50">
-                  <p className="mb-2 font-medium text-center uppercase text-sm">
-                    Scan this QR with UPI app to pay ₹20:
-                  </p>
-                  <QRCodeCanvas value={currentUpiLink} size={160} />
-                  <button
-                    onClick={closeQR}
-                    className="mt-3 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm"
-                  >
-                    Close QR
-                  </button>
-
-                  <div className="mt-4 w-full max-w-md">
-                    <div className="mb-2 font-medium uppercase text-sm">
-                      Already paid? Submit payment details:
-                    </div>
-                    <form
-                      onSubmit={submitProof}
-                      className="flex flex-col gap-2"
-                    >
-                      <input
-                        placeholder="Transaction ID"
-                        value={txnId}
-                        onChange={(e) => setTxnId(e.target.value)}
-                        className="border p-2 rounded uppercase text-sm"
-                        required
-                      />
-                      <input
-                        placeholder="Payer Name"
-                        value={payerName}
-                        onChange={(e) => setPayerName(e.target.value)}
-                        className="border p-2 rounded uppercase text-sm"
-                        required
-                      />
-                      <input
-                        placeholder="Payer Mobile (10 digits)"
-                        value={payerMobile}
-                        onChange={(e) => setPayerMobile(e.target.value)}
-                        className="border p-2 rounded text-sm"
-                        required
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          type="submit"
-                          disabled={submittingProof}
-                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-xs sm:text-sm"
-                        >
-                          {submittingProof ? "Submitting..." : "Submit Payment Proof"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={closeQR}
-                          className="px-3 py-2 border rounded uppercase text-xs sm:text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      {proofMessage && (
-                        <div className="text-sm mt-2">{proofMessage}</div>
-                      )}
-                    </form>
-                  </div>
-                </div>
-              )}
+            {t.contactUnlocked ? (
+              <p className="mt-1 text-green-700 font-semibold uppercase">📞 Contact: {t.contactNumber}</p>
+            ) : (
+              <button
+                onClick={() => handlePay(t)}
+                className="mt-2 w-fit bg-blue-600 text-white px-4 py-1 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
+              >
+                Pay ₹20 to Unlock Contact
+              </button>
+            )}
           </div>
         ))}
       </div>
-
-      {/* Load More Button */}
-      {filtered.length > visibleTickets && visibleTickets < 6 && (
-        <button
-          onClick={() => setVisibleTickets((prev) => Math.min(prev + 3, 6))}
-          className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 uppercase text-sm"
-        >
-          Load More
-        </button>
-      )}
     </div>
   );
 }
