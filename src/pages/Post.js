@@ -20,61 +20,102 @@ const Post = () => {
     fromTime: null,
     toDate: null,
     toTime: null,
-    tickets: "",
+    ticketNumber: "",
     passengerName: "",
-    age: "",
-    gender: "",
+    passengerAge: "",
+    passengerGender: "",
     contactNumber: "",
-    class: "",
+    classType: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value.toUpperCase() }); // ✅ auto uppercase
+    const upperFields = [
+      "trainNumber",
+      "trainName",
+      "from",
+      "to",
+      "passengerName",
+      "passengerGender",
+      "classType",
+    ];
+    const newValue = upperFields.includes(name) ? value.toUpperCase() : value;
+    setFormData({ ...formData, [name]: newValue });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const fromDateTime =
-      formData.fromDate && formData.fromTime
-        ? new Date(
-            formData.fromDate.getFullYear(),
-            formData.fromDate.getMonth(),
-            formData.fromDate.getDate(),
-            formData.fromTime.getHours(),
-            formData.fromTime.getMinutes()
-          ).toISOString()
-        : null;
+    // Required validation
+    const requiredFields = [
+      "trainNumber",
+      "trainName",
+      "from",
+      "to",
+      "fromDate",
+      "fromTime",
+      "toDate",
+      "toTime",
+      "ticketNumber",
+      "passengerName",
+      "contactNumber",
+      "classType",
+    ];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        alert(`❌ Please fill the ${field}`);
+        return;
+      }
+    }
 
-    const toDateTime =
-      formData.toDate && formData.toTime
-        ? new Date(
-            formData.toDate.getFullYear(),
-            formData.toDate.getMonth(),
-            formData.toDate.getDate(),
-            formData.toTime.getHours(),
-            formData.toTime.getMinutes()
-          ).toISOString()
-        : null;
+    const fromDateTime = new Date(
+      formData.fromDate.getFullYear(),
+      formData.fromDate.getMonth(),
+      formData.fromDate.getDate(),
+      formData.fromTime.getHours(),
+      formData.fromTime.getMinutes()
+    ).toISOString();
 
-    const payload = { ...formData, fromDateTime, toDateTime };
+    const toDateTime = new Date(
+      formData.toDate.getFullYear(),
+      formData.toDate.getMonth(),
+      formData.toDate.getDate(),
+      formData.toTime.getHours(),
+      formData.toTime.getMinutes()
+    ).toISOString();
+
+    const payload = {
+      trainNumber: formData.trainNumber,
+      trainName: formData.trainName,
+      from: formData.from,
+      to: formData.to,
+      fromDateTime,
+      toDateTime,
+      ticketNumber: formData.ticketNumber,
+      passengerName: formData.passengerName,
+      passengerAge: formData.passengerAge,
+      passengerGender: formData.passengerGender,
+      contactNumber: formData.contactNumber,
+      classType: formData.classType,
+    };
 
     try {
       const token = localStorage.getItem("token");
-
       await axios.post(`${API_BASE}/tickets`, payload, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-
       alert("✅ Ticket posted successfully!");
       navigate("/profile");
     } catch (error) {
       console.error("Ticket Post Error:", error.response?.data || error.message);
-      alert("❌ Failed to post ticket");
+      alert(
+        `❌ Failed to post ticket: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
@@ -84,7 +125,6 @@ const Post = () => {
         Post Your Ticket
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Train Details */}
         <input
           type="text"
           name="trainNumber"
@@ -122,13 +162,10 @@ const Post = () => {
           required
         />
 
-        {/* Departure */}
         <label className="block font-semibold">Departure Date</label>
         <DatePicker
           selected={formData.fromDate}
-          onChange={(date) =>
-            setFormData({ ...formData, fromDate: date, fromTime: null })
-          }
+          onChange={(date) => setFormData({ ...formData, fromDate: date, fromTime: null })}
           dateFormat="dd/MM/yyyy"
           placeholderText="Select Departure Date"
           className="w-full p-3 border rounded-lg"
@@ -153,13 +190,10 @@ const Post = () => {
           </>
         )}
 
-        {/* Arrival */}
         <label className="block font-semibold">Arrival Date</label>
         <DatePicker
           selected={formData.toDate}
-          onChange={(date) =>
-            setFormData({ ...formData, toDate: date, toTime: null })
-          }
+          onChange={(date) => setFormData({ ...formData, toDate: date, toTime: null })}
           dateFormat="dd/MM/yyyy"
           placeholderText="Select Arrival Date"
           className="w-full p-3 border rounded-lg"
@@ -184,18 +218,15 @@ const Post = () => {
           </>
         )}
 
-        {/* Tickets */}
         <input
           type="number"
-          name="tickets"
+          name="ticketNumber"
           placeholder="Number of Tickets"
-          value={formData.tickets}
+          value={formData.ticketNumber}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg"
           required
         />
-
-        {/* Passenger Info */}
         <input
           type="text"
           name="passengerName"
@@ -207,17 +238,18 @@ const Post = () => {
         />
         <input
           type="number"
-          name="age"
+          name="passengerAge"
           placeholder="Passenger Age"
-          value={formData.age}
+          value={formData.passengerAge}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg"
         />
         <select
-          name="gender"
-          value={formData.gender}
+          name="passengerGender"
+          value={formData.passengerGender}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg uppercase"
+          required
         >
           <option value="">Select Gender</option>
           <option value="MALE">Male</option>
@@ -225,7 +257,6 @@ const Post = () => {
           <option value="OTHER">Other</option>
         </select>
 
-        {/* Contact */}
         <input
           type="text"
           name="contactNumber"
@@ -236,10 +267,9 @@ const Post = () => {
           required
         />
 
-        {/* Class */}
         <select
-          name="class"
-          value={formData.class}
+          name="classType"
+          value={formData.classType}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg uppercase"
           required
