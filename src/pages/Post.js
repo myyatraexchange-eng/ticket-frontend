@@ -1,3 +1,4 @@
+// src/pages/Post.js
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -30,8 +31,9 @@ const Post = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Uppercase fields
     const upperFields = [
-      "trainNumber",
       "trainName",
       "from",
       "to",
@@ -39,15 +41,13 @@ const Post = () => {
       "passengerGender",
       "classType",
     ];
-    const numberFields = ["ticketNumber", "passengerAge", "contactNumber"];
-    let newValue = value;
+    let newValue = upperFields.includes(name) ? value.toUpperCase() : value;
 
-    if (upperFields.includes(name)) {
-      newValue = value.toUpperCase();
-    }
+    // Number validation for certain fields
+    const numberFields = ["trainNumber", "ticketNumber", "passengerAge", "contactNumber"];
     if (numberFields.includes(name)) {
-      // Allow only digits
-      newValue = value.replace(/\D/g, "");
+      // Remove non-digit characters
+      newValue = newValue.replace(/\D/g, "");
     }
 
     setFormData({ ...formData, [name]: newValue });
@@ -101,9 +101,9 @@ const Post = () => {
       to: formData.to,
       fromDateTime,
       toDateTime,
-      ticketNumber: Number(formData.ticketNumber),
+      ticketNumber: formData.ticketNumber,
       passengerName: formData.passengerName,
-      passengerAge: formData.passengerAge ? Number(formData.passengerAge) : null,
+      passengerAge: formData.passengerAge,
       passengerGender: formData.passengerGender,
       contactNumber: formData.contactNumber,
       classType: formData.classType,
@@ -138,16 +138,16 @@ const Post = () => {
         <input
           type="text"
           name="trainNumber"
-          placeholder="Train Number"
+          placeholder="Train Number (e.g. 12345)"
           value={formData.trainNumber}
           onChange={handleChange}
-          className="w-full p-3 border rounded-lg uppercase"
+          className="w-full p-3 border rounded-lg"
           required
         />
         <input
           type="text"
           name="trainName"
-          placeholder="Train Name"
+          placeholder="Train Name (e.g. RAJDHANI EXPRESS)"
           value={formData.trainName}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg uppercase"
@@ -156,7 +156,7 @@ const Post = () => {
         <input
           type="text"
           name="from"
-          placeholder="From"
+          placeholder="From (e.g. BHOPAL)"
           value={formData.from}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg uppercase"
@@ -165,14 +165,13 @@ const Post = () => {
         <input
           type="text"
           name="to"
-          placeholder="To"
+          placeholder="To (e.g. DELHI)"
           value={formData.to}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg uppercase"
           required
         />
 
-        {/* Departure */}
         <label className="block font-semibold">Departure Date</label>
         <DatePicker
           selected={formData.fromDate}
@@ -201,7 +200,6 @@ const Post = () => {
           </>
         )}
 
-        {/* Arrival */}
         <label className="block font-semibold">Arrival Date</label>
         <DatePicker
           selected={formData.toDate}
@@ -230,11 +228,10 @@ const Post = () => {
           </>
         )}
 
-        {/* Tickets & Passenger */}
         <input
-          type="text"
+          type="number"
           name="ticketNumber"
-          placeholder="Number of Tickets"
+          placeholder="Number of Tickets (e.g. 2)"
           value={formData.ticketNumber}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg"
@@ -243,16 +240,16 @@ const Post = () => {
         <input
           type="text"
           name="passengerName"
-          placeholder="Passenger Name"
+          placeholder="Passenger Name (e.g. RAJ KUMAR)"
           value={formData.passengerName}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg uppercase"
           required
         />
         <input
-          type="text"
+          type="number"
           name="passengerAge"
-          placeholder="Passenger Age"
+          placeholder="Passenger Age (e.g. 25)"
           value={formData.passengerAge}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg"
@@ -270,16 +267,16 @@ const Post = () => {
           <option value="OTHER">Other</option>
         </select>
 
-        {/* Contact & Class */}
         <input
           type="text"
           name="contactNumber"
-          placeholder="Contact Number"
+          placeholder="Contact Number (e.g. 9876543210)"
           value={formData.contactNumber}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg"
           required
         />
+
         <select
           name="classType"
           value={formData.classType}
