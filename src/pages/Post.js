@@ -39,7 +39,17 @@ const Post = () => {
       "passengerGender",
       "classType",
     ];
-    const newValue = upperFields.includes(name) ? value.toUpperCase() : value;
+    const numberFields = ["ticketNumber", "passengerAge", "contactNumber"];
+    let newValue = value;
+
+    if (upperFields.includes(name)) {
+      newValue = value.toUpperCase();
+    }
+    if (numberFields.includes(name)) {
+      // Allow only digits
+      newValue = value.replace(/\D/g, "");
+    }
+
     setFormData({ ...formData, [name]: newValue });
   };
 
@@ -91,9 +101,9 @@ const Post = () => {
       to: formData.to,
       fromDateTime,
       toDateTime,
-      ticketNumber: formData.ticketNumber,
+      ticketNumber: Number(formData.ticketNumber),
       passengerName: formData.passengerName,
-      passengerAge: formData.passengerAge,
+      passengerAge: formData.passengerAge ? Number(formData.passengerAge) : null,
       passengerGender: formData.passengerGender,
       contactNumber: formData.contactNumber,
       classType: formData.classType,
@@ -162,6 +172,7 @@ const Post = () => {
           required
         />
 
+        {/* Departure */}
         <label className="block font-semibold">Departure Date</label>
         <DatePicker
           selected={formData.fromDate}
@@ -190,6 +201,7 @@ const Post = () => {
           </>
         )}
 
+        {/* Arrival */}
         <label className="block font-semibold">Arrival Date</label>
         <DatePicker
           selected={formData.toDate}
@@ -218,8 +230,9 @@ const Post = () => {
           </>
         )}
 
+        {/* Tickets & Passenger */}
         <input
-          type="number"
+          type="text"
           name="ticketNumber"
           placeholder="Number of Tickets"
           value={formData.ticketNumber}
@@ -237,7 +250,7 @@ const Post = () => {
           required
         />
         <input
-          type="number"
+          type="text"
           name="passengerAge"
           placeholder="Passenger Age"
           value={formData.passengerAge}
@@ -257,6 +270,7 @@ const Post = () => {
           <option value="OTHER">Other</option>
         </select>
 
+        {/* Contact & Class */}
         <input
           type="text"
           name="contactNumber"
@@ -266,7 +280,6 @@ const Post = () => {
           className="w-full p-3 border rounded-lg"
           required
         />
-
         <select
           name="classType"
           value={formData.classType}
