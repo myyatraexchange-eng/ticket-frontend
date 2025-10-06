@@ -62,18 +62,12 @@ export default function FindTicket() {
     setFiltered(out.slice(0, 6));
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
+  // 🔹 Updated handlePay: no mobile redirect
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
-      navigator.userAgent
-    );
 
-    if (isMobile) window.location.href = upiLink;
-    else {
-      setCurrentUpiLink(upiLink);
-      setShowQR(true);
-    }
-
+    setCurrentUpiLink(upiLink);
+    setShowQR(true);
     setCurrentTicketId(ticket._id);
     setTxnId("");
     setPayerName("");

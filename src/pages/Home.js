@@ -22,7 +22,6 @@ const TicketCard = memo(({ ticket, onPayClick, currentTicketId, showQR, currentU
       <p className="uppercase"><span className="font-semibold">🎟 Tickets:</span> {ticket.ticketNumber || "N/A"}</p>
       <p className="uppercase"><span className="font-semibold">👤 Passenger:</span> {ticket.passengerName ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender.toUpperCase()}, ${ticket.passengerAge})` : "N/A"}</p>
 
-      {/* Payment / Contact / Pending */}
       {ticket.contactUnlocked ? (
         <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {ticket.contactNumber}</p>
       ) : ticket.payment && ticket.payment.verified === false ? (
@@ -91,12 +90,10 @@ const Home = () => {
 
   const handlePayClick = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-    if(isMobile) window.location.href = upiLink;
-    else {
-      setCurrentUpiLink(upiLink);
-      setShowQR(true);
-    }
+    // Always show QR & form, no mobile redirect
+    setCurrentUpiLink(upiLink);
+    setShowQR(true);
+
     setCurrentTicketId(ticket._id);
     setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
   };
@@ -173,8 +170,4 @@ const Home = () => {
         )}
       </div>
     </div>
-  );
-};
-
-export default Home;
 
