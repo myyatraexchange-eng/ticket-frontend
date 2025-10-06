@@ -21,7 +21,7 @@ root.render(
           </HelmetProvider>
         </AuthProvider>
       </LoaderProvider>
-    </BrowserRouter>
+    </BrowserRouter> 
   </React.StrictMode>
 );
 

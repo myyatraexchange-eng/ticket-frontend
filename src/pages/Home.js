@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -21,8 +22,11 @@ const TicketCard = memo(({ ticket, onPayClick, currentTicketId, showQR, currentU
       <p className="uppercase"><span className="font-semibold">🎟 Tickets:</span> {ticket.ticketNumber || "N/A"}</p>
       <p className="uppercase"><span className="font-semibold">👤 Passenger:</span> {ticket.passengerName ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender.toUpperCase()}, ${ticket.passengerAge})` : "N/A"}</p>
 
+      {/* Payment / Contact / Pending */}
       {ticket.contactUnlocked ? (
         <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {ticket.contactNumber}</p>
+      ) : ticket.payment && ticket.payment.verified === false ? (
+        <p className="mt-2 text-yellow-700 font-semibold uppercase">⏳ Payment pending verification</p>
       ) : (
         <button onClick={() => onPayClick(ticket)} className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm">
           Pay ₹20 to Unlock Contact
