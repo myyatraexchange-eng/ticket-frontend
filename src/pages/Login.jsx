@@ -30,23 +30,26 @@ const Login = () => {
         body: JSON.stringify(formData),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
+      const data = await res.json().catch(() => {
         throw new Error("Invalid server response");
-      }
+      });
 
       if (!res.ok) {
         throw new Error(data.message || "Login failed");
       }
 
       if (data.token && data.user) {
-        login(data.token, data.user); // ✅ AuthContext update
-        navigate("/profile");
+        // ✅ Login immediately updates context
+        login(data.token, data.user);
+
+        // ✅ Redirect after login
+        navigate("/profile", { replace: true });
+
+        // Optional: force reload to re-render all components
+        window.location.reload();
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     } finally {
       hideLoader();
     }
@@ -77,7 +80,7 @@ const Login = () => {
             />
           </div>
 
-          <div className="relative">
+          <div>
             <label className="block text-sm font-medium text-gray-700">
               Password
             </label>

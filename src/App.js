@@ -17,7 +17,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute";
-import AdminPayments from "./pages/AdminPayments"; // ✅ Added admin page
+import AdminPayments from "./pages/AdminPayments"; // ✅ Admin page
 
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
 
@@ -66,8 +66,8 @@ function AppContent() {
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
 
-          {/* 🔹 Admin Page */}
-          <Route path="/admin/payments" element={<AdminPayments />} />
+          {/* 🔹 Admin Page (login required) */}
+          <Route path="/admin/payments" element={<PrivateRoute><AdminPayments /></PrivateRoute>} />
 
           {/* 🔹 Legal Pages */}
           <Route path="/policy" element={<Policy />} />
