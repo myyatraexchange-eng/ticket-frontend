@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
-const ADMIN_TOKEN = process.env.REACT_APP_ADMIN_TOKEN;
+const ADMIN_TOKEN = localStorage.getItem("admin-token") || "RvAKO603";
 
 export default function AdminPayments() {
   const [payments, setPayments] = useState([]);

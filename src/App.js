@@ -17,11 +17,13 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute";
-import AdminPayments from "./pages/AdminPayments"; // ✅ Admin page
+
+import AdminLogin from "./pages/AdminLogin"; // ✅ New
+import AdminPayments from "./pages/AdminPayments";
 
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
 
-// 🔹 Scroll to top on route change
+// Scroll to top
 function ScrollToTop() {
   const { pathname } = useLocation();
   React.useEffect(() => {
@@ -30,7 +32,7 @@ function ScrollToTop() {
   return null;
 }
 
-// 🔹 Loader Overlay
+// Loader overlay
 const LoaderOverlay = () => {
   const { loading } = useLoader();
   return loading ? (
@@ -55,27 +57,28 @@ function AppContent() {
       <LoaderOverlay />
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
-          {/* 🔹 Public Pages */}
+          {/* Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* 🔹 Private Pages */}
+          {/* Private Pages */}
           <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
           <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
 
-          {/* 🔹 Admin Page (login required) */}
+          {/* Admin Pages */}
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/payments" element={<PrivateRoute><AdminPayments /></PrivateRoute>} />
 
-          {/* 🔹 Legal Pages */}
+          {/* Legal Pages */}
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
 
-          {/* 🔹 Auth Pages */}
+          {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
