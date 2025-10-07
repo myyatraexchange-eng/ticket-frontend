@@ -17,13 +17,16 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import PrivateRoute from "./routes/PrivateRoute";
+import AdminPayments from "./pages/AdminPayments"; // ✅ Added admin page
 
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
 
-// 🔹 Scroll to top
+// 🔹 Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
-  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -52,24 +55,27 @@ function AppContent() {
       <LoaderOverlay />
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
-          {/* Public Pages */}
+          {/* 🔹 Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Private Pages */}
+          {/* 🔹 Private Pages */}
           <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
           <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
 
-          {/* Legal Pages */}
+          {/* 🔹 Admin Page */}
+          <Route path="/admin/payments" element={<AdminPayments />} />
+
+          {/* 🔹 Legal Pages */}
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
 
-          {/* Auth Pages */}
+          {/* 🔹 Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
