@@ -1,5 +1,6 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLoader } from "../context/LoaderContext";
 
@@ -11,8 +12,12 @@ const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const { showLoader, hideLoader } = useLoader();
+
+  // 👇 user jahan se aaya tha (ProtectedRoute ne state me bheja)
+  const from = location.state?.from?.pathname || "/profile";
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -39,14 +44,11 @@ const Login = () => {
       }
 
       if (data.token && data.user) {
-        // ✅ Login immediately updates context
+        // ✅ Login and update auth context
         login(data.token, data.user);
 
-        // ✅ Redirect after login
-        navigate("/profile", { replace: true });
-
-        // Optional: force reload to re-render all components
-        window.location.reload();
+        // ✅ Redirect to previous page or profile
+        navigate(from, { replace: true });
       }
     } catch (err) {
       setError(err.message || "Login failed");

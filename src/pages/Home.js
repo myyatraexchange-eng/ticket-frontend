@@ -102,11 +102,11 @@ const Home = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden">
         <img
           src={trainImage}
           alt="Train"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-auto object-contain"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">

@@ -31,11 +31,11 @@ export default function FindTicket() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/tickets`);
+      const res = await fetch(`${API_BASE}/tickets`); // अब सारे tickets fetch होंगे
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
       setTickets(data.tickets || []);
-      setFiltered(data.tickets?.slice(0, 6) || []);
+      setFiltered(data.tickets || []);
     } catch (err) {
       setError(err.message || "Failed to load tickets");
     } finally {
@@ -43,6 +43,7 @@ export default function FindTicket() {
     }
   };
 
+  // Filter सभी tickets पर लागू होगा
   useEffect(() => {
     let out = tickets;
     if (fromFilter)
@@ -59,13 +60,11 @@ export default function FindTicket() {
           t.fromDateTime &&
           new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
       );
-    setFiltered(out.slice(0, 6));
+    setFiltered(out);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
-  // 🔹 Updated handlePay: no mobile redirect
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
-
     setCurrentUpiLink(upiLink);
     setShowQR(true);
     setCurrentTicketId(ticket._id);
@@ -159,7 +158,7 @@ export default function FindTicket() {
         />
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p>Loading tickets...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
       {/* Ticket List */}

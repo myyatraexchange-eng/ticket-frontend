@@ -17,12 +17,14 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import AdminPayments from "./pages/AdminPayments";
-import PrivateRoute from "./routes/PrivateRoute";
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅ updated import
 
-// Scroll to top on route change
+// Scroll to top on every route change
 function ScrollToTop() {
   const { pathname } = useLocation();
-  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -32,7 +34,7 @@ const App = () => {
       <ScrollToTop />
       <Layout>
         <Routes>
-          {/* Public Pages */}
+          {/* 🌍 Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -43,47 +45,47 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Private Pages */}
+          {/* 🔒 Protected Pages */}
           <Route
             path="/find"
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <FindTicket />
-              </PrivateRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/post"
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <Post />
-              </PrivateRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/profile"
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <Profile />
-              </PrivateRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/edit-ticket/:id"
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <EditTicket />
-              </PrivateRoute>
+              </ProtectedRoute>
             }
           />
 
-          {/* Admin Pages */}
+          {/* 🛠 Admin Pages */}
           <Route
             path="/admin/payments"
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <AdminPayments />
-              </PrivateRoute>
+              </ProtectedRoute>
             }
           />
         </Routes>
