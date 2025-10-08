@@ -9,7 +9,7 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// Ticket Card Component (Payment removed)
+// Ticket Card Component
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300 min-h-[250px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -71,37 +71,25 @@ const TicketCard = memo(({ ticket }) => (
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const { showLoader, hideLoader } = useLoader();
 
-  const fetchTickets = async (pageNumber = 1) => {
-    showLoader();
-    try {
-      const res = await fetch(`${API_BASE}/tickets?page=${pageNumber}&limit=3`);
-      if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
-      const data = await res.json();
-      if (!data.tickets || data.tickets.length === 0) {
-        setHasMore(false);
-      } else {
-        setTickets(prev => [...prev, ...data.tickets]);
-      }
-    } catch (err) {
-      console.error("Error fetching tickets:", err);
-    } finally {
-      hideLoader();
-    }
-  };
-
   useEffect(() => {
-    fetchTickets(page);
-  }, []);
-
-  const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchTickets(nextPage);
-  };
+    const fetchTickets = async () => {
+      showLoader();
+      try {
+        const res = await fetch(`${API_BASE}/tickets?page=1&limit=3`);
+        if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
+        const data = await res.json();
+        setTickets(data.tickets || []);
+      } catch (err) {
+        console.error("Error fetching tickets:", err);
+        setTickets([]);
+      } finally {
+        hideLoader();
+      }
+    };
+    fetchTickets();
+  }, [showLoader, hideLoader]);
 
   return (
     <div className="min-h-screen">
@@ -171,14 +159,14 @@ const Home = () => {
           </div>
         )}
 
-        {hasMore && (
+        {tickets.length > 0 && (
           <div className="text-center mt-6">
-            <button
-              onClick={loadMore}
+            <Link
+              to="/find"
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
             >
-              Load More
-            </button>
+              Show All Tickets
+            </Link>
           </div>
         )}
       </div>

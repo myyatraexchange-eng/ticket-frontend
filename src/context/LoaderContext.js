@@ -1,5 +1,3 @@
-import React, { createContext, useContext, useState } from "react";
-
 const LoaderContext = createContext();
 
 export const LoaderProvider = ({ children }) => {
@@ -29,6 +27,4 @@ export const LoaderProvider = ({ children }) => {
     </LoaderContext.Provider>
   );
 };
-
-export const useLoader = () => useContext(LoaderContext);
 
