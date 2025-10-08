@@ -14,14 +14,15 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <LoaderProvider>   {/* 👈 LoaderProvider add */}
+      {/* 👇 LoaderProvider wraps everything so loader works globally */}
+      <LoaderProvider>
         <AuthProvider>
           <HelmetProvider>
             <App />
           </HelmetProvider>
         </AuthProvider>
       </LoaderProvider>
-    </BrowserRouter> 
+    </BrowserRouter>
   </React.StrictMode>
 );
 
