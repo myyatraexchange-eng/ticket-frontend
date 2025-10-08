@@ -72,20 +72,20 @@ const Home = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
-    // Fetch only 3 tickets once
     const fetchTickets = async () => {
       try {
-        const res = await fetch(`${API_BASE}/tickets?page=1&limit=3`);
+        const res = await fetch(`${API_BASE}/tickets`); // get all tickets
         if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
         const data = await res.json();
-        setTickets(data.tickets || []);
+        // Front-end par sirf 3 tickets hi dikhao
+        setTickets((data.tickets || []).slice(0, 3));
       } catch (err) {
         console.error("Error fetching tickets:", err);
         setTickets([]);
       }
     };
     fetchTickets();
-  }, []); // empty dependency ensures it runs only once
+  }, []);
 
   return (
     <div className="min-h-screen">
