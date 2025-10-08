@@ -1,8 +1,8 @@
+// src/pages/Home.js
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import trainImage from "../assets/train.webp";
-import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
@@ -70,11 +70,10 @@ const TicketCard = memo(({ ticket }) => (
 
 const Home = () => {
   const [tickets, setTickets] = useState([]);
-  const { showLoader, hideLoader } = useLoader();
 
   useEffect(() => {
+    // Fetch only 3 tickets once
     const fetchTickets = async () => {
-      showLoader();
       try {
         const res = await fetch(`${API_BASE}/tickets?page=1&limit=3`);
         if (!res.ok) throw new Error(`Failed to fetch tickets: ${res.status}`);
@@ -83,12 +82,10 @@ const Home = () => {
       } catch (err) {
         console.error("Error fetching tickets:", err);
         setTickets([]);
-      } finally {
-        hideLoader();
       }
     };
     fetchTickets();
-  }, [showLoader, hideLoader]);
+  }, []); // empty dependency ensures it runs only once
 
   return (
     <div className="min-h-screen">

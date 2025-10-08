@@ -3,18 +3,16 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// ✅ Context & Providers
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { LoaderProvider } from "./context/LoaderContext"; // 👈 Import LoaderProvider
+import { LoaderProvider } from "./context/LoaderContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      {/* 👇 LoaderProvider wraps everything so loader works globally */}
       <LoaderProvider>
         <AuthProvider>
           <HelmetProvider>
