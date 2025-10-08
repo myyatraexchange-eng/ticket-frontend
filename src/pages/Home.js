@@ -1,4 +1,3 @@
-// src/pages/Home.js
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -94,9 +93,7 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>
-          MyYatraExchange - Exchange & Find Confirmed Train Tickets
-        </title>
+        <title>MyYatraExchange - Exchange & Find Confirmed Train Tickets</title>
         <meta
           name="description"
           content="MyYatraExchange helps travelers connect to exchange or find confirmed train tickets and save cancellation charges."
@@ -148,9 +145,7 @@ const Home = () => {
           Recent Tickets
         </h2>
         {tickets.length === 0 ? (
-          <p className="text-center text-red-600 font-medium">
-            No tickets available
-          </p>
+          <p className="text-center text-red-600 font-medium">No tickets available</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map(ticket => (

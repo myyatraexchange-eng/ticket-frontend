@@ -3,8 +3,6 @@ import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Layout from "./components/Layout";
-import LoaderOverlay from "./components/LoaderOverlay";
-
 import Home from "./pages/Home";
 import About from "./pages/About";
 import FindTicket from "./pages/FindTicket";
@@ -32,7 +30,6 @@ const App = () => {
   return (
     <>
       <ScrollToTop />
-      <LoaderOverlay />
       <Layout>
         <Routes>
           {/* Public Pages */}
@@ -47,13 +44,48 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
 
           {/* Private Pages */}
-          <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
-          <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
+          <Route
+            path="/find"
+            element={
+              <PrivateRoute>
+                <FindTicket />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/post"
+            element={
+              <PrivateRoute>
+                <Post />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-ticket/:id"
+            element={
+              <PrivateRoute>
+                <EditTicket />
+              </PrivateRoute>
+            }
+          />
 
           {/* Admin Pages */}
-          <Route path="/admin/payments" element={<PrivateRoute><AdminPayments /></PrivateRoute>} />
+          <Route
+            path="/admin/payments"
+            element={
+              <PrivateRoute>
+                <AdminPayments />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Layout>
     </>
