@@ -1,63 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://ticket-backend-g5da.onrender.com/api";
+import { useTickets } from "../context/TicketContext";
 
 const Profile = () => {
-  const [tickets, setTickets] = useState([]);
+  const { user, logout, token } = useAuth();
+  const { tickets, removeTicket } = useTickets();
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
-  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch tickets
-  useEffect(() => {
-    const fetchTickets = async () => {
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-      try {
-        const res = await fetch(`${API_BASE}/tickets/my`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to fetch tickets");
-        const ticketData = await res.json();
-        setTickets(Array.isArray(ticketData) ? ticketData : [ticketData]);
-      } catch (err) {
-        console.error(err);
-        alert("❌ Could not load tickets");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTickets();
-  }, [token, navigate]);
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
-    try {
-      const res = await fetch(`${API_BASE}/tickets/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to delete ticket");
-      alert("✅ Ticket deleted successfully!");
-      setTickets(tickets.filter((t) => t._id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("❌ " + err.message);
-    }
-  };
-
+  // Change Password
   const handleChangePassword = async () => {
     if (!newPassword.trim()) return alert("Please enter a new password");
     try {
-      const res = await fetch(`${API_BASE}/auth/change-password`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE}/auth/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,6 +29,30 @@ const Profile = () => {
       alert("❌ " + err.message);
     }
   };
+
+  // Delete Ticket
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE}/tickets/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to delete ticket");
+      alert("✅ Ticket deleted successfully!");
+      removeTicket(id);
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    setLoading(false);
+  }, [token, navigate]);
 
   if (loading)
     return (
@@ -137,7 +118,7 @@ const Profile = () => {
       <h2 className="text-3xl font-bold mb-6 text-gray-800">My Tickets</h2>
       {tickets.length === 0 ? (
         <p className="text-gray-600 text-center text-lg">
-          You haven’t created any tickets yet.
+          You haven’t unlocked any tickets yet.
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -151,19 +132,16 @@ const Profile = () => {
                   {ticket.trainName}
                 </h3>
                 <p className="text-gray-600 mb-1 uppercase">
-                  {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                  {ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleDateString() : "N/A"}
                 </p>
                 <p className="text-gray-600 uppercase">
-                  Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
+                  Seat: {ticket.classType || "GENERAL"} | Tickets: {ticket.ticketNumber || "N/A"}
+                </p>
+                <p className="text-green-700 font-semibold uppercase mt-2">
+                  {ticket.contactUnlocked ? `📞 Contact: ${ticket.contactNumber}` : "Payment Pending..."}
                 </p>
               </div>
               <div className="mt-4 flex gap-3">
-                <button
-                  onClick={() => navigate(`/edit-ticket/${ticket._id}`)}
-                  className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-                >
-                  Edit
-                </button>
                 <button
                   onClick={() => handleDelete(ticket._id)}
                   className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"

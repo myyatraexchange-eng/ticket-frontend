@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useTickets } from "../context/TicketContext";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
 export default function FindTicket() {
-  const [tickets, setTickets] = useState([]);
+  const { tickets, setTickets, removeTicket, addTicket } = useTickets();
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +32,7 @@ export default function FindTicket() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/tickets`); // अब सारे tickets fetch होंगे
+      const res = await fetch(`${API_BASE}/tickets`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
       setTickets(data.tickets || []);
@@ -43,7 +44,6 @@ export default function FindTicket() {
     }
   };
 
-  // Filter सभी tickets पर लागू होगा
   useEffect(() => {
     let out = tickets;
     if (fromFilter)
@@ -106,7 +106,15 @@ export default function FindTicket() {
         }),
       });
       const data = await res.json();
-      setProofMessage(data.message || "Submitted for verification");
+
+      // Ticket instantly move to profile
+      const ticket = tickets.find((t) => t._id === currentTicketId);
+      if (ticket) {
+        addTicket({ ...ticket, contactUnlocked: true, paymentSubmitted: true });
+        removeTicket(currentTicketId);
+      }
+
+      setProofMessage("✅ Payment submitted! Check your profile.");
       setTxnId("");
       setPayerName("");
       setPayerMobile("");
@@ -161,7 +169,6 @@ export default function FindTicket() {
       {loading && <p>Loading tickets...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* Ticket List */}
       <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((t) => (
           <div
@@ -173,34 +180,26 @@ export default function FindTicket() {
               <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
                 🚆 {t.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})
               </h2>
-
               <p className="uppercase">
                 <span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}
               </p>
-
               <p className="uppercase">
                 <span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}
               </p>
-
               <p className="uppercase">
                 <span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}
               </p>
-
               <p className="uppercase">
                 <span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}
               </p>
-
               <p className="uppercase">
                 <span className="font-semibold">🎟 Tickets:</span> {t.ticketNumber || "N/A"}
               </p>
-
               <p className="uppercase">
                 <span className="font-semibold">👤 Passenger:</span> {t.passengerName ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})` : "N/A"}
               </p>
 
-              {t.contactUnlocked ? (
-                <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {t.contactNumber}</p>
-              ) : (
+              {!t.contactUnlocked && (
                 <button
                   onClick={() => handlePay(t)}
                   className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"

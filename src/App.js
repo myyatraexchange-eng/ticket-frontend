@@ -1,4 +1,3 @@
-// src/App.js
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -17,7 +16,9 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import AdminPayments from "./pages/AdminPayments";
-import ProtectedRoute from "./components/ProtectedRoute"; // ✅ updated import
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import { TicketProvider } from "./context/TicketContext"; // ✅ new import
 
 // Scroll to top on every route change
 function ScrollToTop() {
@@ -30,7 +31,7 @@ function ScrollToTop() {
 
 const App = () => {
   return (
-    <>
+    <TicketProvider>
       <ScrollToTop />
       <Layout>
         <Routes>
@@ -90,7 +91,7 @@ const App = () => {
           />
         </Routes>
       </Layout>
-    </>
+    </TicketProvider>
   );
 };
 
