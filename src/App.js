@@ -18,82 +18,78 @@ import EditTicket from "./pages/EditTicket";
 import AdminPayments from "./pages/AdminPayments";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import { TicketProvider } from "./context/TicketContext"; // ✅ new import
+import { TicketProvider } from "./context/TicketContext";
 
-// Scroll to top on every route change
+// Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
-const App = () => {
-  return (
-    <TicketProvider>
-      <ScrollToTop />
-      <Layout>
-        <Routes>
-          {/* 🌍 Public Pages */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/policy" element={<Policy />} />
-          <Route path="/disclaimer" element={<Disclaimer />} />
-          <Route path="/terms" element={<TermsOfUse />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+const App = () => (
+  <TicketProvider>
+    <ScrollToTop />
+    <Layout>
+      <Routes>
+        {/* Public Pages */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/policy" element={<Policy />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/terms" element={<TermsOfUse />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-          {/* 🔒 Protected Pages */}
-          <Route
-            path="/find"
-            element={
-              <ProtectedRoute>
-                <FindTicket />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/post"
-            element={
-              <ProtectedRoute>
-                <Post />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-ticket/:id"
-            element={
-              <ProtectedRoute>
-                <EditTicket />
-              </ProtectedRoute>
-            }
-          />
+        {/* Protected Pages */}
+        <Route
+          path="/find"
+          element={
+            <ProtectedRoute>
+              <FindTicket />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/post"
+          element={
+            <ProtectedRoute>
+              <Post />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-ticket/:id"
+          element={
+            <ProtectedRoute>
+              <EditTicket />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* 🛠 Admin Pages */}
-          <Route
-            path="/admin/payments"
-            element={
-              <ProtectedRoute>
-                <AdminPayments />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Layout>
-    </TicketProvider>
-  );
-};
+        {/* Admin Payments (Protected, no separate login) */}
+        <Route
+          path="/admin/payments"
+          element={
+            <ProtectedRoute>
+              <AdminPayments />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Layout>
+  </TicketProvider>
+);
 
 export default App;
 

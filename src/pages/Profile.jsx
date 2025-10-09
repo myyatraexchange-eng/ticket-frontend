@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -14,18 +13,16 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
 
-  // Fetch user's tickets
   const fetchUserTickets = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE}/tickets/my`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE}/tickets/my-tickets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to load tickets");
       const data = await res.json();
 
-      // Separate tickets
-      setPostedTickets(data.filter(t => t.postedBy === user._id) || []);
-      setBookedTickets(data.filter(t => t.postedBy !== user._id) || []);
+      setPostedTickets(data.postedTickets || []);
+      setBookedTickets(data.bookedTickets || []);
     } catch (err) {
       console.error("Error loading tickets:", err);
     } finally {
@@ -93,7 +90,6 @@ const Profile = () => {
         My Dashboard
       </h1>
 
-      {/* User Info */}
       {user && (
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg rounded-2xl p-8 mb-12 border border-blue-200">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">User Information</h2>
@@ -103,7 +99,6 @@ const Profile = () => {
             <p><span className="font-semibold text-blue-600 uppercase">Unique ID:</span> {user.uniqueId}</p>
           </div>
 
-          {/* Change Password */}
           <div className="mt-6 flex flex-col sm:flex-row gap-4 items-center">
             <input
               type="password"
@@ -120,7 +115,6 @@ const Profile = () => {
             </button>
           </div>
 
-          {/* Logout */}
           <button
             onClick={() => { logout(); navigate("/login"); }}
             className="mt-6 bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition w-full sm:w-auto"
@@ -130,13 +124,12 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Posted Tickets (Seller) */}
       <h2 className="text-3xl font-bold mb-6 text-gray-800">My Posted Tickets</h2>
       {postedTickets.length === 0 ? (
         <p className="text-gray-600 text-center text-lg mb-10">You haven’t posted any tickets yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {postedTickets.map(ticket => (
+          {postedTickets.map((ticket) => (
             <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition">
               <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
               <p className="text-gray-600 mb-1 uppercase">{ticket.from} → {ticket.to} | {new Date(ticket.fromDateTime).toLocaleDateString()}</p>
@@ -150,19 +143,18 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Booked Tickets (Buyer) */}
       <h2 className="text-3xl font-bold mb-6 text-gray-800">My Booked Tickets</h2>
       {bookedTickets.length === 0 ? (
         <p className="text-gray-600 text-center text-lg">You haven’t booked any tickets yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {bookedTickets.map(ticket => (
+          {bookedTickets.map((ticket) => (
             <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition">
               <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
               <p className="text-gray-600 mb-1 uppercase">{ticket.from} → {ticket.to} | {new Date(ticket.fromDateTime).toLocaleDateString()}</p>
               <p className="text-gray-600 uppercase">Seat: {ticket.classType} | Tickets: {ticket.ticketNumber}</p>
               <p className="mt-3 font-semibold uppercase">
-                {ticket.paymentStatus === "confirmed" ? (
+                {ticket.paymentSubmitted ? (
                   <span className="text-green-600">✅ Confirmed | 📞 Contact: {ticket.contactNumber}</span>
                 ) : (
                   <span className="text-yellow-600">⏳ Pending Confirmation</span>
