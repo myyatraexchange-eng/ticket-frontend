@@ -1,11 +1,13 @@
+// src/components/Navbar.jsx
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const { user, token } = useAuth(); // ✅ token bhi le liya
+  const { user, token, logout } = useAuth(); // ✅ logout bhi add kiya
+  const navigate = useNavigate();
 
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
@@ -15,10 +17,15 @@ const Navbar = () => {
     setMoreOpen(false);
   };
 
+  const handleLogout = () => {
+    logout(); // AuthContext se logout call karega
+    navigate("/login");
+  };
+
   return (
     <nav className="bg-blue-600 text-white shadow-md text-sm relative">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* Brand without logo */}
+        {/* Brand */}
         <div className="text-base md:text-lg font-bold">
           <NavLink to="/" onClick={handleLinkClick} className="hover:underline">
             <span className="text-orange-400">My</span>
@@ -35,7 +42,7 @@ const Navbar = () => {
           ☰
         </button>
 
-        {/* Nav Links */}
+        {/* Navigation Links */}
         <div
           className={`flex-col md:flex md:flex-row md:space-x-4 ${
             menuOpen ? "flex" : "hidden"
@@ -145,15 +152,23 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Auth Buttons */}
-          {token && user ? ( // ✅ token + user dono check
-            <NavLink
-              to="/profile"
-              onClick={handleLinkClick}
-              className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
-            >
-              Profile
-            </NavLink>
+          {/* Auth Section */}
+          {token && user ? (
+            <div className="flex flex-col md:flex-row md:items-center">
+              <NavLink
+                to="/profile"
+                onClick={handleLinkClick}
+                className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
+              >
+                Profile
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="ml-0 md:ml-2 mt-2 md:mt-0 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 font-semibold"
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <NavLink
               to="/login"

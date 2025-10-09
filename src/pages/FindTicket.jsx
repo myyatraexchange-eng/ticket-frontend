@@ -1,3 +1,4 @@
+// src/pages/FindTicket.jsx
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useTickets } from "../context/TicketContext";
@@ -94,7 +95,7 @@ export default function FindTicket() {
     setSubmittingProof(true);
     setProofMessage("");
     try {
-      const res = await fetch(`${API_BASE}/submit-payment-proof`, {
+      const res = await fetch(`${API_BASE}/tickets/submit-payment-proof`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -107,10 +108,10 @@ export default function FindTicket() {
       });
       const data = await res.json();
 
-      // Ticket instantly move to profile
+      // Move ticket to profile (buyer)
       const ticket = tickets.find((t) => t._id === currentTicketId);
       if (ticket) {
-        addTicket({ ...ticket, contactUnlocked: true, paymentSubmitted: true });
+        addTicket({ ...ticket, contactUnlocked: true, paymentStatus: "confirmed" });
         removeTicket(currentTicketId);
       }
 
@@ -209,7 +210,7 @@ export default function FindTicket() {
               )}
             </div>
 
-            {/* QR & Proof */}
+            {/* QR & Payment Proof */}
             {!t.contactUnlocked &&
               currentTicketId === t._id &&
               showQR &&
