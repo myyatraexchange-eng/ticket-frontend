@@ -1,13 +1,12 @@
 // src/components/Navbar.jsx
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const { user, token, logout } = useAuth(); // ✅ logout bhi add kiya
-  const navigate = useNavigate();
+  const { token, user } = useAuth(); // Logout removed from Navbar
 
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
@@ -15,11 +14,6 @@ const Navbar = () => {
   const handleLinkClick = () => {
     setMenuOpen(false);
     setMoreOpen(false);
-  };
-
-  const handleLogout = () => {
-    logout(); // AuthContext se logout call karega
-    navigate("/login");
   };
 
   return (
@@ -152,30 +146,14 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Auth Section */}
-          {token && user ? (
-            <div className="flex flex-col md:flex-row md:items-center">
-              <NavLink
-                to="/profile"
-                onClick={handleLinkClick}
-                className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
-              >
-                Profile
-              </NavLink>
-              <button
-                onClick={handleLogout}
-                className="ml-0 md:ml-2 mt-2 md:mt-0 bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 font-semibold"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
+          {/* Only Profile button */}
+          {token && user && (
             <NavLink
-              to="/login"
+              to="/profile"
               onClick={handleLinkClick}
               className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
             >
-              Login
+              Profile
             </NavLink>
           )}
         </div>

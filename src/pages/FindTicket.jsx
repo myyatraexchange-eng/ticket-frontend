@@ -24,18 +24,22 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  useEffect(() => fetchTickets(), []);
+  useEffect(() => { fetchTickets(); }, []);
 
   const fetchTickets = async () => {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch(`${API_BASE}/tickets`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
       setTickets(data.tickets || []);
       setFiltered(data.tickets || []);
-    } catch (err) { setError(err.message || "Failed to load tickets"); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err.message || "Failed to load tickets");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -48,18 +52,25 @@ export default function FindTicket() {
 
   const handlePay = (ticket) => {
     setCurrentUpiLink(`upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`);
-    setShowQR(true); setCurrentTicketId(ticket._id);
-    setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
+    setShowQR(true);
+    setCurrentTicketId(ticket._id);
   };
 
-  const closeQR = () => { setShowQR(false); setCurrentUpiLink(""); setCurrentTicketId(null); };
+  const closeQR = () => {
+    setShowQR(false);
+    setCurrentUpiLink("");
+    setCurrentTicketId(null);
+  };
 
   const submitProof = async (e) => {
     e.preventDefault();
-    if (!txnId || !payerName || !payerMobile) return setProofMessage("Fill all fields");
-    if (!/^\d{10}$/.test(payerMobile)) return setProofMessage("Enter valid 10-digit mobile");
+    if (!txnId || !payerName || !payerMobile)
+      return setProofMessage("Fill all fields");
+    if (!/^\d{10}$/.test(payerMobile))
+      return setProofMessage("Enter valid 10-digit mobile");
 
-    setSubmittingProof(true); setProofMessage("");
+    setSubmittingProof(true);
+    setProofMessage("");
     try {
       const res = await fetch(`${API_BASE}/submit-payment-proof`, {
         method: "POST",
@@ -75,14 +86,19 @@ export default function FindTicket() {
       }
 
       setProofMessage("✅ Payment submitted! Check your profile.");
-      setTxnId(""); setPayerName(""); setPayerMobile("");
       setTimeout(closeQR, 1500);
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
-    } finally { setSubmittingProof(false); }
+    } finally {
+      setSubmittingProof(false);
+    }
   };
 
-  const formatDateTime = dt => dt ? new Date(dt).toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", hour12:true }) : "N/A";
+  const formatDateTime = dt =>
+    dt ? new Date(dt).toLocaleString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit", hour12: true
+    }) : "N/A";
 
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
@@ -103,12 +119,11 @@ export default function FindTicket() {
           <div key={t._id} className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition" style={{minHeight:"280px"}}>
             <div className="flex flex-col gap-2 text-sm">
               <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">🚆 {t.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})</h2>
-              <p className="uppercase"><span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}</p>
+              <p className="uppercase"><span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase()} → {t.to?.toUpperCase()}</p>
               <p className="uppercase"><span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}</p>
               <p className="uppercase"><span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}</p>
-              <p className="uppercase"><span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}</p>
-              <p className="uppercase"><span className="font-semibold">🎟 Tickets:</span> {t.ticketNumber || "N/A"}</p>
-              <p className="uppercase"><span className="font-semibold">👤 Passenger:</span> {t.passengerName ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})` : "N/A"}</p>
+              <p className="uppercase"><span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase()}</p>
+              <p className="uppercase"><span className="font-semibold">🎟 Tickets:</span> {t.ticketNumber}</p>
 
               {!t.contactUnlocked && (
                 <button onClick={()=>handlePay(t)} className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm">
@@ -117,28 +132,21 @@ export default function FindTicket() {
               )}
             </div>
 
-            {/* QR & Proof */}
-            {!t.contactUnlocked && currentTicketId === t._id && showQR && currentUpiLink && (
+            {showQR && currentTicketId === t._id && currentUpiLink && (
               <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
                 <p className="mb-2 font-medium text-center uppercase text-sm">Scan QR to pay ₹20</p>
                 <QRCodeCanvas value={currentUpiLink} size={160}/>
                 <button onClick={closeQR} className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm">Close QR</button>
 
-                <div className="mt-3 w-full max-w-md">
-                  <div className="mb-2 font-medium uppercase text-sm">Submit payment details:</div>
-                  <form className="flex flex-col gap-2" onSubmit={submitProof}>
-                    <input placeholder="Transaction ID" value={txnId} onChange={e=>setTxnId(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
-                    <input placeholder="Payer Name" value={payerName} onChange={e=>setPayerName(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
-                    <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={e=>setPayerMobile(e.target.value)} className="border p-2 rounded text-sm" required/>
-                    <div className="flex gap-2 mt-2">
-                      <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm">
-                        {submittingProof ? "Submitting..." : "Submit"}
-                      </button>
-                      <button type="button" onClick={closeQR} className="px-3 py-2 border rounded uppercase text-sm">Cancel</button>
-                    </div>
-                    {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
-                  </form>
-                </div>
+                <form className="mt-3 w-full max-w-md flex flex-col gap-2" onSubmit={submitProof}>
+                  <input placeholder="Transaction ID" value={txnId} onChange={e=>setTxnId(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+                  <input placeholder="Payer Name" value={payerName} onChange={e=>setPayerName(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+                  <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={e=>setPayerMobile(e.target.value)} className="border p-2 rounded text-sm" required/>
+                  <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm">
+                    {submittingProof ? "Submitting..." : "Submit"}
+                  </button>
+                  {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
+                </form>
               </div>
             )}
           </div>

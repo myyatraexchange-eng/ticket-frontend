@@ -19,6 +19,7 @@ import AdminPayments from "./pages/AdminPayments";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { TicketProvider } from "./context/TicketContext";
+import { AuthProvider } from "./context/AuthContext"; // ✅ Added
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -28,67 +29,69 @@ function ScrollToTop() {
 }
 
 const App = () => (
-  <TicketProvider>
-    <ScrollToTop />
-    <Layout>
-      <Routes>
-        {/* Public Pages */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/policy" element={<Policy />} />
-        <Route path="/disclaimer" element={<Disclaimer />} />
-        <Route path="/terms" element={<TermsOfUse />} />
-        <Route path="/refund-policy" element={<RefundPolicy />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+  <AuthProvider>
+    <TicketProvider>
+      <ScrollToTop />
+      <Layout>
+        <Routes>
+          {/* Public Pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/policy" element={<Policy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Pages */}
-        <Route
-          path="/find"
-          element={
-            <ProtectedRoute>
-              <FindTicket />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/post"
-          element={
-            <ProtectedRoute>
-              <Post />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/edit-ticket/:id"
-          element={
-            <ProtectedRoute>
-              <EditTicket />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Pages */}
+          <Route
+            path="/find"
+            element={
+              <ProtectedRoute>
+                <FindTicket />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/post"
+            element={
+              <ProtectedRoute>
+                <Post />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-ticket/:id"
+            element={
+              <ProtectedRoute>
+                <EditTicket />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin Payments (Protected, no separate login) */}
-        <Route
-          path="/admin/payments"
-          element={
-            <ProtectedRoute>
-              <AdminPayments />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Layout>
-  </TicketProvider>
+          {/* Admin Payments */}
+          <Route
+            path="/admin/payments"
+            element={
+              <ProtectedRoute>
+                <AdminPayments />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Layout>
+    </TicketProvider>
+  </AuthProvider>
 );
 
 export default App;
