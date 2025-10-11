@@ -1,11 +1,15 @@
+// src/pages/FindTicket.jsx
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useTickets } from "../context/TicketContext";
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
 export default function FindTicket() {
-  const { tickets, setTickets, removeTicket, addTicket } = useTickets();
+  const { tickets, setTickets, removeTicket, addTicket, fetchTickets } = useTickets();
+  const { token } = useAuth();
+
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,23 +28,20 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  useEffect(() => { fetchTickets(); }, []);
-
-  const fetchTickets = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/tickets`);
-      if (!res.ok) throw new Error(`Request failed ${res.status}`);
-      const data = await res.json();
-      setTickets(data.tickets || []);
-      setFiltered(data.tickets || []);
-    } catch (err) {
-      setError(err.message || "Failed to load tickets");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const loadTickets = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        await fetchTickets();
+      } catch (err) {
+        setError(err.message || "Failed to load tickets");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTickets();
+  }, [fetchTickets]);
 
   useEffect(() => {
     let out = tickets;
@@ -60,6 +61,7 @@ export default function FindTicket() {
     setShowQR(false);
     setCurrentUpiLink("");
     setCurrentTicketId(null);
+    setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
   };
 
   const submitProof = async (e) => {
@@ -72,11 +74,15 @@ export default function FindTicket() {
     setSubmittingProof(true);
     setProofMessage("");
     try {
-      const res = await fetch(`${API_BASE}/submit-payment-proof`, {
+      const res = await fetch(`${API_BASE}/tickets/submit-payment-proof`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` })
+        },
         body: JSON.stringify({ ticketId: currentTicketId, txnId, payerName, payerMobile, amount: 20 }),
       });
+      if (!res.ok) throw new Error("Failed to submit proof");
       const data = await res.json();
 
       const ticket = tickets.find(t => t._id === currentTicketId);

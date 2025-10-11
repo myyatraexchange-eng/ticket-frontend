@@ -1,21 +1,27 @@
+// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTickets } from "../context/TicketContext";
 
+const API_BASE = process.env.REACT_APP_API_BASE;
+
 const Profile = () => {
-  const { user, logout, token } = useAuth();
-  const { tickets, removeTicket } = useTickets();
+  const { user, token, logout } = useAuth();
+  const { tickets, removeTicket, fetchTickets } = useTickets();
 
   const [postedTickets, setPostedTickets] = useState([]);
   const [bookedTickets, setBookedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
+
   const navigate = useNavigate();
 
   const fetchUserTickets = async () => {
+    if (!token) return;
+    setLoading(true);
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE}/tickets/my-tickets`, {
+      const res = await fetch(`${API_BASE}/tickets/my-tickets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to load tickets");
@@ -33,7 +39,7 @@ const Profile = () => {
   const handleChangePassword = async () => {
     if (!newPassword.trim()) return alert("Please enter a new password");
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE}/auth/change-password`, {
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +58,7 @@ const Profile = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE}/tickets/${id}`, {
+      const res = await fetch(`${API_BASE}/tickets/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
