@@ -1,4 +1,3 @@
-// src/pages/AdminPayments.jsx
 import React, { useEffect, useState } from "react";
 import { useLoader } from "../context/LoaderContext";
 
@@ -12,7 +11,9 @@ const AdminPayments = () => {
     const fetchPayments = async () => {
       showLoader();
       try {
-        const res = await fetch(`${API_BASE}/admin/payments`);
+        const res = await fetch(`${API_BASE}/admin/payments`, {
+          headers: { "Content-Type": "application/json" }
+        });
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         const data = await res.json();
         setPayments(data.payments || []);
@@ -24,21 +25,14 @@ const AdminPayments = () => {
       }
     };
     fetchPayments();
-  }, []);
+  }, [showLoader, hideLoader]);
 
   const approvePayment = async (paymentId) => {
     try {
-      const res = await fetch(`${API_BASE}/admin/payments/${paymentId}/approve`, {
-        method: "POST",
-      });
+      const res = await fetch(`${API_BASE}/admin/payments/${paymentId}/approve`, { method: "POST" });
       if (!res.ok) throw new Error("Failed to approve payment");
 
-      // Update local state
-      setPayments((prev) =>
-        prev.map((p) =>
-          p._id === paymentId ? { ...p, verified: true } : p
-        )
-      );
+      setPayments(prev => prev.map(p => p._id === paymentId ? { ...p, verified: true } : p));
       alert("✅ Payment approved and contact unlocked!");
     } catch (err) {
       alert("❌ " + err.message);
@@ -46,12 +40,10 @@ const AdminPayments = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8 container mx-auto">
       <h2 className="text-2xl font-bold text-blue-600 mb-6">Payments</h2>
 
-      {payments.length === 0 ? (
-        <p>No payments found.</p>
-      ) : (
+      {payments.length === 0 ? <p>No payments found.</p> :
         <div className="overflow-x-auto">
           <table className="w-full border border-gray-300 rounded-lg">
             <thead className="bg-blue-50">
@@ -64,30 +56,25 @@ const AdminPayments = () => {
               </tr>
             </thead>
             <tbody>
-              {payments.map((p) => (
+              {payments.map(p => (
                 <tr key={p._id} className="hover:bg-gray-100">
                   <td className="px-4 py-2 border">{p.ticketId}</td>
                   <td className="px-4 py-2 border">{p.payerName}</td>
                   <td className="px-4 py-2 border">{p.payerMobile}</td>
                   <td className="px-4 py-2 border">₹{p.amount}</td>
                   <td className="px-4 py-2 border">
-                    {p.verified ? (
-                      "✅ Verified"
-                    ) : (
-                      <button
-                        onClick={() => approvePayment(p._id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition text-sm"
-                      >
+                    {p.verified ? "✅ Verified" :
+                      <button onClick={() => approvePayment(p._id)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition text-sm">
                         Approve Payment
                       </button>
-                    )}
+                    }
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      )}
+      }
     </div>
   );
 };

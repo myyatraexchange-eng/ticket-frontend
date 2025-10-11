@@ -1,20 +1,17 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTickets } from "../context/TicketContext";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
+const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
   const { user, token, logout } = useAuth();
-  const { tickets, removeTicket, fetchTickets } = useTickets();
-
+  const { tickets, removeTicket, fetchMyTickets } = useTickets();
   const [postedTickets, setPostedTickets] = useState([]);
   const [bookedTickets, setBookedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
-
   const navigate = useNavigate();
 
   const fetchUserTickets = async () => {
@@ -26,7 +23,6 @@ const Profile = () => {
       });
       if (!res.ok) throw new Error("Failed to load tickets");
       const data = await res.json();
-
       setPostedTickets(data.postedTickets || []);
       setBookedTickets(data.bookedTickets || []);
     } catch (err) {
@@ -41,10 +37,7 @@ const Profile = () => {
     try {
       const res = await fetch(`${API_BASE}/auth/change-password`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ password: newPassword }),
       });
       if (!res.ok) throw new Error("Failed to change password");
@@ -63,7 +56,6 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete ticket");
-      alert("✅ Ticket deleted successfully!");
       removeTicket(id);
       fetchUserTickets();
     } catch (err) {
@@ -71,30 +63,18 @@ const Profile = () => {
     }
   };
 
-  const handleEdit = (id) => {
-    navigate(`/edit-ticket/${id}`);
-  };
+  const handleEdit = (id) => navigate(`/edit-ticket/${id}`);
 
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    fetchUserTickets();
+    if (!token) navigate("/login");
+    else fetchUserTickets();
   }, [token, navigate]);
 
-  if (loading)
-    return (
-      <p className="text-center mt-20 text-lg text-gray-500 animate-pulse">
-        Loading profile...
-      </p>
-    );
+  if (loading) return <p className="text-center mt-20 text-lg text-gray-500 animate-pulse">Loading profile...</p>;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
-      <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">
-        My Dashboard
-      </h1>
+      <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">My Dashboard</h1>
 
       {user && (
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg rounded-2xl p-8 mb-12 border border-blue-200">
@@ -106,34 +86,16 @@ const Profile = () => {
           </div>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-4 items-center">
-            <input
-              type="password"
-              placeholder="Enter new password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="border p-3 rounded-lg w-full sm:flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              onClick={handleChangePassword}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
-            >
-              Change Password
-            </button>
+            <input type="password" placeholder="Enter new password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="border p-3 rounded-lg w-full sm:flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+            <button onClick={handleChangePassword} className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition w-full sm:w-auto">Change Password</button>
           </div>
 
-          <button
-            onClick={() => { logout(); navigate("/login"); }}
-            className="mt-6 bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition w-full sm:w-auto"
-          >
-            Logout
-          </button>
+          <button onClick={() => { logout(); navigate("/login"); }} className="mt-6 bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition w-full sm:w-auto">Logout</button>
         </div>
       )}
 
       <h2 className="text-3xl font-bold mb-6 text-gray-800">My Posted Tickets</h2>
-      {postedTickets.length === 0 ? (
-        <p className="text-gray-600 text-center text-lg mb-10">You haven’t posted any tickets yet.</p>
-      ) : (
+      {postedTickets.length === 0 ? <p className="text-gray-600 text-center text-lg mb-10">You haven’t posted any tickets yet.</p> :
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {postedTickets.map((ticket) => (
             <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition">
@@ -147,29 +109,21 @@ const Profile = () => {
             </div>
           ))}
         </div>
-      )}
+      }
 
       <h2 className="text-3xl font-bold mb-6 text-gray-800">My Booked Tickets</h2>
-      {bookedTickets.length === 0 ? (
-        <p className="text-gray-600 text-center text-lg">You haven’t booked any tickets yet.</p>
-      ) : (
+      {bookedTickets.length === 0 ? <p className="text-gray-600 text-center text-lg">You haven’t booked any tickets yet.</p> :
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {bookedTickets.map((ticket) => (
             <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition">
               <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
               <p className="text-gray-600 mb-1 uppercase">{ticket.from} → {ticket.to} | {new Date(ticket.fromDateTime).toLocaleDateString()}</p>
               <p className="text-gray-600 uppercase">Seat: {ticket.classType} | Tickets: {ticket.ticketNumber}</p>
-              <p className="mt-3 font-semibold uppercase">
-                {ticket.paymentSubmitted ? (
-                  <span className="text-green-600">✅ Confirmed | 📞 Contact: {ticket.contactNumber}</span>
-                ) : (
-                  <span className="text-yellow-600">⏳ Pending Confirmation</span>
-                )}
-              </p>
+              <p className="mt-3 font-semibold uppercase">{ticket.paymentSubmitted ? <span className="text-green-600">✅ Confirmed | 📞 Contact: {ticket.contactNumber}</span> : <span className="text-yellow-600">⏳ Pending Confirmation</span>}</p>
             </div>
           ))}
         </div>
-      )}
+      }
     </div>
   );
 };
