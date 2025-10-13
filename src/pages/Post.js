@@ -1,4 +1,3 @@
-// src/pages/Post.js
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +31,6 @@ const Post = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Uppercase fields
     const upperFields = [
       "trainName",
       "from",
@@ -43,12 +41,8 @@ const Post = () => {
     ];
     let newValue = upperFields.includes(name) ? value.toUpperCase() : value;
 
-    // Number validation for certain fields
     const numberFields = ["trainNumber", "ticketNumber", "passengerAge", "contactNumber"];
-    if (numberFields.includes(name)) {
-      // Remove non-digit characters
-      newValue = newValue.replace(/\D/g, "");
-    }
+    if (numberFields.includes(name)) newValue = newValue.replace(/\D/g, "");
 
     setFormData({ ...formData, [name]: newValue });
   };
@@ -56,7 +50,6 @@ const Post = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Required validation
     const requiredFields = [
       "trainNumber",
       "trainName",
@@ -103,7 +96,7 @@ const Post = () => {
       toDateTime,
       ticketNumber: formData.ticketNumber,
       passengerName: formData.passengerName,
-      passengerAge: formData.passengerAge,
+      passengerAge: formData.passengerAge || undefined,
       passengerGender: formData.passengerGender,
       contactNumber: formData.contactNumber,
       classType: formData.classType,
@@ -111,19 +104,29 @@ const Post = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(`${API_BASE}/tickets`, payload, {
+      if (!token) {
+        alert("❌ Please log in first to post a ticket!");
+        navigate("/login");
+        return;
+      }
+
+      console.log("📦 Sending Ticket:", payload);
+
+      const res = await axios.post(`${API_BASE}/tickets`, payload, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
+
       alert("✅ Ticket posted successfully!");
+      console.log("✅ Server Response:", res.data);
       navigate("/profile");
     } catch (error) {
-      console.error("Ticket Post Error:", error.response?.data || error.message);
+      console.error("❌ Ticket Post Error:", error.response?.data || error.message);
       alert(
         `❌ Failed to post ticket: ${
-          error.response?.data?.message || error.message
+          error.response?.data?.message || "Server error"
         }`
       );
     }
@@ -134,6 +137,7 @@ const Post = () => {
       <h2 className="text-2xl font-bold mb-6 text-center text-blue-700 uppercase">
         Post Your Ticket
       </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -144,6 +148,7 @@ const Post = () => {
           className="w-full p-3 border rounded-lg"
           required
         />
+
         <input
           type="text"
           name="trainName"
@@ -153,6 +158,7 @@ const Post = () => {
           className="w-full p-3 border rounded-lg uppercase"
           required
         />
+
         <input
           type="text"
           name="from"
@@ -162,6 +168,7 @@ const Post = () => {
           className="w-full p-3 border rounded-lg uppercase"
           required
         />
+
         <input
           type="text"
           name="to"
@@ -175,58 +182,48 @@ const Post = () => {
         <label className="block font-semibold">Departure Date</label>
         <DatePicker
           selected={formData.fromDate}
-          onChange={(date) => setFormData({ ...formData, fromDate: date, fromTime: null })}
+          onChange={(date) => setFormData({ ...formData, fromDate: date })}
           dateFormat="dd/MM/yyyy"
-          placeholderText="Select Departure Date"
           className="w-full p-3 border rounded-lg"
           minDate={new Date()}
           required
         />
-        {formData.fromDate && (
-          <>
-            <label className="block font-semibold">Departure Time</label>
-            <DatePicker
-              selected={formData.fromTime}
-              onChange={(time) => setFormData({ ...formData, fromTime: time })}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              timeCaption="Time"
-              dateFormat="hh:mm aa"
-              placeholderText="Select Departure Time"
-              className="w-full p-3 border rounded-lg"
-              required
-            />
-          </>
-        )}
+
+        <label className="block font-semibold">Departure Time</label>
+        <DatePicker
+          selected={formData.fromTime}
+          onChange={(time) => setFormData({ ...formData, fromTime: time })}
+          showTimeSelect
+          showTimeSelectOnly
+          timeIntervals={15}
+          timeCaption="Time"
+          dateFormat="hh:mm aa"
+          className="w-full p-3 border rounded-lg"
+          required
+        />
 
         <label className="block font-semibold">Arrival Date</label>
         <DatePicker
           selected={formData.toDate}
-          onChange={(date) => setFormData({ ...formData, toDate: date, toTime: null })}
+          onChange={(date) => setFormData({ ...formData, toDate: date })}
           dateFormat="dd/MM/yyyy"
-          placeholderText="Select Arrival Date"
           className="w-full p-3 border rounded-lg"
           minDate={formData.fromDate || new Date()}
           required
         />
-        {formData.toDate && (
-          <>
-            <label className="block font-semibold">Arrival Time</label>
-            <DatePicker
-              selected={formData.toTime}
-              onChange={(time) => setFormData({ ...formData, toTime: time })}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              timeCaption="Time"
-              dateFormat="hh:mm aa"
-              placeholderText="Select Arrival Time"
-              className="w-full p-3 border rounded-lg"
-              required
-            />
-          </>
-        )}
+
+        <label className="block font-semibold">Arrival Time</label>
+        <DatePicker
+          selected={formData.toTime}
+          onChange={(time) => setFormData({ ...formData, toTime: time })}
+          showTimeSelect
+          showTimeSelectOnly
+          timeIntervals={15}
+          timeCaption="Time"
+          dateFormat="hh:mm aa"
+          className="w-full p-3 border rounded-lg"
+          required
+        />
 
         <input
           type="number"
@@ -237,6 +234,7 @@ const Post = () => {
           className="w-full p-3 border rounded-lg"
           required
         />
+
         <input
           type="text"
           name="passengerName"
@@ -246,6 +244,7 @@ const Post = () => {
           className="w-full p-3 border rounded-lg uppercase"
           required
         />
+
         <input
           type="number"
           name="passengerAge"
@@ -254,6 +253,7 @@ const Post = () => {
           onChange={handleChange}
           className="w-full p-3 border rounded-lg"
         />
+
         <select
           name="passengerGender"
           value={formData.passengerGender}
