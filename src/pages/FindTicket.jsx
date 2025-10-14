@@ -1,50 +1,60 @@
-import React, { useEffect, useState } from "react";
+// src/pages/FindTicket.jsx
+import React, { useEffect, useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useAuth } from "../context/AuthContext";
+import { useTickets } from "../context/TicketContext";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
 export default function FindTicket() {
-  const [tickets, setTickets] = useState([]);
-  const [filtered, setFiltered] = useState([]);
+  const { tickets, setTickets, removeTicket, addTicket } = useTickets();
+  const { token, user } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Filters
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
+  // Payment / QR modal
   const [currentTicketId, setCurrentTicketId] = useState(null);
+  const [showQR, setShowQR] = useState(false);
+  const [currentUpiLink, setCurrentUpiLink] = useState("");
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
   const [payerMobile, setPayerMobile] = useState("");
-  const [submittingProof, setSubmittingProof] = useState(false);
-  const [proofMessage, setProofMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const [showQR, setShowQR] = useState(false);
-  const [currentUpiLink, setCurrentUpiLink] = useState("");
-
+  // Fetch all tickets
   useEffect(() => {
-    fetchTickets();
+    if (tickets && tickets.length > 0) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/tickets`);
+        if (!res.ok) throw new Error("Failed to fetch tickets");
+        const data = await res.json();
+        const all = data.tickets || data;
+        setTickets?.(all);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load tickets");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchTickets = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/tickets`);
-      if (!res.ok) throw new Error(`Request failed ${res.status}`);
-      const data = await res.json();
-      setTickets(data.tickets || []);
-      setFiltered(data.tickets?.slice(0, 6) || []);
-    } catch (err) {
-      setError(err.message || "Failed to load tickets");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let out = tickets;
+  // Filter logic
+  const filtered = useMemo(() => {
+    if (!tickets) return [];
+    let out = tickets.filter((t) => t.isAvailable !== false);
     if (fromFilter)
       out = out.filter((t) =>
         t.from?.toLowerCase().includes(fromFilter.toLowerCase())
@@ -59,51 +69,49 @@ export default function FindTicket() {
           t.fromDateTime &&
           new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
       );
-    setFiltered(out.slice(0, 6));
-  }, [fromFilter, toFilter, dateFilter, tickets]);
+    return out;
+  }, [tickets, fromFilter, toFilter, dateFilter]);
 
-  const handlePay = (ticket) => {
-    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
-      navigator.userAgent
-    );
-
-    if (isMobile) window.location.href = upiLink;
-    else {
-      setCurrentUpiLink(upiLink);
-      setShowQR(true);
-    }
-
+  // Open QR modal
+  const handleOpenQR = (ticket) => {
+    const upi = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket%20Payment`;
+    setCurrentUpiLink(upi);
+    setShowQR(true);
     setCurrentTicketId(ticket._id);
     setTxnId("");
-    setPayerName("");
+    setPayerName(user?.name || "");
     setPayerMobile("");
-    setProofMessage("");
+    setMessage("");
   };
 
   const closeQR = () => {
     setShowQR(false);
     setCurrentUpiLink("");
     setCurrentTicketId(null);
+    setMessage("");
   };
 
+  // Submit payment proof
   const submitProof = async (e) => {
     e.preventDefault();
-    if (!txnId || !payerName || !payerMobile) {
-      setProofMessage("Fill all fields");
+    if (!txnId || !payerName || !/^\d{10}$/.test(payerMobile)) {
+      setMessage("Please fill all valid details");
       return;
     }
-    if (!/^\d{10}$/.test(payerMobile)) {
-      setProofMessage("Enter valid 10-digit mobile");
+    if (!token) {
+      setMessage("Please login first");
       return;
     }
 
-    setSubmittingProof(true);
-    setProofMessage("");
+    setSubmitting(true);
+    setMessage("");
     try {
-      const res = await fetch(`${API_BASE}/submit-payment-proof`, {
+      const res = await fetch(`${API_BASE}/tickets/submit-payment-proof`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           ticketId: currentTicketId,
           txnId,
@@ -113,49 +121,51 @@ export default function FindTicket() {
         }),
       });
       const data = await res.json();
-      setProofMessage(data.message || "Submitted for verification");
+      if (!res.ok) throw new Error(data.message || "Submit failed");
+
+      // Update UI
+      const ticket = tickets.find((t) => t._id === currentTicketId);
+      if (ticket) {
+        removeTicket?.(currentTicketId);
+        addTicket?.({
+          ...ticket,
+          isAvailable: false,
+          paymentStatus: "pending",
+          bookedBy: user?._id || null,
+        });
+      }
+
+      setMessage("✅ Payment proof submitted successfully!");
       setTxnId("");
-      setPayerName("");
       setPayerMobile("");
       setTimeout(closeQR, 1500);
     } catch (err) {
-      setProofMessage(err.message || "Failed to submit proof");
+      console.error(err);
+      setMessage(err.message || "Failed to submit proof");
     } finally {
-      setSubmittingProof(false);
+      setSubmitting(false);
     }
   };
 
-  const formatDateTime = (dt) => {
-    if (!dt) return "N/A";
-    return new Date(dt).toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
   return (
-    <div className="p-6 container mx-auto flex flex-col items-center">
+    <div className="p-6 container mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
         🎟 Find Tickets
       </h1>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-4xl">
+      <div className="flex gap-3 mb-6 flex-wrap justify-center">
         <input
           placeholder="From"
           value={fromFilter}
           onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded w-44 uppercase text-sm"
+          className="border p-2 rounded w-40 text-sm uppercase"
         />
         <input
           placeholder="To"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded w-44 uppercase text-sm"
+          className="border p-2 rounded w-40 text-sm uppercase"
         />
         <input
           type="date"
@@ -165,125 +175,102 @@ export default function FindTicket() {
         />
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p>Loading tickets...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* Ticket List */}
-      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {/* Tickets List */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((t) => (
           <div
             key={t._id}
-            className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
-            style={{ minHeight: "280px" }}
+            className="rounded-xl shadow-lg p-5 bg-white border hover:shadow-2xl transition"
           >
-            <div className="flex flex-col gap-2 text-sm">
-              <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
-                🚆 {t.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})
-              </h2>
+            <h2 className="text-lg font-semibold text-blue-700 mb-2 uppercase">
+              🚆 {t.trainName} ({t.trainNumber})
+            </h2>
+            <p className="text-sm uppercase mb-1">
+              📍 {t.from} → {t.to}
+            </p>
+            <p className="text-sm uppercase mb-1">
+              ⏰{" "}
+              {t.fromDateTime
+                ? new Date(t.fromDateTime).toLocaleString()
+                : "N/A"}
+            </p>
+            <p className="text-sm uppercase mb-2">
+              🎟 {t.ticketNumber} | {t.classType}
+            </p>
 
-              <p className="uppercase">
-                <span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}
+            {t.contactUnlocked ? (
+              <p className="text-green-700 font-semibold">
+                📞 Contact: {t.contactNumber}
               </p>
-
-              <p className="uppercase">
-                <span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}
-              </p>
-
-              <p className="uppercase">
-                <span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}
-              </p>
-
-              <p className="uppercase">
-                <span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}
-              </p>
-
-              <p className="uppercase">
-                <span className="font-semibold">🎟 Tickets:</span> {t.ticketNumber || "N/A"}
-              </p>
-
-              <p className="uppercase">
-                <span className="font-semibold">👤 Passenger:</span> {t.passengerName ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})` : "N/A"}
-              </p>
-
-              {t.contactUnlocked ? (
-                <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {t.contactNumber}</p>
-              ) : (
+            ) : (
+              <div className="mt-3">
                 <button
-                  onClick={() => handlePay(t)}
-                  className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
+                  onClick={() => handleOpenQR(t)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
                 >
-                  Pay ₹20 to Unlock Contact
+                  Pay ₹20 to Unlock
                 </button>
-              )}
-            </div>
-
-            {/* QR & Proof */}
-            {!t.contactUnlocked &&
-              currentTicketId === t._id &&
-              showQR &&
-              currentUpiLink && (
-                <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
-                  <p className="mb-2 font-medium text-center uppercase text-sm">
-                    Scan QR to pay ₹20
-                  </p>
-                  <QRCodeCanvas value={currentUpiLink} size={160} />
-                  <button
-                    onClick={closeQR}
-                    className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm"
-                  >
-                    Close QR
-                  </button>
-
-                  <div className="mt-3 w-full max-w-md">
-                    <div className="mb-2 font-medium uppercase text-sm">
-                      Submit payment details:
-                    </div>
-                    <form className="flex flex-col gap-2" onSubmit={submitProof}>
-                      <input
-                        placeholder="Transaction ID"
-                        value={txnId}
-                        onChange={(e) => setTxnId(e.target.value)}
-                        className="border p-2 rounded uppercase text-sm"
-                        required
-                      />
-                      <input
-                        placeholder="Payer Name"
-                        value={payerName}
-                        onChange={(e) => setPayerName(e.target.value)}
-                        className="border p-2 rounded uppercase text-sm"
-                        required
-                      />
-                      <input
-                        placeholder="Payer Mobile (10 digits)"
-                        value={payerMobile}
-                        onChange={(e) => setPayerMobile(e.target.value)}
-                        className="border p-2 rounded text-sm"
-                        required
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          type="submit"
-                          disabled={submittingProof}
-                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm"
-                        >
-                          {submittingProof ? "Submitting..." : "Submit"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={closeQR}
-                          className="px-3 py-2 border rounded uppercase text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
-                    </form>
-                  </div>
-                </div>
-              )}
+              </div>
+            )}
           </div>
         ))}
       </div>
+
+      {/* QR Modal */}
+      {showQR && currentUpiLink && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <div className="text-center">
+              <p className="font-semibold mb-2">Scan QR to pay ₹20</p>
+              <QRCodeCanvas value={currentUpiLink} size={160} />
+            </div>
+
+            <form onSubmit={submitProof} className="mt-4 space-y-2">
+              <input
+                placeholder="Transaction ID"
+                value={txnId}
+                onChange={(e) => setTxnId(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                placeholder="Payer Name"
+                value={payerName}
+                onChange={(e) => setPayerName(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                placeholder="Payer Mobile"
+                value={payerMobile}
+                onChange={(e) => setPayerMobile(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  {submitting ? "Submitting..." : "Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeQR}
+                  className="flex-1 border px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+              {message && <p className="text-sm mt-1">{message}</p>}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
