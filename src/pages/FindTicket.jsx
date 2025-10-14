@@ -1,4 +1,3 @@
-// src/pages/FindTicket.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useAuth } from "../context/AuthContext";
@@ -48,8 +47,7 @@ export default function FindTicket() {
         setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [tickets, setTickets]);
 
   // Filter logic
   const filtered = useMemo(() => {
@@ -95,7 +93,7 @@ export default function FindTicket() {
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !/^\d{10}$/.test(payerMobile)) {
-      setMessage("Please fill all valid details");
+      setMessage("Please fill valid details");
       return;
     }
     if (!token) {
@@ -123,7 +121,6 @@ export default function FindTicket() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submit failed");
 
-      // Update UI
       const ticket = tickets.find((t) => t._id === currentTicketId);
       if (ticket) {
         removeTicket?.(currentTicketId);

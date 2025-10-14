@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLoader } from "../context/LoaderContext";
 
@@ -10,7 +9,6 @@ const API_BASE =
 const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const { login } = useAuth();
   const { showLoader, hideLoader } = useLoader();
 
@@ -42,8 +40,7 @@ const Login = () => {
       }
 
       if (data.token && data.user) {
-        login(data.token, data.user); // ✅ AuthContext update
-        navigate("/profile");
+        login(data.token, data.user); // ✅ Login + redirect handled inside AuthContext
       }
     } catch (err) {
       setError(err.message);
@@ -77,7 +74,7 @@ const Login = () => {
             />
           </div>
 
-          <div className="relative">
+          <div>
             <label className="block text-sm font-medium text-gray-700">
               Password
             </label>

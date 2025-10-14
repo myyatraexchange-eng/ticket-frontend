@@ -1,4 +1,3 @@
-// src/pages/EditTicket.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,8 +39,6 @@ export default function EditTicket() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const t = res.data.ticket;
-
-        // Pre-fill form
         setFormData({
           trainNumber: t.trainNumber || "",
           trainName: t.trainName || "",
@@ -68,14 +65,10 @@ export default function EditTicket() {
     fetchTicket();
   }, [id]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Merge date + time into ISO
     const fromDateTime =
       formData.fromDate && formData.fromTime
         ? new Date(
@@ -86,7 +79,6 @@ export default function EditTicket() {
             formData.fromTime.getMinutes()
           ).toISOString()
         : null;
-
     const toDateTime =
       formData.toDate && formData.toTime
         ? new Date(
@@ -105,7 +97,6 @@ export default function EditTicket() {
       await axios.patch(`${API_BASE}/tickets/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       alert("Ticket updated successfully!");
       navigate("/profile");
     } catch (err) {
@@ -114,7 +105,8 @@ export default function EditTicket() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10 animate-pulse">Loading ticket...</p>;
+  if (loading)
+    return <p className="text-center mt-10 animate-pulse">Loading ticket...</p>;
 
   return (
     <div className="max-w-2xl mx-auto bg-white shadow-md p-6 rounded mt-6">

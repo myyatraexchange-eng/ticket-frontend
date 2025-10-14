@@ -16,18 +16,20 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
+
 import PrivateRoute from "./routes/PrivateRoute";
-
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
+import { AuthProvider } from "./context/AuthContext";
+import { TicketProvider } from "./context/TicketContext";
 
-// 🔹 Scroll to top
+// Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   React.useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
-// 🔹 Loader Overlay
+// Loader Overlay
 const LoaderOverlay = () => {
   const { loading } = useLoader();
   return loading ? (
@@ -58,10 +60,38 @@ function AppContent() {
           <Route path="/contact" element={<Contact />} />
 
           {/* Private Pages */}
-          <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
-          <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
+          <Route
+            path="/find"
+            element={
+              <PrivateRoute>
+                <FindTicket />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/post"
+            element={
+              <PrivateRoute>
+                <Post />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-ticket/:id"
+            element={
+              <PrivateRoute>
+                <EditTicket />
+              </PrivateRoute>
+            }
+          />
 
           {/* Legal Pages */}
           <Route path="/policy" element={<Policy />} />
@@ -81,9 +111,13 @@ function AppContent() {
 
 function App() {
   return (
-    <LoaderProvider>
-      <AppContent />
-    </LoaderProvider>
+    <AuthProvider>
+      <TicketProvider>
+        <LoaderProvider>
+          <AppContent />
+        </LoaderProvider>
+      </TicketProvider>
+    </AuthProvider>
   );
 }
 
