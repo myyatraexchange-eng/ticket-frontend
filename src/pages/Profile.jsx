@@ -1,117 +1,183 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTickets } from "../context/TicketContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-export default function Profile() {
-  const { user, token } = useAuth();
-  const { tickets, setTickets } = useTickets();
+const Profile = () => {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newPassword, setNewPassword] = useState("");
+  const { user, token, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // Fetch user's booked tickets (only booked by this user)
-  const [bookedTickets, setBookedTickets] = useState([]);
-
+  // Fetch tickets
   useEffect(() => {
-    if (!token || !user) return;
-
     const fetchTickets = async () => {
-      setLoading(true);
+      if (!token) {
+        navigate("/login");
+        return;
+      }
       try {
-        const res = await fetch(`${API_BASE}/tickets`, {
+        const res = await fetch(`${API_BASE}/tickets/my`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch tickets");
-        const data = await res.json();
-        const allTickets = data.tickets || data;
-        setTickets?.(allTickets);
-
-        // Filter tickets booked by this user
-        const userTickets = allTickets.filter(
-          (t) => t.bookedBy === user._id
-        );
-        setBookedTickets(userTickets);
+        const ticketData = await res.json();
+        setTickets(Array.isArray(ticketData) ? ticketData : [ticketData]);
       } catch (err) {
         console.error(err);
-        setError("Failed to load tickets");
+        alert("❌ Could not load tickets");
       } finally {
         setLoading(false);
       }
     };
 
     fetchTickets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, user]);
+  }, [token, navigate]);
 
-  const pendingTickets = bookedTickets.filter(
-    (t) => t.paymentStatus === "pending"
-  );
-  const confirmedTickets = bookedTickets.filter(
-    (t) => t.paymentStatus === "confirmed"
-  );
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/tickets/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to delete ticket");
+      alert("✅ Ticket deleted successfully!");
+      setTickets(tickets.filter((t) => t._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("❌ " + err.message);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword.trim()) return alert("Please enter a new password");
+    try {
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      if (!res.ok) throw new Error("Failed to change password");
+      alert("✅ Password changed successfully!");
+      setNewPassword("");
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  };
+
+  if (loading)
+    return (
+      <p className="text-center mt-20 text-lg text-gray-500 animate-pulse">
+        Loading profile...
+      </p>
+    );
 
   return (
-    <div className="p-6 container mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
-        👤 Profile
+    <div className="max-w-7xl mx-auto px-6 py-10">
+      {/* Header */}
+      <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">
+        My Dashboard
       </h1>
 
-      {loading && <p>Loading tickets...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
+      {/* User Info Card */}
       {user && (
-        <div className="mb-6">
-          <p className="font-semibold">Name: {user.name}</p>
-          <p className="font-semibold">Email: {user.email}</p>
-        </div>
-      )}
-
-      {/* Pending Tickets */}
-      {pendingTickets.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-3 text-yellow-600 uppercase">
-            ⏳ Pending Tickets
-          </h2>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {pendingTickets.map((t) => (
-              <div key={t._id} className="p-4 border rounded bg-yellow-50">
-                <p className="font-semibold">Train: {t.trainName}</p>
-                <p>From: {t.from} → {t.to}</p>
-                <p>Date: {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}</p>
-                <p>Ticket #: {t.ticketNumber}</p>
-                <p>Payment: {t.paymentStatus}</p>
-              </div>
-            ))}
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg rounded-2xl p-8 mb-12 border border-blue-200">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">User Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700">
+            <p>
+              <span className="font-semibold text-blue-600 uppercase">Name:</span>{" "}
+              <span className="font-medium text-gray-800 uppercase">{user.name}</span>
+            </p>
+            <p>
+              <span className="font-semibold text-blue-600 uppercase">Phone:</span>{" "}
+              <span className="font-medium text-gray-800">{user.phone}</span>
+            </p>
+            <p>
+              <span className="font-semibold text-blue-600 uppercase">Unique ID:</span>{" "}
+              <span className="font-medium text-gray-800 uppercase">{user.uniqueId}</span>
+            </p>
           </div>
-        </div>
-      )}
 
-      {/* Confirmed Tickets */}
-      {confirmedTickets.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-3 text-green-600 uppercase">
-            ✅ Confirmed Tickets
-          </h2>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {confirmedTickets.map((t) => (
-              <div key={t._id} className="p-4 border rounded bg-green-50">
-                <p className="font-semibold">Train: {t.trainName}</p>
-                <p>From: {t.from} → {t.to}</p>
-                <p>Date: {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}</p>
-                <p>Ticket #: {t.ticketNumber}</p>
-                <p>Payment: {t.paymentStatus}</p>
-              </div>
-            ))}
+          {/* Change Password */}
+          <div className="mt-6 flex flex-col sm:flex-row gap-4 items-center">
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="border p-3 rounded-lg w-full sm:flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              onClick={handleChangePassword}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
+            >
+              Change Password
+            </button>
           </div>
+
+          {/* Logout */}
+          <button
+            onClick={() => { logout(); navigate("/login"); }}
+            className="mt-6 bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition w-full sm:w-auto"
+          >
+            Logout
+          </button>
         </div>
       )}
 
-      {bookedTickets.length === 0 && !loading && <p>No tickets booked yet.</p>}
+      {/* Tickets Section */}
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">My Tickets</h2>
+      {tickets.length === 0 ? (
+        <p className="text-gray-600 text-center text-lg">
+          You haven’t created any tickets yet.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {tickets.map((ticket) => (
+            <div
+              key={ticket._id}
+              className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">
+                  {ticket.trainName}
+                </h3>
+                <p className="text-gray-600 mb-1 uppercase">
+                  {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                </p>
+                <p className="text-gray-600 uppercase">
+                  Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
+                </p>
+              </div>
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => navigate(`/edit-ticket/${ticket._id}`)}
+                  className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(ticket._id)}
+                  className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Profile;
 
