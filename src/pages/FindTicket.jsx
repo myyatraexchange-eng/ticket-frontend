@@ -21,7 +21,11 @@ export default function FindTicket() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Fetch all available tickets
+  // Filters
+  const [filterFrom, setFilterFrom] = useState("");
+  const [filterTo, setFilterTo] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+
   useEffect(() => {
     const fetchTickets = async () => {
       setLoading(true);
@@ -87,7 +91,6 @@ export default function FindTicket() {
 
       setMessage("✅ Payment proof submitted successfully!");
       setTimeout(() => navigate("/profile"), 800);
-
     } catch (err) {
       console.error(err);
       setMessage(err.message || "Failed to submit proof");
@@ -96,24 +99,59 @@ export default function FindTicket() {
     }
   };
 
+  // Apply filters
+  const filteredTickets = tickets.filter((t) => {
+    const matchFrom = filterFrom ? t.from.toLowerCase().includes(filterFrom.toLowerCase()) : true;
+    const matchTo = filterTo ? t.to.toLowerCase().includes(filterTo.toLowerCase()) : true;
+    const matchDate = filterDate ? new Date(t.fromDateTime).toISOString().split("T")[0] === filterDate : true;
+    return matchFrom && matchTo && matchDate;
+  });
+
   if (loading) return <p className="text-center mt-10">Loading tickets...</p>;
 
   return (
     <div className="p-6 container mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">🎟 Find Tickets</h1>
 
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="From"
+          value={filterFrom}
+          onChange={(e) => setFilterFrom(e.target.value)}
+          className="border p-2 rounded flex-1"
+        />
+        <input
+          type="text"
+          placeholder="To"
+          value={filterTo}
+          onChange={(e) => setFilterTo(e.target.value)}
+          className="border p-2 rounded flex-1"
+        />
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="border p-2 rounded flex-1"
+        />
+      </div>
+
+      {/* Tickets Grid */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {tickets.map((t) => (
+        {filteredTickets.map((t) => (
           <div key={t._id} className="rounded-xl shadow-lg p-5 bg-white border hover:shadow-2xl transition">
             <h2 className="text-lg font-semibold text-blue-700 mb-2 uppercase">
               🚆 {t.trainName} ({t.trainNumber})
             </h2>
             <p className="text-sm uppercase mb-1">📍 {t.from} → {t.to}</p>
             <p className="text-sm uppercase mb-1">
-              ⏰ {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}
+              ⏰ Departure: {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"} | Arrival: {t.toDateTime ? new Date(t.toDateTime).toLocaleString() : "N/A"}
             </p>
-            <p className="text-sm uppercase mb-2">🎟 {t.ticketNumber} | {t.classType}</p>
-
+            <p className="text-sm uppercase mb-1">🪑 Class: {t.classType} | 🎟 Tickets: {t.ticketNumber}</p>
+            {t.passengerName && (
+              <p className="text-sm uppercase mb-1">👤 Passenger: {t.passengerName} ({t.passengerGender || ""}, {t.passengerAge || ""})</p>
+            )}
             {t.contactUnlocked ? (
               <p className="text-green-700 font-semibold">📞 Contact: {t.contactNumber}</p>
             ) : (
@@ -137,38 +175,12 @@ export default function FindTicket() {
             </div>
 
             <form onSubmit={submitProof} className="mt-4 space-y-2">
-              <input
-                placeholder="Transaction ID"
-                value={txnId}
-                onChange={(e)=>setTxnId(e.target.value)}
-                className="w-full border p-2 rounded"
-                required
-              />
-              <input
-                placeholder="Payer Name"
-                value={payerName}
-                onChange={(e)=>setPayerName(e.target.value)}
-                className="w-full border p-2 rounded"
-                required
-              />
-              <input
-                placeholder="Payer Mobile"
-                value={payerMobile}
-                onChange={(e)=>setPayerMobile(e.target.value)}
-                className="w-full border p-2 rounded"
-                required
-              />
+              <input placeholder="Transaction ID" value={txnId} onChange={(e)=>setTxnId(e.target.value)} className="w-full border p-2 rounded" required/>
+              <input placeholder="Payer Name" value={payerName} onChange={(e)=>setPayerName(e.target.value)} className="w-full border p-2 rounded" required/>
+              <input placeholder="Payer Mobile" value={payerMobile} onChange={(e)=>setPayerMobile(e.target.value)} className="w-full border p-2 rounded" required/>
               <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  {submitting ? "Submitting..." : "Submit"}
-                </button>
-                <button type="button" onClick={closeQR} className="flex-1 border px-4 py-2 rounded">
-                  Cancel
-                </button>
+                <button type="submit" disabled={submitting} className="flex-1 bg-green-600 text-white px-4 py-2 rounded">{submitting ? "Submitting..." : "Submit"}</button>
+                <button type="button" onClick={closeQR} className="flex-1 border px-4 py-2 rounded">Cancel</button>
               </div>
               {message && <p className="text-sm mt-1">{message}</p>}
             </form>

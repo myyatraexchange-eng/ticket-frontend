@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://ticket-backend-g5da.onrender.com/api";
+  process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
   const [myTickets, setMyTickets] = useState([]);
@@ -14,7 +13,6 @@ const Profile = () => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch seller tickets & buyer bookings
   const fetchData = async () => {
     if (!token) {
       navigate("/login");
@@ -39,7 +37,6 @@ const Profile = () => {
       if (!resBookings.ok) throw new Error("Failed to fetch bookings");
       const bookingsData = await resBookings.json();
       setMyBookings(Array.isArray(bookingsData) ? bookingsData : [bookingsData]);
-
     } catch (err) {
       console.error(err);
       alert("❌ Could not load tickets/bookings");
@@ -52,7 +49,6 @@ const Profile = () => {
     fetchData();
   }, [token, navigate]);
 
-  // Delete seller ticket
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
 
@@ -61,11 +57,7 @@ const Profile = () => {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Delete failed");
-      }
+      if (!res.ok) throw new Error("Delete failed");
 
       setMyTickets(myTickets.filter((t) => t._id !== id));
       alert("✅ Ticket deleted successfully!");
@@ -75,7 +67,6 @@ const Profile = () => {
     }
   };
 
-  // Change password
   const handleChangePassword = async () => {
     if (!newPassword.trim()) return alert("Please enter a new password");
 
@@ -128,7 +119,6 @@ const Profile = () => {
             </p>
           </div>
 
-          {/* Change Password */}
           <div className="mt-6 flex flex-col sm:flex-row gap-4 items-center">
             <input
               type="password"
@@ -161,38 +151,19 @@ const Profile = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {myTickets.map((ticket) => (
-            <div
-              key={ticket._id}
-              className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between"
-            >
+            <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between">
               <div>
                 <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
-                <p className="text-gray-600 mb-1 uppercase">
-                  {ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleDateString() : "N/A"}
-                </p>
-                <p className="text-gray-600 uppercase">
-                  Seat: {ticket.classType} | Tickets: {ticket.ticketNumber}
-                </p>
+                <p className="text-gray-600 mb-1 uppercase">{ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString() : "N/A"}</p>
+                <p className="text-gray-600 uppercase">🪑 {ticket.classType} | 🎟 Tickets: {ticket.ticketNumber}</p>
+                {ticket.contactNumber && <p className="mt-1 text-green-700 font-semibold">📞 {ticket.contactNumber}</p>}
                 <p className={`mt-1 font-semibold ${ticket.paymentStatus === 'pending' ? 'text-orange-600' : 'text-green-700'}`}>
                   Status: {ticket.paymentStatus || "available"}
                 </p>
-                {ticket.contactNumber && ticket.contactUnlocked && (
-                  <p className="mt-1 text-green-700 font-semibold">📞 {ticket.contactNumber}</p>
-                )}
               </div>
               <div className="mt-4 flex gap-3">
-                <button
-                  onClick={() => navigate(`/edit-ticket/${ticket._id}`)}
-                  className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(ticket._id)}
-                  className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                >
-                  Delete
-                </button>
+                <button onClick={() => navigate(`/edit-ticket/${ticket._id}`)} className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">Edit</button>
+                <button onClick={() => handleDelete(ticket._id)} className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Delete</button>
               </div>
             </div>
           ))}
@@ -206,23 +177,16 @@ const Profile = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {myBookings.map((ticket) => (
-            <div
-              key={ticket._id}
-              className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between"
-            >
+            <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between">
               <div>
                 <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
-                <p className="text-gray-600 mb-1 uppercase">
-                  {ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleDateString() : "N/A"}
-                </p>
-                <p className="text-gray-600 uppercase">
-                  Seat: {ticket.classType} | Tickets: {ticket.ticketNumber}
-                </p>
+                <p className="text-gray-600 mb-1 uppercase">{ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString() : "N/A"}</p>
+                <p className="text-gray-600 uppercase">🪑 {ticket.classType} | 🎟 Tickets: {ticket.ticketNumber}</p>
                 <p className={`mt-1 font-semibold ${ticket.paymentStatus === 'pending' ? 'text-orange-600' : 'text-green-700'}`}>
                   Status: {ticket.paymentStatus || "booked"}
                 </p>
                 {ticket.paymentStatus === 'confirmed' && ticket.contactNumber && (
-                  <p className="mt-1 text-green-700 font-semibold">📞 {ticket.contactNumber}</p>
+                  <p className="mt-1 text-green-700 font-semibold">📞 Contact: {ticket.contactNumber}</p>
                 )}
               </div>
             </div>
