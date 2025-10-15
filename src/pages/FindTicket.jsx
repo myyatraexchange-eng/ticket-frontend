@@ -5,7 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
 
-// TicketCard component (memoized for performance)
+// TicketCard component
 const TicketCard = memo(
   ({
     ticket,
@@ -27,7 +27,7 @@ const TicketCard = memo(
     <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
       <div className="flex flex-col gap-2 text-sm">
         <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
-          🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({ticket.trainNumber || "N/A"})
+          🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN"} ({ticket.trainNumber || "N/A"})
         </h2>
 
         <p className="uppercase">
@@ -35,15 +35,11 @@ const TicketCard = memo(
         </p>
         <p className="uppercase">
           <span className="font-semibold">⏰ Departure:</span>{" "}
-          {ticket.fromDateTime
-            ? new Date(ticket.fromDateTime).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true })
-            : "N/A"}
+          {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString("en-IN") : "N/A"}
         </p>
         <p className="uppercase">
           <span className="font-semibold">🛬 Arrival:</span>{" "}
-          {ticket.toDateTime
-            ? new Date(ticket.toDateTime).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true })
-            : "N/A"}
+          {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString("en-IN") : "N/A"}
         </p>
         <p className="uppercase">
           <span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}
@@ -56,18 +52,19 @@ const TicketCard = memo(
           {ticket.passengerName ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender.toUpperCase()}, ${ticket.passengerAge})` : "N/A"}
         </p>
 
-        {ticket.contactUnlocked ? (
-          <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {ticket.contactNumber}</p>
-        ) : (
+        {!ticket.contactUnlocked ? (
           <button
             onClick={() => onPayClick(ticket)}
             className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
           >
             Pay ₹20 to Unlock Contact
           </button>
+        ) : (
+          <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {ticket.contactNumber}</p>
         )}
       </div>
 
+      {/* QR & Submit Payment */}
       {!ticket.contactUnlocked && currentTicketId === ticket._id && showQR && currentUpiLink && (
         <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50 w-full">
           <p className="mb-2 font-medium text-center uppercase text-sm">Scan QR to pay ₹20</p>
@@ -121,13 +118,11 @@ const TicketCard = memo(
   )
 );
 
-export default function FindTicket() {
+export default function FindTicket({ onBookingAdded }) {
   const { token, user } = useAuth();
-
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Payment / QR state
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
@@ -137,12 +132,6 @@ export default function FindTicket() {
   const [submittingProof, setSubmittingProof] = useState(false);
   const [proofMessage, setProofMessage] = useState("");
 
-  // Filters
-  const [filterFrom, setFilterFrom] = useState("");
-  const [filterTo, setFilterTo] = useState("");
-  const [filterDate, setFilterDate] = useState("");
-
-  // Fetch tickets
   useEffect(() => {
     const fetchTickets = async () => {
       setLoading(true);
@@ -160,7 +149,6 @@ export default function FindTicket() {
     fetchTickets();
   }, [user]);
 
-  // Open QR modal
   const handlePayClick = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
     setCurrentUpiLink(upiLink);
@@ -179,7 +167,6 @@ export default function FindTicket() {
     setProofMessage("");
   };
 
-  // Submit payment proof
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !/^\d{10}$/.test(payerMobile)) {
@@ -194,13 +181,19 @@ export default function FindTicket() {
     setSubmittingProof(true);
     setProofMessage("");
     try {
-      const res = await fetch(`${API_BASE}/tickets/submit-payment-proof`, {
+      const res = await fetch(`${API_BASE}/tickets/${currentTicketId}/unlock`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ ticketId: currentTicketId, txnId, payerName, payerMobile, amount: 20 }),
+        body: JSON.stringify({ txnId, payerName, payerMobile, amount: 20 }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submit failed");
+
+      // Update tickets state to reflect unlocked ticket
+      setTickets(tickets.map(t => t._id === currentTicketId ? { ...t, contactUnlocked: true, contactNumber: data.ticket.contactNumber } : t));
+
+      // Notify parent (Profile.jsx) to refresh MyBookings
+      if (onBookingAdded) onBookingAdded(data.ticket);
 
       setProofMessage("✅ Payment proof submitted successfully!");
       setTimeout(closeQR, 1000);
@@ -212,77 +205,33 @@ export default function FindTicket() {
     }
   };
 
-  // Apply filters
-  const filteredTickets = tickets.filter((t) => {
-    const matchFrom = filterFrom ? t.from.toLowerCase().includes(filterFrom.toLowerCase()) : true;
-    const matchTo = filterTo ? t.to.toLowerCase().includes(filterTo.toLowerCase()) : true;
-    const matchDate = filterDate ? new Date(t.fromDateTime).toISOString().split("T")[0] === filterDate : true;
-    return matchFrom && matchTo && matchDate;
-  });
-
   if (loading) return <p className="text-center mt-10">Loading tickets...</p>;
 
   return (
     <div className="p-6 container mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">🎟 Find Tickets</h1>
-
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="From"
-          value={filterFrom}
-          onChange={(e) => setFilterFrom(e.target.value)}
-          className="border p-2 rounded flex-1"
-        />
-        <input
-          type="text"
-          placeholder="To"
-          value={filterTo}
-          onChange={(e) => setFilterTo(e.target.value)}
-          className="border p-2 rounded flex-1"
-        />
-        <input
-          type="date"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          className="border p-2 rounded flex-1"
-        />
-        <button
-          onClick={() => {}}
-          className="bg-blue-600 text-white px-4 py-2 rounded mt-2 md:mt-0"
-        >
-          Search
-        </button>
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {tickets.map(t => (
+          <TicketCard
+            key={t._id}
+            ticket={t}
+            onPayClick={handlePayClick}
+            currentTicketId={currentTicketId}
+            showQR={showQR}
+            currentUpiLink={currentUpiLink}
+            closeQR={closeQR}
+            submitProof={submitProof}
+            txnId={txnId}
+            setTxnId={setTxnId}
+            payerName={payerName}
+            setPayerName={setPayerName}
+            payerMobile={payerMobile}
+            setPayerMobile={setPayerMobile}
+            submittingProof={submittingProof}
+            proofMessage={proofMessage}
+          />
+        ))}
       </div>
-
-      {/* Tickets Grid */}
-      {filteredTickets.length === 0 ? (
-        <p className="text-center text-red-600 font-medium">No tickets found</p>
-      ) : (
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {filteredTickets.map((t) => (
-            <TicketCard
-              key={t._id}
-              ticket={t}
-              onPayClick={handlePayClick}
-              currentTicketId={currentTicketId}
-              showQR={showQR}
-              currentUpiLink={currentUpiLink}
-              closeQR={closeQR}
-              submitProof={submitProof}
-              txnId={txnId}
-              setTxnId={setTxnId}
-              payerName={payerName}
-              setPayerName={setPayerName}
-              payerMobile={payerMobile}
-              setPayerMobile={setPayerMobile}
-              submittingProof={submittingProof}
-              proofMessage={proofMessage}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
