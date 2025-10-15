@@ -1,25 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useAuth } from "../context/AuthContext";
-import { useTickets } from "../context/TicketContext";
+import { useNavigate } from "react-router-dom";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
 
 export default function FindTicket() {
-  const { tickets, setTickets, removeTicket, addTicket } = useTickets();
   const { token, user } = useAuth();
+  const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // Filters
-  const [fromFilter, setFromFilter] = useState("");
-  const [toFilter, setToFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
-
-  // Payment / QR modal
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
@@ -29,48 +20,24 @@ export default function FindTicket() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Fetch all tickets
+  // Fetch all available tickets
   useEffect(() => {
-    if (tickets && tickets.length > 0) return;
-    (async () => {
+    const fetchTickets = async () => {
       setLoading(true);
       try {
         const res = await fetch(`${API_BASE}/tickets`);
-        if (!res.ok) throw new Error("Failed to fetch tickets");
         const data = await res.json();
-        const all = data.tickets || data;
-        setTickets?.(all);
+        setTickets(data.tickets || data);
       } catch (err) {
         console.error(err);
-        setError("Failed to load tickets");
+        setTickets([]);
       } finally {
         setLoading(false);
       }
-    })();
-  }, [tickets, setTickets]);
+    };
+    fetchTickets();
+  }, []);
 
-  // Filter logic
-  const filtered = useMemo(() => {
-    if (!tickets) return [];
-    let out = tickets.filter((t) => t.isAvailable !== false);
-    if (fromFilter)
-      out = out.filter((t) =>
-        t.from?.toLowerCase().includes(fromFilter.toLowerCase())
-      );
-    if (toFilter)
-      out = out.filter((t) =>
-        t.to?.toLowerCase().includes(toFilter.toLowerCase())
-      );
-    if (dateFilter)
-      out = out.filter(
-        (t) =>
-          t.fromDateTime &&
-          new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
-      );
-    return out;
-  }, [tickets, fromFilter, toFilter, dateFilter]);
-
-  // Open QR modal
   const handleOpenQR = (ticket) => {
     const upi = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket%20Payment`;
     setCurrentUpiLink(upi);
@@ -89,7 +56,6 @@ export default function FindTicket() {
     setMessage("");
   };
 
-  // Submit payment proof
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !/^\d{10}$/.test(payerMobile)) {
@@ -106,36 +72,15 @@ export default function FindTicket() {
     try {
       const res = await fetch(`${API_BASE}/tickets/submit-payment-proof`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ticketId: currentTicketId,
-          txnId,
-          payerName,
-          payerMobile,
-          amount: 20,
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ticketId: currentTicketId, txnId, payerName, payerMobile, amount: 20 }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submit failed");
 
-      const ticket = tickets.find((t) => t._id === currentTicketId);
-      if (ticket) {
-        removeTicket?.(currentTicketId);
-        addTicket?.({
-          ...ticket,
-          isAvailable: false,
-          paymentStatus: "pending",
-          bookedBy: user?._id || null,
-        });
-      }
-
       setMessage("✅ Payment proof submitted successfully!");
-      setTxnId("");
-      setPayerMobile("");
-      setTimeout(closeQR, 1500);
+      setTimeout(() => navigate("/profile"), 800);
+
     } catch (err) {
       console.error(err);
       setMessage(err.message || "Failed to submit proof");
@@ -144,70 +89,27 @@ export default function FindTicket() {
     }
   };
 
+  if (loading) return <p className="text-center mt-10">Loading tickets...</p>;
+
   return (
     <div className="p-6 container mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
-        🎟 Find Tickets
-      </h1>
+      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">🎟 Find Tickets</h1>
 
-      {/* Filters */}
-      <div className="flex gap-3 mb-6 flex-wrap justify-center">
-        <input
-          placeholder="From"
-          value={fromFilter}
-          onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded w-40 text-sm uppercase"
-        />
-        <input
-          placeholder="To"
-          value={toFilter}
-          onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded w-40 text-sm uppercase"
-        />
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded text-sm"
-        />
-      </div>
-
-      {loading && <p>Loading tickets...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
-      {/* Tickets List */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((t) => (
-          <div
-            key={t._id}
-            className="rounded-xl shadow-lg p-5 bg-white border hover:shadow-2xl transition"
-          >
+        {tickets.map((t) => (
+          <div key={t._id} className="rounded-xl shadow-lg p-5 bg-white border hover:shadow-2xl transition">
             <h2 className="text-lg font-semibold text-blue-700 mb-2 uppercase">
               🚆 {t.trainName} ({t.trainNumber})
             </h2>
-            <p className="text-sm uppercase mb-1">
-              📍 {t.from} → {t.to}
-            </p>
-            <p className="text-sm uppercase mb-1">
-              ⏰{" "}
-              {t.fromDateTime
-                ? new Date(t.fromDateTime).toLocaleString()
-                : "N/A"}
-            </p>
-            <p className="text-sm uppercase mb-2">
-              🎟 {t.ticketNumber} | {t.classType}
-            </p>
+            <p className="text-sm uppercase mb-1">📍 {t.from} → {t.to}</p>
+            <p className="text-sm uppercase mb-1">⏰ {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}</p>
+            <p className="text-sm uppercase mb-2">🎟 {t.ticketNumber} | {t.classType}</p>
 
             {t.contactUnlocked ? (
-              <p className="text-green-700 font-semibold">
-                📞 Contact: {t.contactNumber}
-              </p>
+              <p className="text-green-700 font-semibold">📞 Contact: {t.contactNumber}</p>
             ) : (
               <div className="mt-3">
-                <button
-                  onClick={() => handleOpenQR(t)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
+                <button onClick={() => handleOpenQR(t)} className="bg-blue-600 text-white px-4 py-2 rounded">
                   Pay ₹20 to Unlock
                 </button>
               </div>
@@ -216,7 +118,6 @@ export default function FindTicket() {
         ))}
       </div>
 
-      {/* QR Modal */}
       {showQR && currentUpiLink && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
           <div className="bg-white p-6 rounded-lg max-w-md w-full">
@@ -226,42 +127,12 @@ export default function FindTicket() {
             </div>
 
             <form onSubmit={submitProof} className="mt-4 space-y-2">
-              <input
-                placeholder="Transaction ID"
-                value={txnId}
-                onChange={(e) => setTxnId(e.target.value)}
-                className="w-full border p-2 rounded"
-                required
-              />
-              <input
-                placeholder="Payer Name"
-                value={payerName}
-                onChange={(e) => setPayerName(e.target.value)}
-                className="w-full border p-2 rounded"
-                required
-              />
-              <input
-                placeholder="Payer Mobile"
-                value={payerMobile}
-                onChange={(e) => setPayerMobile(e.target.value)}
-                className="w-full border p-2 rounded"
-                required
-              />
+              <input placeholder="Transaction ID" value={txnId} onChange={(e)=>setTxnId(e.target.value)} className="w-full border p-2 rounded" required/>
+              <input placeholder="Payer Name" value={payerName} onChange={(e)=>setPayerName(e.target.value)} className="w-full border p-2 rounded" required/>
+              <input placeholder="Payer Mobile" value={payerMobile} onChange={(e)=>setPayerMobile(e.target.value)} className="w-full border p-2 rounded" required/>
               <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  {submitting ? "Submitting..." : "Submit"}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeQR}
-                  className="flex-1 border px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
+                <button type="submit" disabled={submitting} className="flex-1 bg-green-600 text-white px-4 py-2 rounded">{submitting ? "Submitting..." : "Submit"}</button>
+                <button type="button" onClick={closeQR} className="flex-1 border px-4 py-2 rounded">Cancel</button>
               </div>
               {message && <p className="text-sm mt-1">{message}</p>}
             </form>

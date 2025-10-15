@@ -7,13 +7,14 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
-  const [tickets, setTickets] = useState([]);
+  const [myTickets, setMyTickets] = useState([]);
+  const [myBookings, setMyBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch tickets
+  // Fetch seller tickets
   useEffect(() => {
     const fetchTickets = async () => {
       if (!token) {
@@ -21,20 +22,28 @@ const Profile = () => {
         return;
       }
       try {
+        setLoading(true);
+
+        // Seller tickets
         const res = await fetch(`${API_BASE}/tickets/my`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error("Failed to fetch tickets");
         const ticketData = await res.json();
-        setTickets(Array.isArray(ticketData) ? ticketData : [ticketData]);
+        setMyTickets(Array.isArray(ticketData) ? ticketData : [ticketData]);
+
+        // Buyer bookings
+        const resBookings = await fetch(`${API_BASE}/tickets/my-bookings`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const bookingsData = await resBookings.json();
+        setMyBookings(Array.isArray(bookingsData) ? bookingsData : [bookingsData]);
       } catch (err) {
         console.error(err);
-        alert("❌ Could not load tickets");
+        alert("❌ Could not load tickets/bookings");
       } finally {
         setLoading(false);
       }
     };
-
     fetchTickets();
   }, [token, navigate]);
 
@@ -46,8 +55,8 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete ticket");
+      setMyTickets(myTickets.filter((t) => t._id !== id));
       alert("✅ Ticket deleted successfully!");
-      setTickets(tickets.filter((t) => t._id !== id));
     } catch (err) {
       console.error(err);
       alert("❌ " + err.message);
@@ -82,12 +91,11 @@ const Profile = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
-      {/* Header */}
       <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">
         My Dashboard
       </h1>
 
-      {/* User Info Card */}
+      {/* User Info */}
       {user && (
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg rounded-2xl p-8 mb-12 border border-blue-200">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">User Information</h2>
@@ -123,7 +131,6 @@ const Profile = () => {
             </button>
           </div>
 
-          {/* Logout */}
           <button
             onClick={() => { logout(); navigate("/login"); }}
             className="mt-6 bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition w-full sm:w-auto"
@@ -133,28 +140,27 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Tickets Section */}
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">My Tickets</h2>
-      {tickets.length === 0 ? (
-        <p className="text-gray-600 text-center text-lg">
-          You haven’t created any tickets yet.
-        </p>
+      {/* Seller Tickets */}
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">My Tickets (Seller)</h2>
+      {myTickets.length === 0 ? (
+        <p className="text-gray-600 text-center text-lg">You haven’t created any tickets yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {tickets.map((ticket) => (
+          {myTickets.map((ticket) => (
             <div
               key={ticket._id}
               className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between"
             >
               <div>
-                <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">
-                  {ticket.trainName}
-                </h3>
+                <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
                 <p className="text-gray-600 mb-1 uppercase">
                   {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
                 </p>
                 <p className="text-gray-600 uppercase">
                   Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
+                </p>
+                <p className={`mt-1 font-semibold ${ticket.paymentStatus === 'pending' ? 'text-orange-600' : 'text-green-700'}`}>
+                  Status: {ticket.paymentStatus || "available"}
                 </p>
               </div>
               <div className="mt-4 flex gap-3">
@@ -170,6 +176,34 @@ const Profile = () => {
                 >
                   Delete
                 </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Buyer Bookings */}
+      <h2 className="text-3xl font-bold mt-12 mb-6 text-gray-800">My Bookings (Buyer)</h2>
+      {myBookings.length === 0 ? (
+        <p className="text-gray-600 text-center text-lg">No bookings yet.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {myBookings.map((ticket) => (
+            <div
+              key={ticket._id}
+              className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-xl transition flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
+                <p className="text-gray-600 mb-1 uppercase">
+                  {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                </p>
+                <p className="text-gray-600 uppercase">
+                  Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
+                </p>
+                <p className={`mt-1 font-semibold ${ticket.paymentStatus === 'pending' ? 'text-orange-600' : 'text-green-700'}`}>
+                  Status: {ticket.paymentStatus || "booked"}
+                </p>
               </div>
             </div>
           ))}
