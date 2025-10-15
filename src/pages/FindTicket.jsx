@@ -146,7 +146,7 @@ export default function FindTicket() {
             </h2>
             <p className="text-sm uppercase mb-1">📍 {t.from} → {t.to}</p>
             <p className="text-sm uppercase mb-1">
-              ⏰ Departure: {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"} | Arrival: {t.toDateTime ? new Date(t.toDateTime).toLocaleString() : "N/A"}
+              ⏰ Departure: {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"} |🛬 Arrival: {t.toDateTime ? new Date(t.toDateTime).toLocaleString() : "N/A"}
             </p>
             <p className="text-sm uppercase mb-1">🪑 Class: {t.classType} | 🎟 Tickets: {t.ticketNumber}</p>
             {t.passengerName && (
@@ -157,7 +157,7 @@ export default function FindTicket() {
             ) : (
               <div className="mt-3">
                 <button onClick={() => handleOpenQR(t)} className="bg-blue-600 text-white px-4 py-2 rounded">
-                  Pay ₹20 to Unlock
+                  Pay ₹20 to Unlock Contact No.
                 </button>
               </div>
             )}
