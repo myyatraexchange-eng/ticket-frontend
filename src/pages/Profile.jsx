@@ -14,47 +14,59 @@ const Profile = () => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch seller tickets
+  // Fetch seller tickets & buyer bookings
+  const fetchData = async () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Seller tickets
+      const res = await fetch(`${API_BASE}/tickets/my-tickets`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch seller tickets");
+      const ticketData = await res.json();
+      setMyTickets(Array.isArray(ticketData) ? ticketData : [ticketData]);
+
+      // Buyer bookings
+      const resBookings = await fetch(`${API_BASE}/tickets/my-bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!resBookings.ok) throw new Error("Failed to fetch bookings");
+      const bookingsData = await resBookings.json();
+      setMyBookings(Array.isArray(bookingsData) ? bookingsData : [bookingsData]);
+
+    } catch (err) {
+      console.error(err);
+      alert("❌ Could not load tickets/bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTickets = async () => {
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-      try {
-        setLoading(true);
-
-        // Seller tickets
-        const res = await fetch(`${API_BASE}/tickets/my`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const ticketData = await res.json();
-        setMyTickets(Array.isArray(ticketData) ? ticketData : [ticketData]);
-
-        // Buyer bookings
-        const resBookings = await fetch(`${API_BASE}/tickets/my-bookings`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const bookingsData = await resBookings.json();
-        setMyBookings(Array.isArray(bookingsData) ? bookingsData : [bookingsData]);
-      } catch (err) {
-        console.error(err);
-        alert("❌ Could not load tickets/bookings");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTickets();
+    fetchData();
   }, [token, navigate]);
 
+  // Delete seller ticket
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+
     try {
       const res = await fetch(`${API_BASE}/tickets/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("Failed to delete ticket");
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Delete failed");
+      }
+
       setMyTickets(myTickets.filter((t) => t._id !== id));
       alert("✅ Ticket deleted successfully!");
     } catch (err) {
@@ -63,8 +75,10 @@ const Profile = () => {
     }
   };
 
+  // Change password
   const handleChangePassword = async () => {
     if (!newPassword.trim()) return alert("Please enter a new password");
+
     try {
       const res = await fetch(`${API_BASE}/auth/change-password`, {
         method: "POST",
@@ -154,14 +168,17 @@ const Profile = () => {
               <div>
                 <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
                 <p className="text-gray-600 mb-1 uppercase">
-                  {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                  {ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleDateString() : "N/A"}
                 </p>
                 <p className="text-gray-600 uppercase">
-                  Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
+                  Seat: {ticket.classType} | Tickets: {ticket.ticketNumber}
                 </p>
                 <p className={`mt-1 font-semibold ${ticket.paymentStatus === 'pending' ? 'text-orange-600' : 'text-green-700'}`}>
                   Status: {ticket.paymentStatus || "available"}
                 </p>
+                {ticket.contactNumber && ticket.contactUnlocked && (
+                  <p className="mt-1 text-green-700 font-semibold">📞 {ticket.contactNumber}</p>
+                )}
               </div>
               <div className="mt-4 flex gap-3">
                 <button
@@ -196,14 +213,17 @@ const Profile = () => {
               <div>
                 <h3 className="font-bold text-xl text-blue-700 mb-2 uppercase">{ticket.trainName}</h3>
                 <p className="text-gray-600 mb-1 uppercase">
-                  {ticket.from} → {ticket.to} | {ticket.date ? new Date(ticket.date).toLocaleDateString() : "N/A"}
+                  {ticket.from} → {ticket.to} | {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleDateString() : "N/A"}
                 </p>
                 <p className="text-gray-600 uppercase">
-                  Seat: {ticket.seatType} | Tickets: {ticket.ticketCount}
+                  Seat: {ticket.classType} | Tickets: {ticket.ticketNumber}
                 </p>
                 <p className={`mt-1 font-semibold ${ticket.paymentStatus === 'pending' ? 'text-orange-600' : 'text-green-700'}`}>
                   Status: {ticket.paymentStatus || "booked"}
                 </p>
+                {ticket.paymentStatus === 'confirmed' && ticket.contactNumber && (
+                  <p className="mt-1 text-green-700 font-semibold">📞 {ticket.contactNumber}</p>
+                )}
               </div>
             </div>
           ))}

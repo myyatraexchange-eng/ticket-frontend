@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
 
 export default function FindTicket() {
   const { token, user } = useAuth();
@@ -27,7 +28,13 @@ export default function FindTicket() {
       try {
         const res = await fetch(`${API_BASE}/tickets`);
         const data = await res.json();
-        setTickets(data.tickets || data);
+
+        // Filter out tickets already booked by this user
+        const availableTickets = (data.tickets || data).filter(
+          (t) => !t.bookedBy || t.bookedBy !== user?._id
+        );
+
+        setTickets(availableTickets);
       } catch (err) {
         console.error(err);
         setTickets([]);
@@ -36,7 +43,7 @@ export default function FindTicket() {
       }
     };
     fetchTickets();
-  }, []);
+  }, [user]);
 
   const handleOpenQR = (ticket) => {
     const upi = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket%20Payment`;
@@ -102,7 +109,9 @@ export default function FindTicket() {
               🚆 {t.trainName} ({t.trainNumber})
             </h2>
             <p className="text-sm uppercase mb-1">📍 {t.from} → {t.to}</p>
-            <p className="text-sm uppercase mb-1">⏰ {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}</p>
+            <p className="text-sm uppercase mb-1">
+              ⏰ {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}
+            </p>
             <p className="text-sm uppercase mb-2">🎟 {t.ticketNumber} | {t.classType}</p>
 
             {t.contactUnlocked ? (
@@ -118,6 +127,7 @@ export default function FindTicket() {
         ))}
       </div>
 
+      {/* QR Payment Modal */}
       {showQR && currentUpiLink && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
           <div className="bg-white p-6 rounded-lg max-w-md w-full">
@@ -127,12 +137,38 @@ export default function FindTicket() {
             </div>
 
             <form onSubmit={submitProof} className="mt-4 space-y-2">
-              <input placeholder="Transaction ID" value={txnId} onChange={(e)=>setTxnId(e.target.value)} className="w-full border p-2 rounded" required/>
-              <input placeholder="Payer Name" value={payerName} onChange={(e)=>setPayerName(e.target.value)} className="w-full border p-2 rounded" required/>
-              <input placeholder="Payer Mobile" value={payerMobile} onChange={(e)=>setPayerMobile(e.target.value)} className="w-full border p-2 rounded" required/>
+              <input
+                placeholder="Transaction ID"
+                value={txnId}
+                onChange={(e)=>setTxnId(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                placeholder="Payer Name"
+                value={payerName}
+                onChange={(e)=>setPayerName(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
+              <input
+                placeholder="Payer Mobile"
+                value={payerMobile}
+                onChange={(e)=>setPayerMobile(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
+              />
               <div className="flex gap-2">
-                <button type="submit" disabled={submitting} className="flex-1 bg-green-600 text-white px-4 py-2 rounded">{submitting ? "Submitting..." : "Submit"}</button>
-                <button type="button" onClick={closeQR} className="flex-1 border px-4 py-2 rounded">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  {submitting ? "Submitting..." : "Submit"}
+                </button>
+                <button type="button" onClick={closeQR} className="flex-1 border px-4 py-2 rounded">
+                  Cancel
+                </button>
               </div>
               {message && <p className="text-sm mt-1">{message}</p>}
             </form>
