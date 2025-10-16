@@ -23,10 +23,15 @@ const FindTicket = () => {
       if (date) params.append("date", date);
 
       const res = await axios.get(`${API_BASE}?${params.toString()}`);
-      setTickets(res.data.tickets || []);
+      if (res.data && Array.isArray(res.data.tickets)) {
+        setTickets(res.data.tickets);
+      } else {
+        setTickets([]);
+      }
     } catch (err) {
       console.error("TicketFetchError:", err);
-      setError("Failed to fetch tickets. Please try again.");
+      setError("Failed to fetch tickets. Please try again later.");
+      setTickets([]);
     } finally {
       setLoading(false);
     }

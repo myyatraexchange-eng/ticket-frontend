@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 🔹 Restore session on app start
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     const savedToken = localStorage.getItem("token");
@@ -24,25 +23,22 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // 🔹 Login and persist
   const login = (newToken, newUser) => {
     setUser(newUser);
     setToken(newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
     localStorage.setItem("token", newToken);
-    navigate("/", { replace: true }); // redirect to home
+    navigate("/", { replace: true });
   };
 
-  // 🔹 Logout and clear
   const logout = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    navigate("/login", { replace: true }); // redirect to login
+    navigate("/login", { replace: true });
   };
 
-  // 🔹 While restoring session, delay rendering children
   if (loading) return null;
 
   return (
@@ -53,4 +49,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+export default AuthContext;
 
