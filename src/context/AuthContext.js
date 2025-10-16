@@ -4,11 +4,16 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 🔹 Load from localStorage when app starts
+  // 🔹 Restore session on app start
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     const savedToken = localStorage.getItem("token");
@@ -16,6 +21,7 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(savedUser));
       setToken(savedToken);
     }
+    setLoading(false);
   }, []);
 
   // 🔹 Login and persist
@@ -24,9 +30,7 @@ export const AuthProvider = ({ children }) => {
     setToken(newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
     localStorage.setItem("token", newToken);
-
-    // 🔹 Redirect to Home after login
-    navigate("/", { replace: true });
+    navigate("/", { replace: true }); // redirect to home
   };
 
   // 🔹 Logout and clear
@@ -35,10 +39,11 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-
-    // 🔹 Redirect to Login after logout
-    navigate("/login", { replace: true });
+    navigate("/login", { replace: true }); // redirect to login
   };
+
+  // 🔹 While restoring session, delay rendering children
+  if (loading) return null;
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout }}>

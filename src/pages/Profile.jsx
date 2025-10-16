@@ -1,106 +1,132 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import FindTicket from "./FindTicket";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
 const Profile = () => {
-  const { token, user } = useAuth();
-  const navigate = useNavigate();
-  const [myTickets, setMyTickets] = useState([]);
-  const [myBookings, setMyBookings] = useState([]);
+  const [user, setUser] = useState(null);
+  const [postedTickets, setPostedTickets] = useState([]);
+  const [bookedTickets, setBookedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
-    if (!token) return navigate("/login");
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
+  const fetchProfile = async () => {
     try {
-      setLoading(true);
+      const token = localStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
-      const resTickets = await fetch(`${API_BASE}/tickets/my-tickets`, { headers: { Authorization: `Bearer ${token}` } });
-      const ticketsData = await resTickets.json();
-      setMyTickets(ticketsData.postedTickets || []);
+      const [userRes, postedRes, bookedRes] = await Promise.all([
+        axios.get(`${API_BASE}/auth/profile`, config),
+        axios.get(`${API_BASE}/ticket/my-tickets`, config),
+        axios.get(`${API_BASE}/ticket/my-bookings`, config),
+      ]);
 
-      const resBookings = await fetch(`${API_BASE}/tickets/my-bookings`, { headers: { Authorization: `Bearer ${token}` } });
-      const bookingsData = await resBookings.json();
-      setMyBookings(bookingsData.bookings || []);
+      setUser(userRes.data.user);
+      setPostedTickets(postedRes.data.postedTickets || []);
+      setBookedTickets(bookedRes.data.bookings || []);
     } catch (err) {
       console.error(err);
-      alert("❌ Could not load tickets/bookings");
+      toast.error("Failed to load profile");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [token]);
-
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
     try {
-      const res = await fetch(`${API_BASE}/tickets/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error("Delete failed");
-      setMyTickets(myTickets.filter(t => t._id !== id));
-      alert("✅ Ticket deleted successfully!");
+      const token = localStorage.getItem("token");
+      const res = await axios.delete(`${API_BASE}/ticket/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) {
+        toast.success("Ticket deleted");
+        setPostedTickets((prev) => prev.filter((t) => t._id !== id));
+      } else {
+        toast.error("Failed to delete ticket");
+      }
     } catch (err) {
       console.error(err);
-      alert("❌ " + err.message);
+      toast.error("Error deleting ticket");
     }
   };
 
-  const handleNewBooking = (ticket) => {
-    setMyBookings(prev => [...prev, ticket]);
-  };
-
-  if (loading) return <p className="text-center mt-20 text-lg text-gray-500 animate-pulse">Loading profile...</p>;
+  if (loading) return <p className="text-center mt-10">Loading profile...</p>;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
-      <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">My Dashboard</h1>
+    <div className="max-w-6xl mx-auto p-4">
+      {/* Profile Info */}
+      <div className="mb-6 bg-gray-50 p-4 rounded-2xl shadow">
+        <h2 className="text-xl font-semibold mb-2">My Profile</h2>
+        <p><strong>Name:</strong> {user?.name}</p>
+        <p><strong>Email:</strong> {user?.email}</p>
+        <p><strong>Mobile:</strong> {user?.mobile}</p>
+      </div>
 
-      {/* FindTicket component to unlock tickets */}
-      <FindTicket onBookingAdded={handleNewBooking} />
-
-      {/* Seller Tickets */}
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">My Posted Tickets</h2>
-      {myTickets.length === 0 ? (
-        <p className="text-gray-600 text-center text-lg">You haven’t posted any tickets yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {myTickets.map(t => (
-            <div key={t._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-5">
-              <h3 className="font-bold text-xl text-blue-700 mb-1 uppercase">{t.trainName}</h3>
-              <p className="text-gray-600 uppercase">{t.from} → {t.to} | {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}</p>
-              <p className="text-gray-600 uppercase">🪑 {t.classType} | 🎟 {t.ticketNumber}</p>
-              <p className={`mt-1 font-semibold ${t.contactUnlocked ? 'text-green-700' : 'text-orange-600'}`}>
-                Status: {t.contactUnlocked ? "Booked" : "Available"}
-              </p>
-              <div className="mt-2 flex gap-2">
-                <button onClick={() => handleDelete(t._id)} className="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+      {/* Posted Tickets */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-2">My Posted Tickets</h3>
+        {postedTickets.length === 0 ? (
+          <p className="text-gray-500">You haven’t posted any tickets yet.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {postedTickets.map((t) => (
+              <div key={t._id} className="border rounded-2xl p-4 shadow-sm">
+                <p className="font-semibold">
+                  {t.trainName} ({t.trainNumber})
+                </p>
+                <p>
+                  {t.from} → {t.to}
+                </p>
+                <p>
+                  <strong>Passenger:</strong> {t.passengerName}
+                </p>
+                <p>
+                  <strong>Contact:</strong> {t.contactNumber}
+                </p>
+                <button
+                  onClick={() => handleDelete(t._id)}
+                  className="bg-red-600 text-white px-3 py-1 rounded mt-2 hover:bg-red-700"
+                >
+                  Delete
+                </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Buyer Bookings */}
-      <h2 className="text-3xl font-bold mt-12 mb-6 text-gray-800">My Bookings (Unlocked)</h2>
-      {myBookings.length === 0 ? (
-        <p className="text-gray-600 text-center text-lg">No unlocked bookings yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {myBookings.map(t => (
-            <div key={t._id} className="bg-white border border-gray-200 rounded-2xl shadow-md p-5">
-              <h3 className="font-bold text-xl text-blue-700 mb-1 uppercase">{t.trainName}</h3>
-              <p className="text-gray-600 uppercase">{t.from} → {t.to} | {t.fromDateTime ? new Date(t.fromDateTime).toLocaleString() : "N/A"}</p>
-              <p className="text-gray-600 uppercase">🪑 {t.classType} | 🎟 {t.ticketNumber}</p>
-              <p className="mt-1 text-green-700 font-semibold">📞 Contact: {t.contactNumber}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Booked Tickets */}
+      <div>
+        <h3 className="text-lg font-semibold mb-2">My Bookings</h3>
+        {bookedTickets.length === 0 ? (
+          <p className="text-gray-500">You haven’t booked any tickets yet.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {bookedTickets.map((t) => (
+              <div key={t._id} className="border rounded-2xl p-4 shadow-sm">
+                <p className="font-semibold">
+                  {t.trainName} ({t.trainNumber})
+                </p>
+                <p>
+                  {t.from} → {t.to}
+                </p>
+                <p>
+                  <strong>Passenger:</strong> {t.passengerName}
+                </p>
+                <p>
+                  <strong>Contact:</strong> {t.contactNumber}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

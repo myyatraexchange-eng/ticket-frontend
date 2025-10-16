@@ -1,238 +1,154 @@
-import React, { useEffect, useState, memo } from "react";
-import { useAuth } from "../context/AuthContext";
-import { QRCodeCanvas } from "qrcode.react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const API_BASE =
-  process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
+  process.env.REACT_APP_API_BASE_URL ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
-// TicketCard component
-const TicketCard = memo(
-  ({
-    ticket,
-    onPayClick,
-    currentTicketId,
-    showQR,
-    currentUpiLink,
-    closeQR,
-    submitProof,
-    txnId,
-    setTxnId,
-    payerName,
-    setPayerName,
-    payerMobile,
-    setPayerMobile,
-    submittingProof,
-    proofMessage,
-  }) => (
-    <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
-      <div className="flex flex-col gap-2 text-sm">
-        <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
-          🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN"} ({ticket.trainNumber || "N/A"})
-        </h2>
-
-        <p className="uppercase">
-          <span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase() || "N/A"} → {ticket.to?.toUpperCase() || "N/A"}
-        </p>
-        <p className="uppercase">
-          <span className="font-semibold">⏰ Departure:</span>{" "}
-          {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString("en-IN") : "N/A"}
-        </p>
-        <p className="uppercase">
-          <span className="font-semibold">🛬 Arrival:</span>{" "}
-          {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString("en-IN") : "N/A"}
-        </p>
-        <p className="uppercase">
-          <span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}
-        </p>
-        <p className="uppercase">
-          <span className="font-semibold">🎟 Tickets:</span> {ticket.ticketNumber || "N/A"}
-        </p>
-        <p className="uppercase">
-          <span className="font-semibold">👤 Passenger:</span>{" "}
-          {ticket.passengerName ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender.toUpperCase()}, ${ticket.passengerAge})` : "N/A"}
-        </p>
-
-        {!ticket.contactUnlocked ? (
-          <button
-            onClick={() => onPayClick(ticket)}
-            className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
-          >
-            Pay ₹20 to Unlock Contact
-          </button>
-        ) : (
-          <p className="mt-2 text-green-700 font-semibold uppercase">📞 Contact: {ticket.contactNumber}</p>
-        )}
-      </div>
-
-      {/* QR & Submit Payment */}
-      {!ticket.contactUnlocked && currentTicketId === ticket._id && showQR && currentUpiLink && (
-        <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50 w-full">
-          <p className="mb-2 font-medium text-center uppercase text-sm">Scan QR to pay ₹20</p>
-          <QRCodeCanvas value={currentUpiLink} size={160} />
-          <button onClick={closeQR} className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm">
-            Close QR
-          </button>
-
-          <div className="mt-3 w-full max-w-md">
-            <div className="mb-2 font-medium uppercase text-sm">Submit payment details:</div>
-            <form className="flex flex-col gap-2" onSubmit={submitProof}>
-              <input
-                placeholder="Transaction ID"
-                value={txnId}
-                onChange={(e) => setTxnId(e.target.value)}
-                className="border p-2 rounded uppercase text-sm"
-                required
-              />
-              <input
-                placeholder="Payer Name"
-                value={payerName}
-                onChange={(e) => setPayerName(e.target.value)}
-                className="border p-2 rounded uppercase text-sm"
-                required
-              />
-              <input
-                placeholder="Payer Mobile (10 digits)"
-                value={payerMobile}
-                onChange={(e) => setPayerMobile(e.target.value)}
-                className="border p-2 rounded text-sm"
-                required
-              />
-              <div className="flex gap-2 mt-2">
-                <button
-                  type="submit"
-                  disabled={submittingProof}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm"
-                >
-                  {submittingProof ? "Submitting..." : "Submit"}
-                </button>
-                <button type="button" onClick={closeQR} className="px-3 py-2 border rounded uppercase text-sm">
-                  Cancel
-                </button>
-              </div>
-              {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-);
-
-export default function FindTicket({ onBookingAdded }) {
-  const { token, user } = useAuth();
+const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [currentTicketId, setCurrentTicketId] = useState(null);
-  const [showQR, setShowQR] = useState(false);
-  const [currentUpiLink, setCurrentUpiLink] = useState("");
-  const [txnId, setTxnId] = useState("");
-  const [payerName, setPayerName] = useState("");
-  const [payerMobile, setPayerMobile] = useState("");
-  const [submittingProof, setSubmittingProof] = useState(false);
-  const [proofMessage, setProofMessage] = useState("");
+  const [paymentData, setPaymentData] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${API_BASE}/tickets`);
-        const data = await res.json();
-        setTickets(data.tickets || []);
-      } catch (err) {
-        console.error("FetchTicketsError:", err);
-        setTickets([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTickets();
-  }, [user]);
+  }, []);
 
-  const handlePayClick = (ticket) => {
-    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
-    setCurrentUpiLink(upiLink);
-    setShowQR(true);
-    setCurrentTicketId(ticket._id);
-    setTxnId("");
-    setPayerName(user?.name || "");
-    setPayerMobile("");
-    setProofMessage("");
-  };
-
-  const closeQR = () => {
-    setShowQR(false);
-    setCurrentUpiLink("");
-    setCurrentTicketId(null);
-    setProofMessage("");
-  };
-
-  const submitProof = async (e) => {
-    e.preventDefault();
-    if (!txnId || !payerName || !/^\d{10}$/.test(payerMobile)) {
-      setProofMessage("Please enter valid details");
-      return;
-    }
-    if (!token) {
-      setProofMessage("Please login first");
-      return;
-    }
-
-    setSubmittingProof(true);
-    setProofMessage("");
+  const fetchTickets = async () => {
     try {
-      const res = await fetch(`${API_BASE}/tickets/${currentTicketId}/unlock`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ txnId, payerName, payerMobile, amount: 20 }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Submit failed");
-
-      // Update tickets state to reflect unlocked ticket
-      setTickets(tickets.map(t => t._id === currentTicketId ? { ...t, contactUnlocked: true, contactNumber: data.ticket.contactNumber } : t));
-
-      // Notify parent (Profile.jsx) to refresh MyBookings
-      if (onBookingAdded) onBookingAdded(data.ticket);
-
-      setProofMessage("✅ Payment proof submitted successfully!");
-      setTimeout(closeQR, 1000);
+      const res = await axios.get(`${API_BASE}/ticket`);
+      if (res.data.success) {
+        setTickets(res.data.tickets || []);
+      }
     } catch (err) {
       console.error(err);
-      setProofMessage(err.message || "Submit failed");
+      toast.error("Failed to load tickets");
     } finally {
-      setSubmittingProof(false);
+      setLoading(false);
+    }
+  };
+
+  const handleInput = (id, field, value) => {
+    setPaymentData((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+  };
+
+  const handleUnlock = async (ticketId) => {
+    const data = paymentData[ticketId];
+    if (!data?.txnId || !data?.payerName || !data?.payerMobile || !data?.amount) {
+      return toast.warn("Please fill all payment details");
+    }
+
+    try {
+      setSubmitting(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${API_BASE}/ticket/submit-payment-proof`,
+        { ...data, ticketId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        toast.success("Ticket unlocked successfully!");
+        // remove unlocked ticket from Find list
+        setTickets((prev) => prev.filter((t) => t._id !== ticketId));
+      } else {
+        toast.error(res.data.message || "Failed to unlock ticket");
+      }
+    } catch (err) {
+      console.error("Submit failed:", err);
+      toast.error("Submit failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (loading) return <p className="text-center mt-10">Loading tickets...</p>;
 
   return (
-    <div className="p-6 container mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">🎟 Find Tickets</h1>
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {tickets.map(t => (
-          <TicketCard
-            key={t._id}
-            ticket={t}
-            onPayClick={handlePayClick}
-            currentTicketId={currentTicketId}
-            showQR={showQR}
-            currentUpiLink={currentUpiLink}
-            closeQR={closeQR}
-            submitProof={submitProof}
-            txnId={txnId}
-            setTxnId={setTxnId}
-            payerName={payerName}
-            setPayerName={setPayerName}
-            payerMobile={payerMobile}
-            setPayerMobile={setPayerMobile}
-            submittingProof={submittingProof}
-            proofMessage={proofMessage}
-          />
-        ))}
-      </div>
+    <div className="max-w-6xl mx-auto p-4">
+      <h2 className="text-2xl font-semibold mb-4">Find Ticket</h2>
+      {tickets.length === 0 ? (
+        <p className="text-center text-gray-500">No tickets available</p>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {tickets.map((t) => (
+            <div
+              key={t._id}
+              className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition"
+            >
+              <p className="font-semibold text-lg">
+                {t.trainName} ({t.trainNumber})
+              </p>
+              <p>
+                {t.from} → {t.to}
+              </p>
+              <p>
+                <strong>Class:</strong> {t.classType}
+              </p>
+              <p>
+                <strong>Passenger:</strong> {t.passengerName}
+              </p>
+              <p>
+                <strong>Contact:</strong>{" "}
+                {t.contactUnlocked ? t.contactNumber : "Locked 🔒"}
+              </p>
+
+              {!t.contactUnlocked && (
+                <div className="mt-3 border-t pt-3">
+                  <p className="font-semibold mb-1">Unlock Contact</p>
+                  <input
+                    type="text"
+                    placeholder="Txn ID"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                    onChange={(e) =>
+                      handleInput(t._id, "txnId", e.target.value)
+                    }
+                  />
+                  <input
+                    type="text"
+                    placeholder="Payer Name"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                    onChange={(e) =>
+                      handleInput(t._id, "payerName", e.target.value)
+                    }
+                  />
+                  <input
+                    type="text"
+                    placeholder="Payer Mobile"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                    onChange={(e) =>
+                      handleInput(t._id, "payerMobile", e.target.value)
+                    }
+                  />
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                    onChange={(e) =>
+                      handleInput(t._id, "amount", e.target.value)
+                    }
+                  />
+                  <button
+                    disabled={submitting}
+                    onClick={() => handleUnlock(t._id)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                  >
+                    {submitting ? "Submitting..." : "Submit"}
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default FindTicket;
 
