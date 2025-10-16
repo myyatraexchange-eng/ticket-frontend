@@ -209,7 +209,7 @@ export default function FindTicket() {
                 onClick={() => handlePay(t)}
                 className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
               >
-                Pay ₹20
+                Pay ₹20 To Unlock Contect 
               </button>
             </div>
 
