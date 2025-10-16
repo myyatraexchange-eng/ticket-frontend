@@ -19,6 +19,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem("token");
+      if(!token) throw new Error("Unauthorized");
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const [userRes, postedRes, bookedRes] = await Promise.all([
@@ -27,7 +28,7 @@ const Profile = () => {
         axios.get(`${API_BASE}/ticket/my-bookings`, config),
       ]);
 
-      setUser(userRes.data.user);
+      setUser(userRes.data.user || {});
       setPostedTickets(postedRes.data.postedTickets || []);
       setBookedTickets(bookedRes.data.bookings || []);
     } catch (err) {
@@ -89,7 +90,7 @@ const Profile = () => {
           My Tickets
         </h3>
         {postedTickets.length === 0 ? (
-          <p className="text-gray-500">You haven’t posted any tickets yet.</p>
+          <p className="text-gray-500">No tickets posted yet.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {postedTickets.map((t) => (
@@ -125,7 +126,7 @@ const Profile = () => {
           My Bookings
         </h3>
         {bookedTickets.length === 0 ? (
-          <p className="text-gray-500">You haven’t unlocked/booked any tickets yet.</p>
+          <p className="text-gray-500">No bookings yet.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {bookedTickets.map((t) => (

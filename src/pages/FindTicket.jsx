@@ -1,64 +1,140 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { QRCodeCanvas } from "qrcode.react";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
 
+// Reusable TicketCard
+const TicketCard = memo(({
+  ticket,
+  onPayClick,
+  currentTicketId,
+  showQR,
+  currentUpiLink,
+  closeQR,
+  submitProof,
+  txnId,
+  setTxnId,
+  payerName,
+  setPayerName,
+  payerMobile,
+  setPayerMobile,
+  submittingProof,
+  proofMessage
+}) => (
+  <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
+    <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
+      🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({ticket.trainNumber || "N/A"})
+    </h2>
+    <p className="uppercase"><span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase()} → {ticket.to?.toUpperCase()}</p>
+    <p className="uppercase"><span className="font-semibold">⏰ Departure:</span> {ticket.fromDateTime ? new Date(ticket.fromDateTime).toLocaleString("en-IN") : "N/A"}</p>
+    <p className="uppercase"><span className="font-semibold">🛬 Arrival:</span> {ticket.toDateTime ? new Date(ticket.toDateTime).toLocaleString("en-IN") : "N/A"}</p>
+    <p className="uppercase"><span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}</p>
+    <p className="uppercase"><span className="font-semibold">🎟 Tickets:</span> {ticket.ticketNumber || "N/A"}</p>
+    <p className="uppercase"><span className="font-semibold">👤 Passenger:</span> {ticket.passengerName || "N/A"}</p>
+
+    {!ticket.contactUnlocked && (
+      <button
+        onClick={() => onPayClick(ticket)}
+        className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
+      >
+        Pay ₹20 to Unlock Contact
+      </button>
+    )}
+
+    {currentTicketId === ticket._id && showQR && currentUpiLink && (
+      <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
+        <p className="mb-2 font-medium text-center uppercase text-sm">Scan QR to pay ₹20</p>
+        <QRCodeCanvas value={currentUpiLink} size={160} />
+        <button onClick={closeQR} className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm">Close QR</button>
+
+        <div className="mt-3 w-full max-w-md">
+          <div className="mb-2 font-medium uppercase text-sm">Submit payment details:</div>
+          <form className="flex flex-col gap-2" onSubmit={submitProof}>
+            <input placeholder="Transaction ID" value={txnId} onChange={(e)=>setTxnId(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+            <input placeholder="Payer Name" value={payerName} onChange={(e)=>setPayerName(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+            <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={(e)=>setPayerMobile(e.target.value)} className="border p-2 rounded text-sm" required/>
+            <div className="flex gap-2 mt-2">
+              <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm">{submittingProof ? "Submitting..." : "Submit"}</button>
+              <button type="button" onClick={closeQR} className="px-3 py-2 border rounded uppercase text-sm">Cancel</button>
+            </div>
+            {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
+          </form>
+        </div>
+      </div>
+    )}
+  </div>
+));
+
+// FindTicket page using TicketCard
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ from: "", to: "", date: "" });
-  const [paymentData, setPaymentData] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-  const [searching, setSearching] = useState(false);
 
-  useEffect(() => { fetchTickets(); }, []);
+  const [currentTicketId, setCurrentTicketId] = useState(null);
+  const [showQR, setShowQR] = useState(false);
+  const [currentUpiLink, setCurrentUpiLink] = useState("");
+  const [txnId, setTxnId] = useState("");
+  const [payerName, setPayerName] = useState("");
+  const [payerMobile, setPayerMobile] = useState("");
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState("");
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
 
   const fetchTickets = async (query = {}) => {
     try {
       setLoading(true);
       const params = new URLSearchParams(query).toString();
       const res = await axios.get(`${API_BASE}/ticket?${params}`);
-      if (res.data.success) setTickets(res.data.tickets || []);
+      setTickets(res.data.tickets || []);
     } catch (err) {
       console.error("TicketFetchError:", err);
-      toast.error("Failed to load tickets");
-    } finally { setLoading(false); }
+      setTickets([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSearch = async () => {
-    if (!filters.from && !filters.to && !filters.date) return toast.info("Please enter at least one search field");
-    setSearching(true);
-    await fetchTickets(filters);
-    setSearching(false);
+  const handlePayClick = (ticket) => {
+    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+    setCurrentUpiLink(upiLink);
+    setShowQR(true);
+    setCurrentTicketId(ticket._id);
+    setTxnId(""); setPayerName(""); setPayerMobile(""); setProofMessage("");
   };
 
-  const handleFilterChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
+  const closeQR = () => { setShowQR(false); setCurrentUpiLink(""); setCurrentTicketId(null); };
 
-  const handleInput = (id, field, value) => setPaymentData((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+  const submitProof = async (e) => {
+    e.preventDefault();
+    if(!txnId || !payerName || !payerMobile){ setProofMessage("Fill all fields"); return; }
+    if(!/^\d{10}$/.test(payerMobile)){ setProofMessage("Enter valid 10-digit mobile"); return; }
 
-  const handleUnlock = async (ticketId) => {
-    const data = paymentData[ticketId];
-    if (!data?.txnId || !data?.payerName || !data?.payerMobile || !data?.amount) return toast.warn("Please fill all payment details");
-
-    try {
-      setSubmitting(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.post(`${API_BASE}/ticket/submit-payment-proof`, { ...data, ticketId }, { headers: { Authorization: `Bearer ${token}` } });
-
-      if (res.data.success) {
-        toast.success("Ticket unlocked successfully!");
-        setTickets((prev) => prev.filter((t) => t._id !== ticketId));
-      } else toast.error(res.data.message || "Failed to unlock ticket");
-    } catch (err) {
-      console.error("Submit failed:", err);
-      toast.error("Submit failed");
-    } finally { setSubmitting(false); }
+    setSubmittingProof(true); setProofMessage("");
+    try{
+      const res = await axios.post(`${API_BASE}/ticket/submit-payment-proof`, {
+        ticketId: currentTicketId,
+        txnId,
+        payerName,
+        payerMobile,
+        amount: 20
+      });
+      setProofMessage(res.data.message || "Submitted for verification");
+      setTxnId(""); setPayerName(""); setPayerMobile("");
+      setTimeout(closeQR,1500);
+      // Update ticket status locally
+      setTickets(prev => prev.map(t => t._id===currentTicketId ? {...t, contactUnlocked:true} : t));
+    }catch(err){
+      setProofMessage(err.message || "Failed to submit proof");
+    }finally{ setSubmittingProof(false); }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading tickets...</p>;
+  if(loading) return <p className="text-center mt-10">Loading tickets...</p>;
 
   return (
     <div className="max-w-7xl mx-auto p-4">
@@ -68,38 +144,25 @@ const FindTicket = () => {
 
       {/* Filters */}
       <div className="bg-gray-50 p-4 rounded-2xl shadow mb-6 grid md:grid-cols-4 gap-3">
-        <input type="text" name="from" placeholder="From Station" value={filters.from} onChange={handleFilterChange} className="border rounded-lg px-3 py-2 w-full" />
-        <input type="text" name="to" placeholder="To Station" value={filters.to} onChange={handleFilterChange} className="border rounded-lg px-3 py-2 w-full" />
-        <input type="date" name="date" value={filters.date} onChange={handleFilterChange} className="border rounded-lg px-3 py-2 w-full" />
-        <button onClick={handleSearch} disabled={searching} className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">{searching ? "Searching..." : "Search"}</button>
+        <input type="text" name="from" placeholder="From Station" value={filters.from} onChange={e=>setFilters({...filters, from:e.target.value})} className="border rounded-lg px-3 py-2 w-full"/>
+        <input type="text" name="to" placeholder="To Station" value={filters.to} onChange={e=>setFilters({...filters, to:e.target.value})} className="border rounded-lg px-3 py-2 w-full"/>
+        <input type="date" name="date" value={filters.date} onChange={e=>setFilters({...filters, date:e.target.value})} className="border rounded-lg px-3 py-2 w-full"/>
+        <button onClick={()=>fetchTickets(filters)} className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">Search</button>
       </div>
 
-      {tickets.length === 0 ? (
-        <p className="text-center text-gray-500">No tickets available</p>
-      ) : (
+      {tickets.length === 0 ? <p className="text-center text-gray-500">No tickets available</p> :
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {tickets.map((t) => (
-            <div key={t._id} className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-              <p className="font-semibold text-lg">{t.trainName} ({t.trainNumber})</p>
-              <p>{t.from} → {t.to}</p>
-              <p><strong>Class:</strong> {t.classType}</p>
-              <p><strong>Passenger:</strong> {t.passengerName}</p>
-              <p><strong>Contact:</strong> {t.contactUnlocked ? t.contactNumber : "Locked 🔒"}</p>
-
-              {!t.contactUnlocked && (
-                <div className="mt-3 border-t pt-3">
-                  <p className="font-semibold mb-1">Unlock Contact</p>
-                  <input type="text" placeholder="Txn ID" className="w-full mb-2 border rounded px-2 py-1" onChange={(e) => handleInput(t._id, "txnId", e.target.value)} />
-                  <input type="text" placeholder="Payer Name" className="w-full mb-2 border rounded px-2 py-1" onChange={(e) => handleInput(t._id, "payerName", e.target.value)} />
-                  <input type="text" placeholder="Payer Mobile" className="w-full mb-2 border rounded px-2 py-1" onChange={(e) => handleInput(t._id, "payerMobile", e.target.value)} />
-                  <input type="number" placeholder="Amount" className="w-full mb-2 border rounded px-2 py-1" onChange={(e) => handleInput(t._id, "amount", e.target.value)} />
-                  <button disabled={submitting} onClick={() => handleUnlock(t._id)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">{submitting ? "Submitting..." : "Submit"}</button>
-                </div>
-              )}
-            </div>
+          {tickets.map(t => (
+            <TicketCard
+              key={t._id} ticket={t}
+              onPayClick={handlePayClick}
+              currentTicketId={currentTicketId} showQR={showQR} currentUpiLink={currentUpiLink} closeQR={closeQR} submitProof={submitProof}
+              txnId={txnId} setTxnId={setTxnId} payerName={payerName} setPayerName={setPayerName}
+              payerMobile={payerMobile} setPayerMobile={setPayerMobile} submittingProof={submittingProof} proofMessage={proofMessage}
+            />
           ))}
         </div>
-      )}
+      }
     </div>
   );
 };
