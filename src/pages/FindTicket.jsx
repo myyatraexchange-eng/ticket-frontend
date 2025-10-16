@@ -9,27 +9,48 @@ const API_BASE =
 const FindTicket = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({ from: "", to: "", date: "" });
   const [paymentData, setPaymentData] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     fetchTickets();
   }, []);
 
-  const fetchTickets = async () => {
+  // Fetch all available tickets
+  const fetchTickets = async (query = {}) => {
     try {
-      const res = await axios.get(`${API_BASE}/ticket`);
+      setLoading(true);
+      const params = new URLSearchParams(query).toString();
+      const res = await axios.get(`${API_BASE}/ticket?${params}`);
       if (res.data.success) {
         setTickets(res.data.tickets || []);
       }
     } catch (err) {
-      console.error(err);
+      console.error("TicketFetchError:", err);
       toast.error("Failed to load tickets");
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle search filters
+  const handleSearch = async () => {
+    if (!filters.from && !filters.to && !filters.date) {
+      return toast.info("Please enter at least one search field");
+    }
+    setSearching(true);
+    await fetchTickets(filters);
+    setSearching(false);
+  };
+
+  // Input handler for filters
+  const handleFilterChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
+  };
+
+  // Input handler for payment fields
   const handleInput = (id, field, value) => {
     setPaymentData((prev) => ({
       ...prev,
@@ -37,6 +58,7 @@ const FindTicket = () => {
     }));
   };
 
+  // Unlock Ticket after payment
   const handleUnlock = async (ticketId) => {
     const data = paymentData[ticketId];
     if (!data?.txnId || !data?.payerName || !data?.payerMobile || !data?.amount) {
@@ -54,7 +76,7 @@ const FindTicket = () => {
 
       if (res.data.success) {
         toast.success("Ticket unlocked successfully!");
-        // remove unlocked ticket from Find list
+        // Remove unlocked ticket from list
         setTickets((prev) => prev.filter((t) => t._id !== ticketId));
       } else {
         toast.error(res.data.message || "Failed to unlock ticket");
@@ -70,10 +92,46 @@ const FindTicket = () => {
   if (loading) return <p className="text-center mt-10">Loading tickets...</p>;
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4">
       <h2 className="text-2xl font-semibold mb-4">Find Ticket</h2>
+
+      {/* Filters Section */}
+      <div className="bg-gray-50 p-4 rounded-2xl shadow mb-6 grid md:grid-cols-4 gap-3">
+        <input
+          type="text"
+          name="from"
+          placeholder="From Station"
+          value={filters.from}
+          onChange={handleFilterChange}
+          className="border rounded-lg px-3 py-2 w-full"
+        />
+        <input
+          type="text"
+          name="to"
+          placeholder="To Station"
+          value={filters.to}
+          onChange={handleFilterChange}
+          className="border rounded-lg px-3 py-2 w-full"
+        />
+        <input
+          type="date"
+          name="date"
+          value={filters.date}
+          onChange={handleFilterChange}
+          className="border rounded-lg px-3 py-2 w-full"
+        />
+        <button
+          onClick={handleSearch}
+          disabled={searching}
+          className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition"
+        >
+          {searching ? "Searching..." : "Search"}
+        </button>
+      </div>
+
+      {/* Tickets Section */}
       {tickets.length === 0 ? (
-        <p className="text-center text-gray-500">No tickets available</p>
+        <p className="text-center text-gray-500">No tickets found</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {tickets.map((t) => (
@@ -136,7 +194,7 @@ const FindTicket = () => {
                   <button
                     disabled={submitting}
                     onClick={() => handleUnlock(t._id)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
                   >
                     {submitting ? "Submitting..." : "Submit"}
                   </button>
