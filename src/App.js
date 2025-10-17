@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
+import AdminPanel from "./pages/AdminPanel"; // ✅ new import
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
@@ -89,6 +90,16 @@ function AppContent() {
             element={
               <PrivateRoute>
                 <EditTicket />
+              </PrivateRoute>
+            }
+          />
+
+          {/* ✅ New Admin Panel route */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminPanel />
               </PrivateRoute>
             }
           />

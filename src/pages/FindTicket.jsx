@@ -95,7 +95,10 @@ export default function FindTicket() {
     try {
       const res = await fetch(`${API_BASE}/submit-payment-proof`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify({
           ticketId: currentTicketId,
           txnId,
@@ -110,6 +113,9 @@ export default function FindTicket() {
       setPayerName("");
       setPayerMobile("");
       setTimeout(closeQR, 1500);
+
+      // Refresh tickets
+      fetchTickets();
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
     } finally {
@@ -205,15 +211,24 @@ export default function FindTicket() {
                   : "N/A"}
               </p>
 
-              <button
-                onClick={() => handlePay(t)}
-                className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
-              >
-                Pay ₹20 To Unlock Contect 
-              </button>
+              {/* Payment status logic */}
+              {t.paymentStatus === "not_paid" && (
+                <button
+                  onClick={() => handlePay(t)}
+                  className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
+                >
+                  Pay ₹20 To Unlock Contact
+                </button>
+              )}
+              {t.paymentStatus === "pending" && (
+                <p className="text-orange-600 font-semibold mt-2">Pending Payment</p>
+              )}
+              {t.paymentStatus === "verified" && (
+                <p className="text-green-600 font-semibold mt-2">Contact: {t.contactNumber}</p>
+              )}
             </div>
 
-            {/* QR & Proof */}
+            {/* QR & Proof Form */}
             {currentTicketId === t._id && showQR && currentUpiLink && (
               <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
                 <p className="mb-2 font-medium text-center uppercase text-sm">
