@@ -14,7 +14,7 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       fetchData();
-      const interval = setInterval(fetchData, 5000);
+      const interval = setInterval(fetchData, 5000); // auto-refresh every 5s
       return () => clearInterval(interval);
     }
   }, [user]);
@@ -24,13 +24,13 @@ export default function Profile() {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      // Posted tickets
+      // Fetch posted tickets
       const postedRes = await axios.get(`${API_BASE}/tickets/my-tickets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMyTickets(postedRes.data.postedTickets || []);
 
-      // Booked tickets
+      // Fetch booked tickets
       const bookedRes = await axios.get(`${API_BASE}/tickets/my-bookings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -44,6 +44,7 @@ export default function Profile() {
 
   const handleDelete = async (ticketId) => {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_BASE}/tickets/${ticketId}`, {
@@ -152,7 +153,7 @@ export default function Profile() {
                       Pending — Waiting for Admin Verification
                     </span>
                   )}
-                  {t.paymentStatus === "verified" && t.contactNumber && (
+                  {t.paymentStatus === "verified" && t.contactUnlocked && t.contactNumber && (
                     <button
                       onClick={() => setModalContact(t.contactNumber)}
                       className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition"
