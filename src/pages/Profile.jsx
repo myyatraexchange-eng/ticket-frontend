@@ -14,7 +14,7 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       fetchData();
-      const interval = setInterval(fetchData, 5000); // auto-refresh every 5 seconds
+      const interval = setInterval(fetchData, 5000);
       return () => clearInterval(interval);
     }
   }, [user]);
@@ -24,13 +24,13 @@ export default function Profile() {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      // Fetch posted tickets
+      // Posted tickets
       const postedRes = await axios.get(`${API_BASE}/tickets/my-tickets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMyTickets(postedRes.data.postedTickets || []);
 
-      // Fetch booked tickets
+      // Booked tickets
       const bookedRes = await axios.get(`${API_BASE}/tickets/my-bookings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -44,7 +44,6 @@ export default function Profile() {
 
   const handleDelete = async (ticketId) => {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
-
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_BASE}/tickets/${ticketId}`, {

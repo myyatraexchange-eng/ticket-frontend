@@ -15,7 +15,6 @@ export default function AdminPanel() {
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE}/tickets`);
-      // Only show tickets with pending payments
       const pending = res.data.tickets.filter(t => t.paymentStatus === "pending");
       setPendingTickets(pending);
     } catch (err) {
@@ -30,7 +29,7 @@ export default function AdminPanel() {
       await axios.post(`${API_BASE}/admin/verify-payment/${ticketId}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      fetchPendingTickets(); // refresh list
+      fetchPendingTickets();
     } catch (err) {
       console.error(err);
     }
@@ -39,9 +38,7 @@ export default function AdminPanel() {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Panel - Pending Payments</h1>
-
       {loading && <p>Loading...</p>}
-
       {pendingTickets.length === 0 ? (
         <p>No pending payments</p>
       ) : (
