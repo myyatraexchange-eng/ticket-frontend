@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
-const ADMIN_TOKEN = process.env.REACT_APP_ADMIN_TOKEN;
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { token, user } = useAuth();
 
-  // Fetch pending payments
+  // ✅ Only admins can view this page
+  if (!user || !user.isAdmin) {
+    return <div className="p-4 text-red-600">Access denied: Admins only.</div>;
+  }
+
   const fetchPayments = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE}/admin/pending-payments`, {
         headers: {
-          "x-admin-token": ADMIN_TOKEN,
+          Authorization: `Bearer ${token}`,
         },
       });
       const data = await res.json();
@@ -31,7 +36,6 @@ const AdminPayments = () => {
     fetchPayments();
   }, []);
 
-  // Approve or Reject a payment
   const handleAction = async (id, action) => {
     const notes = prompt(`Add admin notes for ${action}:`, "");
     try {
@@ -39,14 +43,14 @@ const AdminPayments = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": ADMIN_TOKEN,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ action, adminNotes: notes }),
       });
       const data = await res.json();
       if (data.success) {
         alert(`Payment ${action}ed successfully`);
-        fetchPayments(); // refresh list
+        fetchPayments();
       } else {
         alert(data.message || "Action failed");
       }
