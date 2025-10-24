@@ -1,6 +1,4 @@
-// src/pages/AdminPayments.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 const ADMIN_TOKEN = process.env.REACT_APP_ADMIN_TOKEN;
@@ -8,20 +6,22 @@ const ADMIN_TOKEN = process.env.REACT_APP_ADMIN_TOKEN;
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState({}); // to track approve/reject per payment
-  const [error, setError] = useState(null);
 
   // Fetch pending payments
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE}/admin/pending-payments`, {
-        headers: { "x-admin-token": ADMIN_TOKEN },
+      const res = await fetch(`${API_BASE}/admin/pending-payments`, {
+        headers: {
+          "x-admin-token": ADMIN_TOKEN,
+        },
       });
-      setPayments(res.data.payments || []);
+      const data = await res.json();
+      if (data.success) setPayments(data.payments);
+      else alert(data.message || "Failed to fetch payments");
     } catch (err) {
-      console.error("Error fetching payments:", err);
-      setError("Failed to fetch payments");
+      console.error(err);
+      alert("Error fetching payments");
     } finally {
       setLoading(false);
     }
@@ -31,72 +31,75 @@ const AdminPayments = () => {
     fetchPayments();
   }, []);
 
-  // Approve or Reject payment
+  // Approve or Reject a payment
   const handleAction = async (id, action) => {
+    const notes = prompt(`Add admin notes for ${action}:`, "");
     try {
-      setActionLoading((prev) => ({ ...prev, [id]: true }));
-      await axios.post(
-        `${API_BASE}/admin/verify-payment/${id}`,
-        { action },
-        { headers: { "x-admin-token": ADMIN_TOKEN } }
-      );
-      // Refresh list after action
-      fetchPayments();
+      const res = await fetch(`${API_BASE}/admin/verify-payment/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": ADMIN_TOKEN,
+        },
+        body: JSON.stringify({ action, adminNotes: notes }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Payment ${action}ed successfully`);
+        fetchPayments(); // refresh list
+      } else {
+        alert(data.message || "Action failed");
+      }
     } catch (err) {
-      console.error(`Error ${action} payment:`, err);
-      alert(`Failed to ${action} payment`);
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [id]: false }));
+      console.error(err);
+      alert("Server error");
     }
   };
 
-  if (loading) return <div className="p-4">Loading payments...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
-  if (payments.length === 0)
-    return <div className="p-4">No pending payments found.</div>;
+  if (loading) return <div>Loading payments...</div>;
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Pending Payments</h2>
-      <div className="space-y-4">
-        {payments.map((p) => (
-          <div
-            key={p._id}
-            className="border p-4 rounded shadow flex justify-between items-center"
-          >
-            <div>
-              <p>
-                <strong>Payer Name:</strong> {p.payerName}
-              </p>
-              <p>
-                <strong>Email:</strong> {p.submittedBy?.email || "N/A"}
-              </p>
-              <p>
-                <strong>Amount:</strong> ₹{p.amount}
-              </p>
-              <p>
-                <strong>Ticket:</strong> {p.ticketId?.title || p.ticketId?._id}
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => handleAction(p._id, "approve")}
-                disabled={actionLoading[p._id]}
-                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-              >
-                Approve
-              </button>
-              <button
-                onClick={() => handleAction(p._id, "reject")}
-                disabled={actionLoading[p._id]}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-              >
-                Reject
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {payments.length === 0 ? (
+        <p>No pending payments.</p>
+      ) : (
+        <table className="min-w-full border">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border px-2 py-1">Ticket</th>
+              <th className="border px-2 py-1">User</th>
+              <th className="border px-2 py-1">Amount</th>
+              <th className="border px-2 py-1">Status</th>
+              <th className="border px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {payments.map((p) => (
+              <tr key={p._id}>
+                <td className="border px-2 py-1">{p.ticketId?.title || "N/A"}</td>
+                <td className="border px-2 py-1">{p.submittedBy?.name || "N/A"}</td>
+                <td className="border px-2 py-1">{p.amount}</td>
+                <td className="border px-2 py-1">{p.status}</td>
+                <td className="border px-2 py-1 space-x-2">
+                  <button
+                    className="bg-green-500 text-white px-2 py-1 rounded"
+                    onClick={() => handleAction(p._id, "approve")}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-2 py-1 rounded"
+                    onClick={() => handleAction(p._id, "reject")}
+                  >
+                    Reject
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
