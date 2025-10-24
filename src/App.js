@@ -16,7 +16,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
-import AdminPanel from "./pages/AdminPanel"; // ✅ new import
+import AdminPanel from "./pages/AdminPanel"; // ✅ existing admin panel
+import AdminPayments from "./pages/AdminPayments"; // ✅ new admin payments page
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
@@ -94,12 +95,20 @@ function AppContent() {
             }
           />
 
-          {/* ✅ New Admin Panel route */}
+          {/* ✅ Admin Panel & Payments */}
           <Route
             path="/admin"
             element={
               <PrivateRoute>
                 <AdminPanel />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/payments"
+            element={
+              <PrivateRoute>
+                <AdminPayments />
               </PrivateRoute>
             }
           />
