@@ -1,112 +1,107 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
+import axios from "axios";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
-const AdminPayments = () => {
-  const [payments, setPayments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { token, user } = useAuth();
+export default function AdminPayments() {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [proofs, setProofs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Only admins can view this page
-  if (!user || !user.isAdmin) {
-    return <div className="p-4 text-red-600">Access denied: Admins only.</div>;
-  }
+  useEffect(() => {
+    if (!user || !user.isAdmin) {
+      navigate("/profile");
+      return;
+    }
+    fetchProofs();
+  }, [user]);
 
-  const fetchPayments = async () => {
+  const fetchProofs = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/admin/pending-payments`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_BASE}/payments/admin`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-      if (data.success) setPayments(data.payments);
-      else alert(data.message || "Failed to fetch payments");
+      setProofs(res.data.proofs || []);
     } catch (err) {
-      console.error(err);
-      alert("Error fetching payments");
+      console.error("FetchProofsError:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPayments();
-  }, []);
-
-  const handleAction = async (id, action) => {
-    const notes = prompt(`Add admin notes for ${action}:`, "");
+  const handleAction = async (proofId, action) => {
+    if (!window.confirm(`Are you sure you want to ${action} this payment?`)) return;
     try {
-      const res = await fetch(`${API_BASE}/admin/verify-payment/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action, adminNotes: notes }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert(`Payment ${action}ed successfully`);
-        fetchPayments();
-      } else {
-        alert(data.message || "Action failed");
-      }
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${API_BASE}/payments/admin/verify`,
+        { proofId, action },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchProofs(); // refresh list
     } catch (err) {
-      console.error(err);
-      alert("Server error");
+      console.error("ActionError:", err);
+      alert("Failed to process action.");
     }
   };
 
-  if (loading) return <div>Loading payments...</div>;
-
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Pending Payments</h2>
-      {payments.length === 0 ? (
-        <p>No pending payments.</p>
-      ) : (
-        <table className="min-w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-2 py-1">Ticket</th>
-              <th className="border px-2 py-1">User</th>
-              <th className="border px-2 py-1">Amount</th>
-              <th className="border px-2 py-1">Status</th>
-              <th className="border px-2 py-1">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((p) => (
-              <tr key={p._id}>
-                <td className="border px-2 py-1">{p.ticketId?.title || "N/A"}</td>
-                <td className="border px-2 py-1">{p.submittedBy?.name || "N/A"}</td>
-                <td className="border px-2 py-1">{p.amount}</td>
-                <td className="border px-2 py-1">{p.status}</td>
-                <td className="border px-2 py-1 space-x-2">
-                  <button
-                    className="bg-green-500 text-white px-2 py-1 rounded"
-                    onClick={() => handleAction(p._id, "approve")}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                    onClick={() => handleAction(p._id, "reject")}
-                  >
-                    Reject
-                  </button>
-                </td>
-              </tr>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-5xl mx-auto bg-white shadow rounded-xl p-6">
+        <h2 className="text-2xl font-bold mb-6">Admin Payment Verification</h2>
+        <button
+          onClick={logout}
+          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition mb-4"
+        >
+          Logout
+        </button>
+
+        {loading && <p>Loading...</p>}
+
+        {proofs.length === 0 ? (
+          <p>No pending payment proofs.</p>
+        ) : (
+          <ul className="space-y-3">
+            {proofs.map((p) => (
+              <li
+                key={p._id}
+                className="border rounded-lg p-3 bg-gray-50 flex flex-col md:flex-row justify-between items-center"
+              >
+                <div>
+                  <p>
+                    <strong>{p.payerName}</strong> | {p.payerMobile} | ₹{p.amount}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Ticket ID: {p.ticketId} | Status: {p.status}
+                  </p>
+                </div>
+                {p.status === "pending" && (
+                  <div className="flex gap-2 mt-2 md:mt-0">
+                    <button
+                      onClick={() => handleAction(p._id, "verify")}
+                      className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700"
+                    >
+                      Verify
+                    </button>
+                    <button
+                      onClick={() => handleAction(p._id, "reject")}
+                      className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </li>
             ))}
-          </tbody>
-        </table>
-      )}
+          </ul>
+        )}
+      </div>
     </div>
   );
-};
-
-export default AdminPayments;
+}
 

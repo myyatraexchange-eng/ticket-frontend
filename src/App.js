@@ -17,7 +17,6 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
 import AdminPanel from "./pages/AdminPanel"; // ✅ existing admin panel
-import AdminPayments from "./pages/AdminPayments"; // ✅ new admin payments page
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { LoaderProvider, useLoader } from "./context/LoaderContext";

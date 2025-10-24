@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import axios from "axios";
 
@@ -6,6 +7,7 @@ const API_BASE = process.env.REACT_APP_API_BASE;
 
 export default function Profile() {
   const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [myTickets, setMyTickets] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -76,12 +78,24 @@ export default function Profile() {
           Welcome, {user.name}
         </h2>
 
-        <button
-          onClick={logout}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mb-6"
-        >
-          Logout
-        </button>
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <button
+            onClick={logout}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
+
+          {/* Admin Panel Button */}
+          {user.isAdmin && (
+            <button
+              onClick={() => navigate("/admin/payments")}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+            >
+              Admin Panel
+            </button>
+          )}
+        </div>
 
         {loading && <p className="text-gray-400 text-sm mb-3">Refreshing...</p>}
 
