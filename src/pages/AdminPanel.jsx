@@ -2,119 +2,117 @@ import React, { useEffect, useState } from "react";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
-export default function AdminPaymentPanel() {
-  const [proofs, setProofs] = useState([]);
+export default function AdminPanel() {
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [processingId, setProcessingId] = useState(null);
 
-  const fetchProofs = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/payments/orders`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch proofs");
-      setProofs(data.proofs || []);
-    } catch (err) {
-      setError(err.message || "Failed to fetch proofs");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetchProofs();
-    const interval = setInterval(fetchProofs, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!token) {
+      setError("Login required");
+      return;
+    }
+
+    const fetchOrders = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch(`${API_BASE}/payments/orders`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 401) {
+          setError("Invalid or expired token");
+          setOrders([]);
+          setLoading(false);
+          return;
+        }
+
+        const data = await res.json();
+        setOrders(data.proofs || []);
+      } catch (err) {
+        setError("Failed to fetch orders");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [token]);
 
   const handleAction = async (proofId, action) => {
     if (!window.confirm(`Are you sure to ${action} this payment?`)) return;
-    setProcessingId(proofId);
+
     try {
-      const res = await fetch(`${API_BASE}/payments/verify`, {
+      const res = await fetch(`${API_BASE}/payments/admin/verify/${proofId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ proofId, action, adminName: "Admin" }),
+        body: JSON.stringify({ action, adminName: "Admin" }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Action failed");
-      fetchProofs();
+      if (!res.ok) throw new Error(data.message || "Failed");
+
+      alert(data.message);
+      setOrders((prev) =>
+        prev.map((o) => (o._id === proofId ? { ...o, status: data.proof.status } : o))
+      );
     } catch (err) {
-      alert(err.message || "Failed to process action");
-    } finally {
-      setProcessingId(null);
+      alert(err.message || "Action failed");
     }
   };
 
   return (
     <div className="p-6 container mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
+      <h1 className="text-3xl font-bold text-center text-blue-700 uppercase mb-6">
         💳 Payment Proof Verification
       </h1>
 
-      {loading && <p>Loading proofs...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+      {loading && <p className="text-center">Loading...</p>}
 
-      {proofs.length === 0 && !loading && <p>No pending proofs</p>}
+      {!loading && orders.length === 0 && !error && (
+        <p className="text-center">No pending proofs</p>
+      )}
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {proofs.map((p) => (
-          <div key={p._id} className="border p-4 rounded shadow-md bg-white">
-            <h2 className="font-semibold text-blue-700 mb-1 uppercase">
-              Ticket: {p.ticketId?.trainName || "N/A"} ({p.ticketId?.trainNumber || "N/A"})
-            </h2>
-            <p>
-              <span className="font-semibold">Txn ID:</span> {p.txnId}
-            </p>
-            <p>
-              <span className="font-semibold">Payer Name:</span> {p.payerName}
-            </p>
-            <p>
-              <span className="font-semibold">Mobile:</span> {p.payerMobile}
-            </p>
-            <p>
-              <span className="font-semibold">Amount:</span> ₹{p.amount}
-            </p>
-            <p>
-              <span className="font-semibold">Submitted By:</span> {p.submittedBy?.name || "N/A"}
-            </p>
-            <p className="mt-2">
-              <span className="font-semibold">Status:</span>{" "}
-              <span
-                className={
-                  p.status === "pending"
-                    ? "text-orange-600"
-                    : p.status === "verified"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
-              >
-                {p.status.toUpperCase()}
-              </span>
-            </p>
-
-            {p.status === "pending" && (
-              <div className="flex gap-2 mt-3">
+      <div className="grid gap-4">
+        {orders.map((proof) => (
+          <div
+            key={proof._id}
+            className="border rounded p-4 shadow bg-white flex justify-between items-center"
+          >
+            <div>
+              <p>
+                <strong>Ticket:</strong> {proof.ticketId?.trainName || "N/A"} (
+                {proof.ticketId?.trainNumber || "N/A"})
+              </p>
+              <p>
+                <strong>Payer:</strong> {proof.payerName} ({proof.payerMobile})
+              </p>
+              <p>
+                <strong>Amount:</strong> ₹{proof.amount}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {proof.status.charAt(0).toUpperCase() + proof.status.slice(1)}
+              </p>
+            </div>
+            {proof.status === "pending" && (
+              <div className="flex gap-2">
                 <button
-                  onClick={() => handleAction(p._id, "verify")}
-                  disabled={processingId === p._id}
-                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60"
+                  onClick={() => handleAction(proof._id, "verify")}
+                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
                 >
                   Verify
                 </button>
                 <button
-                  onClick={() => handleAction(p._id, "reject")}
-                  disabled={processingId === p._id}
-                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-60"
+                  onClick={() => handleAction(proof._id, "reject")}
+                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                 >
                   Reject
                 </button>

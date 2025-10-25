@@ -94,11 +94,11 @@ function AppContent() {
             }
           />
 
-          {/* ✅ Only one Admin Panel route */}
+          {/* ✅ Admin Panel Route */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
-              <PrivateRoute>
+              <PrivateRoute adminOnly={true}>
                 <AdminPanel />
               </PrivateRoute>
             }
