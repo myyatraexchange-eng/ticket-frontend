@@ -1,4 +1,3 @@
-// src/pages/AdminPanel.jsx
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
@@ -10,6 +9,7 @@ export default function AdminPanel() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch orders when component mounts & auto-refresh
   useEffect(() => {
     if (user && user.isAdmin) {
       fetchOrders();
@@ -76,15 +76,26 @@ export default function AdminPanel() {
               >
                 <div>
                   <p className="font-semibold text-gray-800">
-                    Ticket ID: {order.ticketId}
+                    Ticket: {order.ticketId?.trainName} ({order.ticketId?.trainNumber})
                   </p>
                   <p className="text-gray-600">
-                    {order.payerName} | {order.payerMobile} | ₹{order.amount}
+                    Route: {order.ticketId?.from} → {order.ticketId?.to}
                   </p>
-                  <p className={`mt-1 font-semibold ${order.status === "pending" ? "text-orange-600" : order.status === "verified" ? "text-green-600" : "text-red-600"}`}>
+                  <p className="text-gray-700">
+                    Submitted by: {order.submittedBy?.name} | {order.submittedBy?.phone}
+                  </p>
+                  <p className="text-gray-600">
+                    Payment: {order.payerName} | {order.payerMobile} | ₹{order.amount}
+                  </p>
+                  <p className={`mt-1 font-semibold ${
+                    order.status === "pending" ? "text-orange-600" :
+                    order.status === "verified" ? "text-green-600" :
+                    "text-red-600"
+                  }`}>
                     Status: {order.status}
                   </p>
                 </div>
+
                 {order.status === "pending" && (
                   <div className="mt-2 md:mt-0 flex gap-2">
                     <button
@@ -109,3 +120,4 @@ export default function AdminPanel() {
     </div>
   );
 }
+
