@@ -23,8 +23,11 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
+  // Fetch tickets on mount and poll every 5 seconds for updates
   useEffect(() => {
     fetchTickets();
+    const interval = setInterval(fetchTickets, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchTickets = async () => {
@@ -108,13 +111,14 @@ export default function FindTicket() {
         }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Submission failed");
+
       setProofMessage(data.message || "Submitted for verification");
       setTxnId("");
       setPayerName("");
       setPayerMobile("");
-      setTimeout(closeQR, 1500);
 
-      // Refresh tickets
+      setTimeout(closeQR, 1500);
       fetchTickets();
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
@@ -224,7 +228,9 @@ export default function FindTicket() {
                 <p className="text-orange-600 font-semibold mt-2">Pending Payment</p>
               )}
               {t.paymentStatus === "verified" && (
-                <p className="text-green-600 font-semibold mt-2">Contact: {t.contactNumber}</p>
+                <p className="text-green-600 font-semibold mt-2">
+                  Contact: {t.contactNumber || "N/A"}
+                </p>
               )}
             </div>
 

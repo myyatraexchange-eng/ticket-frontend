@@ -1,121 +1,127 @@
-import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
-import AuthContext from "../context/AuthContext";
+import React, { useEffect, useState } from "react";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE = process.env.REACT_APP_API_BASE;
 
-export default function AdminPanel() {
-  const { user } = useContext(AuthContext);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function AdminPaymentPanel() {
+  const [proofs, setProofs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [processingId, setProcessingId] = useState(null);
 
-  // Fetch orders when component mounts & auto-refresh
-  useEffect(() => {
-    if (user && user.isAdmin) {
-      fetchOrders();
-      const interval = setInterval(fetchOrders, 5000); // auto-refresh every 5s
-      return () => clearInterval(interval);
-    }
-  }, [user]);
-
-  const fetchOrders = async () => {
+  const fetchProofs = async () => {
+    setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_BASE}/payments/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${API_BASE}/payments/orders`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
       });
-      setOrders(res.data.proofs || []);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch proofs");
+      setProofs(data.proofs || []);
     } catch (err) {
-      console.error("AdminOrdersFetchError:", err);
+      setError(err.message || "Failed to fetch proofs");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchProofs();
+    const interval = setInterval(fetchProofs, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleAction = async (proofId, action) => {
+    if (!window.confirm(`Are you sure to ${action} this payment?`)) return;
+    setProcessingId(proofId);
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${API_BASE}/payments/verify`,
-        { proofId, adminName: user.name, action },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchOrders(); // refresh list
+      const res = await fetch(`${API_BASE}/payments/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify({ proofId, action, adminName: "Admin" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Action failed");
+      fetchProofs();
     } catch (err) {
-      console.error("VerifyPaymentError:", err);
-      alert("Failed to update payment status.");
+      alert(err.message || "Failed to process action");
+    } finally {
+      setProcessingId(null);
     }
   };
 
-  if (!user || !user.isAdmin) {
-    return (
-      <div className="text-center py-20 text-gray-600">
-        Access denied: Admins only.
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
-          Admin Panel
-        </h1>
+    <div className="p-6 container mx-auto">
+      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
+        💳 Payment Proof Verification
+      </h1>
 
-        {loading && <p className="text-gray-400 text-center">Loading orders...</p>}
+      {loading && <p>Loading proofs...</p>}
+      {error && <p className="text-red-600">{error}</p>}
 
-        {orders.length === 0 && !loading ? (
-          <p className="text-gray-500 text-center">No payment proofs submitted yet.</p>
-        ) : (
-          <ul className="space-y-4">
-            {orders.map((order) => (
-              <li
-                key={order._id}
-                className="border rounded-lg p-4 bg-white flex flex-col md:flex-row justify-between items-center"
+      {proofs.length === 0 && !loading && <p>No pending proofs</p>}
+
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {proofs.map((p) => (
+          <div key={p._id} className="border p-4 rounded shadow-md bg-white">
+            <h2 className="font-semibold text-blue-700 mb-1 uppercase">
+              Ticket: {p.ticketId?.trainName || "N/A"} ({p.ticketId?.trainNumber || "N/A"})
+            </h2>
+            <p>
+              <span className="font-semibold">Txn ID:</span> {p.txnId}
+            </p>
+            <p>
+              <span className="font-semibold">Payer Name:</span> {p.payerName}
+            </p>
+            <p>
+              <span className="font-semibold">Mobile:</span> {p.payerMobile}
+            </p>
+            <p>
+              <span className="font-semibold">Amount:</span> ₹{p.amount}
+            </p>
+            <p>
+              <span className="font-semibold">Submitted By:</span> {p.submittedBy?.name || "N/A"}
+            </p>
+            <p className="mt-2">
+              <span className="font-semibold">Status:</span>{" "}
+              <span
+                className={
+                  p.status === "pending"
+                    ? "text-orange-600"
+                    : p.status === "verified"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }
               >
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    Ticket: {order.ticketId?.trainName} ({order.ticketId?.trainNumber})
-                  </p>
-                  <p className="text-gray-600">
-                    Route: {order.ticketId?.from} → {order.ticketId?.to}
-                  </p>
-                  <p className="text-gray-700">
-                    Submitted by: {order.submittedBy?.name} | {order.submittedBy?.phone}
-                  </p>
-                  <p className="text-gray-600">
-                    Payment: {order.payerName} | {order.payerMobile} | ₹{order.amount}
-                  </p>
-                  <p className={`mt-1 font-semibold ${
-                    order.status === "pending" ? "text-orange-600" :
-                    order.status === "verified" ? "text-green-600" :
-                    "text-red-600"
-                  }`}>
-                    Status: {order.status}
-                  </p>
-                </div>
+                {p.status.toUpperCase()}
+              </span>
+            </p>
 
-                {order.status === "pending" && (
-                  <div className="mt-2 md:mt-0 flex gap-2">
-                    <button
-                      onClick={() => handleAction(order._id, "verify")}
-                      className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition"
-                    >
-                      Verify
-                    </button>
-                    <button
-                      onClick={() => handleAction(order._id, "reject")}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+            {p.status === "pending" && (
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => handleAction(p._id, "verify")}
+                  disabled={processingId === p._id}
+                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60"
+                >
+                  Verify
+                </button>
+                <button
+                  onClick={() => handleAction(p._id, "reject")}
+                  disabled={processingId === p._id}
+                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-60"
+                >
+                  Reject
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
