@@ -94,20 +94,12 @@ function AppContent() {
             }
           />
 
-          {/* ✅ Admin Panel & Payments */}
+          {/* ✅ Only one Admin Panel route */}
           <Route
             path="/admin"
             element={
               <PrivateRoute>
                 <AdminPanel />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/payments"
-            element={
-              <PrivateRoute>
-                <AdminPayments />
               </PrivateRoute>
             }
           />
