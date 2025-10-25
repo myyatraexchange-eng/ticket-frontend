@@ -1,39 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://ticket-backend-g5da.onrender.com/api";
 
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
   const [payerMobile, setPayerMobile] = useState("");
   const [submittingProof, setSubmittingProof] = useState(false);
   const [proofMessage, setProofMessage] = useState("");
-
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
-
-  useEffect(() => {
-    fetchTickets();
-    const interval = setInterval(fetchTickets, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   const fetchTickets = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/tickets`);
+      const res = await fetch(`${API_BASE}/tickets?available=true`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
       setTickets(data.tickets || []);
@@ -44,6 +35,12 @@ export default function FindTicket() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTickets();
+    const interval = setInterval(fetchTickets, 8000); // 🔁 refresh every 8s
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     let out = tickets;
@@ -106,9 +103,10 @@ export default function FindTicket() {
       setTxnId("");
       setPayerName("");
       setPayerMobile("");
-
-      setTimeout(closeQR, 1500);
-      fetchTickets();
+      setTimeout(() => {
+        closeQR();
+        fetchTickets(); // 🔄 refresh tickets after proof
+      }, 1500);
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
     } finally {
@@ -145,42 +143,45 @@ export default function FindTicket() {
       {/* Ticket List */}
       <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((t) => (
-          <div key={t._id} className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300" style={{ minHeight: "280px" }}>
+          <div key={t._id} className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
             <div className="flex flex-col gap-2 text-sm">
               <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
-                🚆 {t.trainName?.toUpperCase() || "UNKNOWN TRAIN"} ({t.trainNumber || "N/A"})
+                🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
               </h2>
-              <p className="uppercase"><span className="font-semibold">📍 Route:</span> {t.from?.toUpperCase() || "N/A"} → {t.to?.toUpperCase() || "N/A"}</p>
-              <p className="uppercase"><span className="font-semibold">⏰ Departure:</span> {formatDateTime(t.fromDateTime)}</p>
-              <p className="uppercase"><span className="font-semibold">🛬 Arrival:</span> {formatDateTime(t.toDateTime)}</p>
-              <p className="uppercase"><span className="font-semibold">🪑 Class:</span> {t.classType?.toUpperCase() || "GENERAL"}</p>
-              <p className="uppercase"><span className="font-semibold">🎟 Tickets:</span> {t.ticketNumber || "N/A"}</p>
-              <p className="uppercase"><span className="font-semibold">👤 Passenger:</span> {t.passengerName ? `${t.passengerName.toUpperCase()} (${t.passengerGender.toUpperCase()}, ${t.passengerAge})` : "N/A"}</p>
+              <p><b>📍 Route:</b> {t.from?.toUpperCase()} → {t.to?.toUpperCase()}</p>
+              <p><b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}</p>
+              <p><b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}</p>
+              <p><b>🪑 Class:</b> {t.classType?.toUpperCase() || "GENERAL"}</p>
+              <p><b>🎟 Tickets:</b> {t.ticketNumber || "N/A"}</p>
+              <p><b>👤 Passenger:</b> {t.passengerName?.toUpperCase()} ({t.passengerGender?.toUpperCase()}, {t.passengerAge})</p>
 
-              {t.paymentStatus === "not_paid" && <button onClick={() => handlePay(t)} className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm">Pay ₹20 To Unlock Contact</button>}
+              {t.paymentStatus === "not_paid" && (
+                <button onClick={() => handlePay(t)} className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm">
+                  Pay ₹20 To Unlock Contact
+                </button>
+              )}
               {t.paymentStatus === "pending" && <p className="text-orange-600 font-semibold mt-2">Pending Payment</p>}
               {t.paymentStatus === "verified" && <p className="text-green-600 font-semibold mt-2">Contact: {t.contactNumber || "N/A"}</p>}
             </div>
 
-            {currentTicketId === t._id && showQR && currentUpiLink && (
+            {currentTicketId === t._id && showQR && (
               <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
                 <p className="mb-2 font-medium text-center uppercase text-sm">Scan QR to pay ₹20</p>
                 <QRCodeCanvas value={currentUpiLink} size={160} />
                 <button onClick={closeQR} className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm">Close QR</button>
 
-                <div className="mt-3 w-full max-w-md">
-                  <div className="mb-2 font-medium uppercase text-sm">Submit payment details:</div>
-                  <form className="flex flex-col gap-2" onSubmit={submitProof}>
-                    <input placeholder="Transaction ID" value={txnId} onChange={(e) => setTxnId(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
-                    <input placeholder="Payer Name" value={payerName} onChange={(e) => setPayerName(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
-                    <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={(e) => setPayerMobile(e.target.value)} className="border p-2 rounded text-sm" required/>
-                    <div className="flex gap-2 mt-2">
-                      <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm">{submittingProof ? "Submitting..." : "Submit"}</button>
-                      <button type="button" onClick={closeQR} className="px-3 py-2 border rounded uppercase text-sm">Cancel</button>
-                    </div>
-                    {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
-                  </form>
-                </div>
+                <form className="mt-3 w-full max-w-md flex flex-col gap-2" onSubmit={submitProof}>
+                  <input placeholder="Transaction ID" value={txnId} onChange={(e) => setTxnId(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+                  <input placeholder="Payer Name" value={payerName} onChange={(e) => setPayerName(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+                  <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={(e) => setPayerMobile(e.target.value)} className="border p-2 rounded text-sm" required/>
+                  <div className="flex gap-2 mt-2">
+                    <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm">
+                      {submittingProof ? "Submitting..." : "Submit"}
+                    </button>
+                    <button type="button" onClick={closeQR} className="px-3 py-2 border rounded uppercase text-sm">Cancel</button>
+                  </div>
+                  {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
+                </form>
               </div>
             )}
           </div>

@@ -1,127 +1,131 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
+const API = process.env.REACT_APP_API_URL;
 
-export default function AdminPanel() {
-  const [orders, setOrders] = useState([]);
+const AdminPanel = () => {
+  const [proofs, setProofs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    if (!token) {
-      setError("Login required");
-      return;
-    }
-
-    const fetchOrders = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const res = await fetch(`${API_BASE}/payments/orders`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.status === 401) {
-          setError("Invalid or expired token");
-          setOrders([]);
-          setLoading(false);
-          return;
-        }
-
-        const data = await res.json();
-        setOrders(data.proofs || []);
-      } catch (err) {
-        setError("Failed to fetch orders");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, [token]);
-
-  const handleAction = async (proofId, action) => {
-    if (!window.confirm(`Are you sure to ${action} this payment?`)) return;
-
+  // Fetch all pending proofs
+  const fetchProofs = async () => {
     try {
-      const res = await fetch(`${API_BASE}/payments/admin/verify/${proofId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action, adminName: "Admin" }),
+      setLoading(true);
+      const res = await axios.get(`${API}/api/payments/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed");
-
-      alert(data.message);
-      setOrders((prev) =>
-        prev.map((o) => (o._id === proofId ? { ...o, status: data.proof.status } : o))
-      );
+      setProofs(res.data.orders || []);
     } catch (err) {
-      alert(err.message || "Action failed");
+      console.error("AdminProofFetchError:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProofs();
+  }, []);
+
+  // ✅ Verify Payment
+  const handleVerify = async (ticketId, proofId) => {
+    if (!window.confirm("Verify this payment?")) return;
+    try {
+      await axios.post(
+        `${API}/api/tickets/admin/verify-payment/${ticketId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await axios.put(
+        `${API}/api/payments/update-status/${proofId}`,
+        { status: "verified" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Payment verified ✅");
+      fetchProofs();
+    } catch (err) {
+      console.error("VerifyPaymentError:", err);
+      alert("Error verifying payment");
+    }
+  };
+
+  // ❌ Reject Payment — ticket becomes available again
+  const handleReject = async (ticketId, proofId) => {
+    if (!window.confirm("Reject this payment?")) return;
+    try {
+      // 1️⃣ Update proof status to rejected
+      await axios.put(
+        `${API}/api/payments/update-status/${proofId}`,
+        { status: "rejected" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // 2️⃣ Mark ticket available again
+      await axios.put(
+        `${API}/api/payments/reopen-ticket/${ticketId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert("Payment rejected ❌ — Ticket made available again");
+      fetchProofs();
+    } catch (err) {
+      console.error("RejectPaymentError:", err);
+      alert("Error rejecting payment");
     }
   };
 
   return (
-    <div className="p-6 container mx-auto">
-      <h1 className="text-3xl font-bold text-center text-blue-700 uppercase mb-6">
-        💳 Payment Proof Verification
-      </h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">
+          💳 Payment Proof Verification
+        </h1>
 
-      {error && <p className="text-red-600 text-center mb-4">{error}</p>}
-      {loading && <p className="text-center">Loading...</p>}
+        {loading ? (
+          <p className="text-gray-500">Loading pending proofs...</p>
+        ) : proofs.length === 0 ? (
+          <p className="text-gray-500">No pending proofs.</p>
+        ) : (
+          <div className="space-y-4">
+            {proofs.map((p) => (
+              <div
+                key={p._id}
+                className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center"
+              >
+                <div>
+                  <p className="font-semibold text-gray-800">
+                    Txn ID: {p.txnId}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Payer: {p.payerName} ({p.payerMobile})
+                  </p>
+                  <p className="text-sm text-gray-600">Amount: ₹{p.amount}</p>
+                  <p className="text-sm text-gray-600">Ticket ID: {p.ticketId}</p>
+                </div>
 
-      {!loading && orders.length === 0 && !error && (
-        <p className="text-center">No pending proofs</p>
-      )}
-
-      <div className="grid gap-4">
-        {orders.map((proof) => (
-          <div
-            key={proof._id}
-            className="border rounded p-4 shadow bg-white flex justify-between items-center"
-          >
-            <div>
-              <p>
-                <strong>Ticket:</strong> {proof.ticketId?.trainName || "N/A"} (
-                {proof.ticketId?.trainNumber || "N/A"})
-              </p>
-              <p>
-                <strong>Payer:</strong> {proof.payerName} ({proof.payerMobile})
-              </p>
-              <p>
-                <strong>Amount:</strong> ₹{proof.amount}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {proof.status.charAt(0).toUpperCase() + proof.status.slice(1)}
-              </p>
-            </div>
-            {proof.status === "pending" && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleAction(proof._id, "verify")}
-                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                >
-                  Verify
-                </button>
-                <button
-                  onClick={() => handleAction(proof._id, "reject")}
-                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                >
-                  Reject
-                </button>
+                <div className="flex gap-3 mt-3 md:mt-0">
+                  <button
+                    onClick={() => handleVerify(p.ticketId, p._id)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+                  >
+                    Verify ✅
+                  </button>
+                  <button
+                    onClick={() => handleReject(p.ticketId, p._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+                  >
+                    Reject ❌
+                  </button>
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default AdminPanel;
 
