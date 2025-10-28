@@ -1,211 +1,131 @@
-import React, { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
-
-export default function Profile() {
-  const { user, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
+const Profile = () => {
+  const { user, token } = useAuth();
   const [myTickets, setMyTickets] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [modalContact, setModalContact] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  const API_BASE = process.env.REACT_APP_API_BASE_URL || "https://www.myyatraexchange.com/api";
+
+  // ==========================
+  // ✅ Fetch My Tickets
+  // ==========================
+  const fetchMyTickets = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/tickets/my/tickets`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setMyTickets(response.data.tickets || []);
+      } else {
+        console.warn("No tickets found.");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching my tickets:", error);
+    }
+  };
+
+  // ==========================
+  // ✅ Fetch My Bookings
+  // ==========================
+  const fetchMyBookings = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/tickets/my/bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setMyBookings(response.data.bookings || []);
+      } else {
+        console.warn("No bookings found.");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching my bookings:", error);
+    }
+  };
+
+  // ==========================
+  // ✅ Fetch Both on Load
+  // ==========================
   useEffect(() => {
-    if (user) {
-      fetchData();
-      const interval = setInterval(fetchData, 5000); // auto-refresh every 5s
-      return () => clearInterval(interval);
+    if (token) {
+      (async () => {
+        setLoading(true);
+        await Promise.all([fetchMyTickets(), fetchMyBookings()]);
+        setLoading(false);
+      })();
     }
-  }, [user]);
+  }, [token]);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-
-      // Fetch posted tickets
-      const postedRes = await axios.get(`${API_BASE}/tickets/my-tickets`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMyTickets(postedRes.data.postedTickets || []);
-
-      // Fetch booked tickets
-      const bookedRes = await axios.get(`${API_BASE}/tickets/my-bookings`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMyBookings(bookedRes.data.bookings || []);
-    } catch (err) {
-      console.error("ProfileDataFetchError:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (ticketId) => {
-    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE}/tickets/${ticketId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMyTickets(myTickets.filter((t) => t._id !== ticketId));
-    } catch (err) {
-      console.error("DeleteTicketError:", err);
-      alert("Failed to delete the ticket. Try again.");
-    }
-  };
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    alert("Contact number copied!");
-  };
-
-  if (!user)
+  if (loading) {
     return (
-      <div className="text-center py-20 text-gray-600">
-        Please login to view your profile.
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        Loading your profile...
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-5xl mx-auto bg-white shadow rounded-xl p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Welcome, {user.name}
-        </h2>
+    <div className="max-w-6xl mx-auto py-10">
+      <h1 className="text-3xl font-semibold text-center mb-8">My Profile</h1>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <button
-            onClick={logout}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-          >
-            Logout
-          </button>
-
-          {/* Admin Panel Button */}
-          {user.isAdmin && (
-            <button
-              onClick={() => navigate("/admin/payments")}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
-            >
-              Admin Panel
-            </button>
-          )}
-        </div>
-
-        {loading && <p className="text-gray-400 text-sm mb-3">Refreshing...</p>}
-
-        {/* My Posted Tickets */}
-        <h3 className="text-lg font-semibold mb-3">My Posted Tickets</h3>
+      {/* ================= My Tickets ================= */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-4">My Posted Tickets</h2>
         {myTickets.length === 0 ? (
-          <p className="text-gray-500 mb-6">You haven't posted any tickets.</p>
+          <p className="text-gray-500">No tickets posted yet.</p>
         ) : (
-          <ul className="space-y-3 mb-8">
-            {myTickets.map((t) => (
-              <li
-                key={t._id}
-                className="border rounded-lg p-3 bg-gray-50 flex flex-col md:flex-row justify-between items-center"
+          <div className="grid md:grid-cols-2 gap-6">
+            {myTickets.map((ticket) => (
+              <div
+                key={ticket._id}
+                className="border p-4 rounded-xl shadow-sm hover:shadow-md transition"
               >
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    {t.trainName} ({t.trainNumber})
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {t.from} → {t.to}
-                  </p>
-                </div>
-                <div className="mt-2 md:mt-0 flex items-center gap-3">
-                  {t.paymentStatus === "pending" && (
-                    <span className="text-orange-600 font-semibold">
-                      Pending Verification
-                    </span>
-                  )}
-                  {t.paymentStatus === "verified" && (
-                    <span className="text-green-600 font-semibold">Sold ✅</span>
-                  )}
-                  <button
-                    onClick={() => handleDelete(t._id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* My Bookings */}
-        <h3 className="text-lg font-semibold mb-3">My Bookings</h3>
-        {myBookings.length === 0 ? (
-          <p className="text-gray-500">No bookings yet.</p>
-        ) : (
-          <ul className="space-y-3">
-            {myBookings.map((t) => (
-              <li
-                key={t._id}
-                className="border rounded-lg p-3 bg-gray-50 flex flex-col md:flex-row justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    {t.trainName} ({t.trainNumber})
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {t.from} → {t.to}
-                  </p>
-                </div>
-                <div className="mt-2 md:mt-0 flex items-center gap-3">
-                  {t.paymentStatus === "not_paid" && (
-                    <span className="text-red-600 font-semibold">Not Paid</span>
-                  )}
-                  {t.paymentStatus === "pending" && (
-                    <span className="text-orange-600 font-semibold">
-                      Pending — Waiting for Admin Verification
-                    </span>
-                  )}
-                  {t.paymentStatus === "verified" && t.contactUnlocked && t.contactNumber && (
-                    <button
-                      onClick={() => setModalContact(t.contactNumber)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition"
-                    >
-                      View Contact
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* Contact Modal */}
-        {modalContact && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-              <h3 className="text-lg font-semibold mb-3">Contact Number</h3>
-              <p className="text-gray-800 text-xl mb-4">{modalContact}</p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => copyToClipboard(modalContact)}
-                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-                >
-                  Copy
-                </button>
-                <button
-                  onClick={() => setModalContact(null)}
-                  className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400 transition"
-                >
-                  Close
-                </button>
+                <h3 className="text-xl font-bold">{ticket.trainName}</h3>
+                <p>
+                  {ticket.from} → {ticket.to}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Date: {new Date(ticket.fromDateTime).toLocaleDateString()}
+                </p>
+                <p>Status: <strong>{ticket.status}</strong></p>
               </div>
-            </div>
+            ))}
           </div>
         )}
-      </div>
+      </section>
+
+      {/* ================= My Bookings ================= */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">My Bookings</h2>
+        {myBookings.length === 0 ? (
+          <p className="text-gray-500">No bookings found yet.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-6">
+            {myBookings.map((booking) => (
+              <div
+                key={booking._id}
+                className="border p-4 rounded-xl shadow-sm hover:shadow-md transition"
+              >
+                <h3 className="text-xl font-bold">{booking.ticket?.trainName}</h3>
+                <p>
+                  {booking.ticket?.from} → {booking.ticket?.to}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Booked On:{" "}
+                  {new Date(booking.createdAt).toLocaleDateString()}
+                </p>
+                <p>Status: <strong>{booking.status}</strong></p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
-}
+};
+
+export default Profile;
 
