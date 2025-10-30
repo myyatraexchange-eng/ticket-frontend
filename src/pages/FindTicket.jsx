@@ -27,8 +27,11 @@ export default function FindTicket() {
       const res = await fetch(`${API_BASE}/tickets?available=true`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
-      setTickets(data.tickets || []);
-      setFiltered(data.tickets?.slice(0, 6) || []);
+
+      // ✅ handle both array and object response
+      const list = Array.isArray(data) ? data : data.tickets || [];
+      setTickets(list);
+      setFiltered(list.slice(0, 6));
     } catch (err) {
       setError(err.message || "Failed to load tickets");
     } finally {
