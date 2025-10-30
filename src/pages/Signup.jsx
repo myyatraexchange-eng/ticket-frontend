@@ -8,7 +8,12 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({ name: "", phone: "", password: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -76,6 +81,7 @@ const Signup = () => {
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
             />
           </div>
+
           <div>
             <label className="block mb-1 font-medium text-sm">Phone Number</label>
             <input
@@ -87,6 +93,20 @@ const Signup = () => {
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
             />
           </div>
+
+          <div>
+            <label className="block mb-1 font-medium text-sm">Email (Gmail)</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="Enter your Gmail address"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+            />
+          </div>
+
           <div className="relative">
             <label className="block mb-1 font-medium text-sm">Password</label>
             <input
@@ -105,6 +125,7 @@ const Signup = () => {
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
+
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
@@ -112,6 +133,13 @@ const Signup = () => {
             {success ? "Redirecting..." : "Sign Up"}
           </button>
         </form>
+
+        <p className="mt-4 text-sm text-center text-gray-600">
+          Already have an account?{" "}
+          <a href="/login" className="text-blue-600 hover:underline">
+            Login here
+          </a>
+        </p>
       </div>
     </div>
   );

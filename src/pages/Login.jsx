@@ -40,7 +40,7 @@ const Login = () => {
       }
 
       if (data.token && data.user) {
-        login(data.token, data.user); // ✅ Login + redirect handled inside AuthContext
+        login(data.token, data.user);
       }
     } catch (err) {
       setError(err.message);
@@ -98,7 +98,7 @@ const Login = () => {
         </form>
 
         <p className="mt-4 text-sm text-center text-gray-600">
-          Don't have an account?{" "}
+          Don’t have an account?{" "}
           <a href="/signup" className="text-blue-600 hover:underline">
             Register here
           </a>
