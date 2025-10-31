@@ -214,6 +214,19 @@ const Profile = () => {
                   ).toLocaleString()}
                 </p>
                 <p>Status: {b.paymentStatus || b.status}</p>
+
+                {/* ✅ Show Seller Contact after verification */}
+                {(b.paymentStatus === "verified" || b.status === "verified") &&
+                  (b.sellerContact || b.ticket?.sellerContact) && (
+                    <div className="mt-2 bg-green-50 border border-green-300 p-2 rounded">
+                      <p className="text-green-700 font-medium">
+                        Seller Contact:
+                      </p>
+                      <p className="text-green-800 text-sm">
+                        {b.sellerContact || b.ticket?.sellerContact}
+                      </p>
+                    </div>
+                  )}
               </div>
             ))}
           </div>

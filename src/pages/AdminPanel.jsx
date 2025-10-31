@@ -1,3 +1,4 @@
+// ✅ src/pages/AdminPanel.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +16,7 @@ const AdminPanel = () => {
 
   const fetchAllPayments = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/admin/payments`, {
+      const res = await axios.get(`${API_BASE}/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.success) setPayments(res.data.orders || []);
@@ -27,10 +28,18 @@ const AdminPanel = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/admin/dashboard`, {
+      const res = await axios.get(`${API_BASE}/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data.success) setStats(res.data.stats || {});
+      if (res.data.success) {
+        const orders = res.data.orders || [];
+        setStats({
+          totalPayments: orders.length,
+          verified: orders.filter((o) => o.paymentStatus === "verified").length,
+          pending: orders.filter((o) => o.paymentStatus === "pending").length,
+          rejected: orders.filter((o) => o.paymentStatus === "rejected").length,
+        });
+      }
     } catch (err) {
       console.error("Error fetching stats:", err);
     }
@@ -38,8 +47,8 @@ const AdminPanel = () => {
 
   const verifyPayment = async (id, status) => {
     try {
-      await axios.post(
-        `${API_BASE}/admin/verify/${id}`,
+      await axios.put(
+        `${API_BASE}/update-status/${id}`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
