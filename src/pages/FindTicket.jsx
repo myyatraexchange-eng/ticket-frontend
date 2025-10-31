@@ -1,32 +1,39 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { QRCodeCanvas } from "qrcode.react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://ticket-backend-main.onrender.com/api";
+// ✅ VITE syntax (not process.env)
+const API_BASE = import.meta.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
 
-const FindTicket = () => {
+export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
+  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [proofData, setProofData] = useState({
-    ticketId: "",
-    transactionId: "",
-    amount: "",
-    paymentMethod: "UPI",
-    screenshotUrl: "",
-  });
+  const [error, setError] = useState("");
+  const [fromFilter, setFromFilter] = useState("");
+  const [toFilter, setToFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [currentTicketId, setCurrentTicketId] = useState(null);
+  const [txnId, setTxnId] = useState("");
+  const [payerName, setPayerName] = useState("");
+  const [payerMobile, setPayerMobile] = useState("");
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState("");
+  const [showQR, setShowQR] = useState(false);
+  const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  const [submitting, setSubmitting] = useState(false);
-
-  // ✅ Fetch all tickets
   const fetchTickets = async () => {
+    setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_BASE}/tickets`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTickets(res.data.tickets || []);
+      const res = await fetch(`${API_BASE}/tickets?available=true`);
+      if (!res.ok) throw new Error(`Request failed ${res.status}`);
+      const data = await res.json();
+
+      const list = Array.isArray(data) ? data : data.tickets || [];
+      setTickets(list);
+      setFiltered(list.slice(0, 6));
     } catch (err) {
-      console.error("❌ Error fetching tickets:", err);
+      setError(err.message || "Failed to load tickets");
     } finally {
       setLoading(false);
     }
@@ -34,135 +41,156 @@ const FindTicket = () => {
 
   useEffect(() => {
     fetchTickets();
+    const interval = setInterval(fetchTickets, 8000);
+    return () => clearInterval(interval);
   }, []);
 
-  // ✅ Handle input change for payment proof
-  const handleProofChange = (e) => {
-    setProofData({ ...proofData, [e.target.name]: e.target.value });
+  useEffect(() => {
+    let out = tickets;
+    if (fromFilter) out = out.filter(t => t.from?.toLowerCase().includes(fromFilter.toLowerCase()));
+    if (toFilter) out = out.filter(t => t.to?.toLowerCase().includes(toFilter.toLowerCase()));
+    if (dateFilter) out = out.filter(t => t.fromDateTime && new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter);
+    setFiltered(out.slice(0, 6));
+  }, [fromFilter, toFilter, dateFilter, tickets]);
+
+  const handlePay = (ticket) => {
+    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+    setCurrentUpiLink(upiLink);
+    setShowQR(true);
+    setCurrentTicketId(ticket._id);
+    setTxnId("");
+    setPayerName("");
+    setPayerMobile("");
+    setProofMessage("");
   };
 
-  // ✅ Handle proof submission
-  const handleSubmitProof = async (e) => {
+  const closeQR = () => {
+    setShowQR(false);
+    setCurrentUpiLink("");
+    setCurrentTicketId(null);
+  };
+
+  const submitProof = async (e) => {
     e.preventDefault();
-    if (!proofData.transactionId || !proofData.amount) {
-      alert("कृपया सभी विवरण भरें।");
+    if (!txnId || !payerName || !payerMobile) {
+      setProofMessage("Fill all fields");
+      return;
+    }
+    if (!/^\d{10}$/.test(payerMobile)) {
+      setProofMessage("Enter valid 10-digit mobile");
       return;
     }
 
+    setSubmittingProof(true);
+    setProofMessage("");
     try {
-      setSubmitting(true);
-      const token = localStorage.getItem("token");
-
-      const res = await axios.post(
-        `${API_BASE}/payments/upload-proof`, // ✅ Correct endpoint
-        proofData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      alert("✅ Payment proof सफलतापूर्वक भेज दिया गया। Admin verification का इंतज़ार करें।");
-
-      // ✅ Ticket को hide कर दो (frontend से remove)
-      setTickets((prev) => prev.filter((t) => t._id !== proofData.ticketId));
-
-      // ✅ Reset form
-      setProofData({
-        ticketId: "",
-        transactionId: "",
-        amount: "",
-        paymentMethod: "UPI",
-        screenshotUrl: "",
+      const res = await fetch(`${API_BASE}/payments/submit-payment-proof`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          ticketId: currentTicketId,
+          txnId,
+          payerName,
+          payerMobile,
+          amount: 20,
+        }),
       });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Submission failed");
+
+      setProofMessage(data.message || "Submitted for verification");
+      setTxnId("");
+      setPayerName("");
+      setPayerMobile("");
+      setTimeout(() => {
+        closeQR();
+        fetchTickets();
+      }, 1500);
     } catch (err) {
-      console.error("❌ Error submitting payment proof:", err);
-      alert("❌ Submission failed. कृपया दोबारा कोशिश करें।");
+      setProofMessage(err.message || "Failed to submit proof");
     } finally {
-      setSubmitting(false);
+      setSubmittingProof(false);
     }
   };
 
+  const formatDateTime = (dt) => {
+    if (!dt) return "N/A";
+    return new Date(dt).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">🎟 उपलब्ध Tickets</h2>
+    <div className="p-6 container mx-auto flex flex-col items-center">
+      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">🎟 Find Tickets</h1>
 
-      {loading ? (
-        <p>लोड हो रहा है...</p>
-      ) : tickets.length === 0 ? (
-        <p>कोई टिकट उपलब्ध नहीं है।</p>
-      ) : (
-        tickets.map((ticket) => (
-          <div key={ticket._id} className="border rounded-lg p-4 mb-4 shadow">
-            <h3 className="text-xl font-semibold">
-              🚆 {ticket.trainName} ({ticket.trainNumber})
-            </h3>
-            <p>📍 Route: {ticket.from} → {ticket.to}</p>
-            <p>🗓 Date: {new Date(ticket.date).toLocaleDateString()}</p>
-            <p>💺 Class: {ticket.classType}</p>
-            <p>💰 Price: ₹{ticket.price}</p>
+      {/* Filters */}
+      <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-4xl">
+        <input placeholder="From" value={fromFilter} onChange={(e) => setFromFilter(e.target.value)} className="border p-2 rounded w-44 uppercase text-sm"/>
+        <input placeholder="To" value={toFilter} onChange={(e) => setToFilter(e.target.value)} className="border p-2 rounded w-44 uppercase text-sm"/>
+        <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="border p-2 rounded text-sm"/>
+      </div>
 
-            <button
-              className="bg-green-600 text-white px-4 py-2 mt-3 rounded"
-              onClick={() => setProofData({ ...proofData, ticketId: ticket._id, amount: ticket.price })}
-            >
-              Pay ₹{ticket.price} & Unlock Contact
-            </button>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-600">{error}</p>}
+
+      {/* Ticket List */}
+      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((t) => (
+          <div key={t._id} className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300">
+            <div className="flex flex-col gap-2 text-sm">
+              <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
+                🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
+              </h2>
+              <p><b>📍 Route:</b> {t.from?.toUpperCase()} → {t.to?.toUpperCase()}</p>
+              <p><b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}</p>
+              <p><b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}</p>
+              <p><b>🪑 Class:</b> {t.classType?.toUpperCase() || "GENERAL"}</p>
+              <p><b>🎟 Tickets:</b> {t.ticketNumber || "N/A"}</p>
+              <p><b>👤 Passenger:</b> {t.passengerName?.toUpperCase()} ({t.passengerGender?.toUpperCase()}, {t.passengerAge})</p>
+
+              {t.paymentStatus === "not_paid" && (
+                <button onClick={() => handlePay(t)} className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm">
+                  Pay ₹20 To Unlock Contact
+                </button>
+              )}
+              {t.paymentStatus === "pending" && <p className="text-orange-600 font-semibold mt-2">Pending Payment</p>}
+              {t.paymentStatus === "verified" && <p className="text-green-600 font-semibold mt-2">Contact: {t.contactNumber || "N/A"}</p>}
+            </div>
+
+            {currentTicketId === t._id && showQR && (
+              <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
+                <p className="mb-2 font-medium text-center uppercase text-sm">Scan QR to pay ₹20</p>
+                <QRCodeCanvas value={currentUpiLink} size={160} />
+                <button onClick={closeQR} className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm">Close QR</button>
+
+                <form className="mt-3 w-full max-w-md flex flex-col gap-2" onSubmit={submitProof}>
+                  <input placeholder="Transaction ID" value={txnId} onChange={(e) => setTxnId(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+                  <input placeholder="Payer Name" value={payerName} onChange={(e) => setPayerName(e.target.value)} className="border p-2 rounded uppercase text-sm" required/>
+                  <input placeholder="Payer Mobile (10 digits)" value={payerMobile} onChange={(e) => setPayerMobile(e.target.value)} className="border p-2 rounded text-sm" required/>
+                  <div className="flex gap-2 mt-2">
+                    <button type="submit" disabled={submittingProof} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm">
+                      {submittingProof ? "Submitting..." : "Submit"}
+                    </button>
+                    <button type="button" onClick={closeQR} className="px-3 py-2 border rounded uppercase text-sm">Cancel</button>
+                  </div>
+                  {proofMessage && <div className="text-sm mt-1">{proofMessage}</div>}
+                </form>
+              </div>
+            )}
           </div>
-        ))
-      )}
-
-      {/* ✅ Payment proof form */}
-      {proofData.ticketId && (
-        <div className="mt-6 p-4 border rounded-lg bg-gray-50">
-          <h3 className="font-bold mb-2">💳 Payment Proof सबमिट करें</h3>
-          <form onSubmit={handleSubmitProof} className="space-y-3">
-            <input
-              type="text"
-              name="transactionId"
-              value={proofData.transactionId}
-              onChange={handleProofChange}
-              placeholder="Transaction ID"
-              className="border p-2 w-full rounded"
-              required
-            />
-            <input
-              type="number"
-              name="amount"
-              value={proofData.amount}
-              onChange={handleProofChange}
-              placeholder="Amount (₹)"
-              className="border p-2 w-full rounded"
-              required
-            />
-            <select
-              name="paymentMethod"
-              value={proofData.paymentMethod}
-              onChange={handleProofChange}
-              className="border p-2 w-full rounded"
-            >
-              <option value="UPI">UPI</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Other">Other</option>
-            </select>
-            <input
-              type="text"
-              name="screenshotUrl"
-              value={proofData.screenshotUrl}
-              onChange={handleProofChange}
-              placeholder="Screenshot Image URL (optional)"
-              className="border p-2 w-full rounded"
-            />
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-blue-600 text-white px-4 py-2 rounded w-full"
-            >
-              {submitting ? "सबमिट हो रहा है..." : "सबमिट करें"}
-            </button>
-          </form>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
-};
-
-export default FindTicket;
+}
 
