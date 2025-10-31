@@ -28,19 +28,19 @@ const Login = () => {
         body: JSON.stringify(formData),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        throw new Error("Invalid server response");
-      }
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
 
       if (data.token && data.user) {
+        // ✅ Normal login
         login(data.token, data.user);
+
+        // ✅ Admin flag save
+        if (data.user.phone === "9753060916") {
+          localStorage.setItem("isAdmin", "true");
+        } else {
+          localStorage.removeItem("isAdmin");
+        }
       }
     } catch (err) {
       setError(err.message);
