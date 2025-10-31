@@ -2,173 +2,226 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE ||
-  "https://ticket-backend-g5da.onrender.com/api";
+const Profile = () => {
+  const { user: ctxUser, token, logout } = useAuth();
+  const [user, setUser] = useState(ctxUser || null);
+  const [myTickets, setMyTickets] = useState([]);
+  const [myBookings, setMyBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [copyMsg, setCopyMsg] = useState("");
 
-export default function Profile() {
-  const { user, token } = useAuth();
-  const [tickets, setTickets] = useState([]);
-  const [message, setMessage] = useState("");
+  const API_BASE =
+    process.env.REACT_APP_API_BASE ||
+    "https://ticket-backend-g5da.onrender.com/api";
 
-  const [formData, setFormData] = useState({
-    ticketId: "",
-    txnId: "",
-    payerName: "",
-    payerMobile: "",
-    amount: "",
-    paymentMethod: "UPI",
-  });
-
-  const fetchTickets = async () => {
+  const fetchProfile = async () => {
+    if (!token) return;
     try {
-      const res = await axios.get(`${API_BASE}/tickets/my-tickets`, {
+      const res = await axios.get(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data.success) setTickets(res.data.tickets);
-    } catch (error) {
-      console.error("Error fetching tickets:", error);
+      if (res.data.success) setUser(res.data.user);
+    } catch (err) {
+      console.warn("Profile fetch failed, using cached user.");
+      if (ctxUser) setUser(ctxUser);
+    }
+  };
+
+  const fetchMyTickets = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/tickets/my/posted`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) setMyTickets(res.data.tickets);
+    } catch (err) {
+      console.error("Error fetching my tickets:", err);
+    }
+  };
+
+  const fetchMyBookings = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/tickets/my/bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) setMyBookings(res.data.bookings);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
     }
   };
 
   useEffect(() => {
-    if (token) fetchTickets();
+    if (token) {
+      (async () => {
+        setLoading(true);
+        await fetchProfile();
+        await Promise.all([fetchMyTickets(), fetchMyBookings()]);
+        setLoading(false);
+      })();
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
-  const handlePaymentSubmit = async (e) => {
-    e.preventDefault();
+  const copyId = async (id) => {
     try {
-      const res = await axios.post(`${API_BASE}/payment-proof`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessage(res.data.message);
-      fetchTickets();
-    } catch (err) {
-      console.error("Payment submit error:", err);
-      setMessage("❌ Failed to submit payment details");
+      await navigator.clipboard.writeText(id);
+      setCopyMsg("Copied!");
+      setTimeout(() => setCopyMsg(""), 1800);
+    } catch {
+      setCopyMsg("Copy failed");
+      setTimeout(() => setCopyMsg(""), 1800);
     }
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        Loading profile...
+      </div>
+    );
+
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold text-blue-700 text-center">
-        👤 My Profile & Payments
+    <div className="max-w-6xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-semibold text-center mb-8 text-blue-700">
+        My Profile
       </h1>
 
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Submit Payment Proof</h2>
-        <form
-          onSubmit={handlePaymentSubmit}
-          className="grid md:grid-cols-2 gap-4"
-        >
-          <select
-            required
-            value={formData.ticketId}
-            onChange={(e) =>
-              setFormData({ ...formData, ticketId: e.target.value })
-            }
-            className="border p-2 rounded"
-          >
-            <option value="">Select Ticket</option>
-            {tickets.map((t) => (
-              <option key={t._id} value={t._id}>
-                {t.trainName} ({t.from} → {t.to})
-              </option>
-            ))}
-          </select>
+      {/* Profile Details */}
+      <div className="bg-white border shadow rounded-xl p-6 mb-10">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          👤 Profile Details
+        </h2>
 
-          <input
-            type="text"
-            placeholder="Transaction ID"
-            required
-            onChange={(e) =>
-              setFormData({ ...formData, txnId: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Payer Name"
-            required
-            onChange={(e) =>
-              setFormData({ ...formData, payerName: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Payer Mobile Number"
-            required
-            onChange={(e) =>
-              setFormData({ ...formData, payerMobile: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
-          <input
-            type="number"
-            placeholder="Amount (₹)"
-            required
-            onChange={(e) =>
-              setFormData({ ...formData, amount: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
-          <select
-            onChange={(e) =>
-              setFormData({ ...formData, paymentMethod: e.target.value })
-            }
-            className="border p-2 rounded"
-          >
-            <option value="UPI">UPI</option>
-            <option value="PhonePe">PhonePe</option>
-            <option value="GooglePay">Google Pay</option>
-            <option value="Paytm">Paytm</option>
-          </select>
+        {user ? (
+          <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+            <div>
+              <p className="text-sm text-gray-500">Name</p>
+              <p className="font-medium text-lg">{user.name || "N/A"}</p>
+            </div>
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-          >
-            Submit Payment
-          </button>
-        </form>
-        {message && <p className="text-green-700 mt-4">{message}</p>}
-      </div>
+            <div>
+              <p className="text-sm text-gray-500">Phone</p>
+              <p className="font-medium text-lg">{user.phone || "N/A"}</p>
+            </div>
 
-      {/* My Tickets */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4">My Tickets</h2>
-        {tickets.length > 0 ? (
-          <table className="w-full border-collapse">
-            <thead className="bg-blue-600 text-white">
-              <tr>
-                <th className="py-2 px-4">Train</th>
-                <th className="py-2 px-4">Route</th>
-                <th className="py-2 px-4">Payment Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((t) => (
-                <tr
-                  key={t._id}
-                  className="border-b hover:bg-gray-50 transition"
+            <div>
+              <p className="text-sm text-gray-500">Joined On</p>
+              <p className="font-medium">
+                {user.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString()
+                  : "N/A"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-500">Unique ID</p>
+              <div className="flex items-center gap-3">
+                <code className="bg-gray-100 px-3 py-1 rounded text-sm break-all">
+                  {user.uniqueId || user._id}
+                </code>
+                <button
+                  onClick={() => copyId(user.uniqueId || user._id)}
+                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
                 >
-                  <td className="py-2 px-4">{t.trainName}</td>
-                  <td className="py-2 px-4">
-                    {t.from} → {t.to}
-                  </td>
-                  <td className="py-2 px-4 capitalize">
-                    {t.paymentStatus || "not_paid"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  Copy
+                </button>
+                {copyMsg && (
+                  <span className="text-sm text-green-600 ml-2">{copyMsg}</span>
+                )}
+              </div>
+            </div>
+          </div>
         ) : (
-          <p className="text-gray-500">No tickets found.</p>
+          <p>No user info found.</p>
         )}
+
+        {/* Logout */}
+        <div className="mt-6">
+          <button
+            onClick={logout}
+            className="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
+
+          {/* ✅ Admin Button */}
+          {localStorage.getItem("isAdmin") === "true" && (
+            <div className="mt-4">
+              <a
+                href="/admin"
+                className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition"
+              >
+                🔐 Go to Admin Panel
+              </a>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* My Posted Tickets */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          🎫 My Posted Tickets
+        </h2>
+        {myTickets.length === 0 ? (
+          <p className="text-gray-500">No tickets posted yet.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {myTickets.map((t) => (
+              <div
+                key={t._id}
+                className="border p-4 rounded-xl shadow hover:shadow-lg transition"
+              >
+                <h3 className="text-lg font-bold text-blue-700">
+                  {t.trainName}
+                </h3>
+                <p>
+                  {t.from} → {t.to}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {new Date(t.fromDateTime).toLocaleDateString()}
+                </p>
+                <p>Status: {t.paymentStatus}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* My Bookings */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          🧾 My Bookings
+        </h2>
+        {myBookings.length === 0 ? (
+          <p className="text-gray-500">No bookings found.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {myBookings.map((b) => (
+              <div
+                key={b._id}
+                className="border p-4 rounded-xl shadow hover:shadow-lg transition"
+              >
+                <h3 className="text-lg font-bold text-green-700">
+                  {b.trainName || b.ticket?.trainName}
+                </h3>
+                <p>
+                  {b.from || b.ticket?.from} → {b.to || b.ticket?.to}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {new Date(
+                    b.fromDateTime || b.ticket?.fromDateTime
+                  ).toLocaleString()}
+                </p>
+                <p>Status: {b.paymentStatus || b.status}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
-}
+};
+
+export default Profile;
 
