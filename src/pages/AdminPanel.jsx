@@ -14,9 +14,12 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /* =============================================
+     🔹 Fetch All Payment Orders
+  ============================================= */
   const fetchAllPayments = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/orders`, {
+      const res = await axios.get(`${API_BASE}/payments/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.success) setPayments(res.data.orders || []);
@@ -26,9 +29,12 @@ const AdminPanel = () => {
     }
   };
 
+  /* =============================================
+     🔹 Generate Dashboard Stats
+  ============================================= */
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/orders`, {
+      const res = await axios.get(`${API_BASE}/payments/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.success) {
@@ -45,20 +51,27 @@ const AdminPanel = () => {
     }
   };
 
+  /* =============================================
+     🔹 Admin: Verify or Reject Payment
+  ============================================= */
   const verifyPayment = async (id, status) => {
     try {
       await axios.put(
-        `${API_BASE}/update-status/${id}`,
+        `${API_BASE}/payments/update-status/${id}`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchAllPayments();
       fetchStats();
     } catch (err) {
+      console.error("Error updating payment status:", err);
       alert("Failed to update payment status");
     }
   };
 
+  /* =============================================
+     🔹 Auto-fetch on Load + Every 30s
+  ============================================= */
   useEffect(() => {
     if (!token) return;
     const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -81,6 +94,9 @@ const AdminPanel = () => {
     return () => clearInterval(interval);
   }, [token]);
 
+  /* =============================================
+     🌀 UI Rendering
+  ============================================= */
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen text-gray-600">
@@ -144,7 +160,10 @@ const AdminPanel = () => {
           <tbody>
             {payments.length > 0 ? (
               payments.map((p) => (
-                <tr key={p._id} className="border-b hover:bg-gray-50 transition">
+                <tr
+                  key={p._id}
+                  className="border-b hover:bg-gray-50 transition"
+                >
                   <td className="py-2 px-4">
                     <strong>{p.trainName}</strong>
                     <br />
@@ -161,7 +180,7 @@ const AdminPanel = () => {
                   <td className="py-2 px-4">
                     {p.bookedBy?.name || "N/A"} <br />
                     <span className="text-sm text-gray-600">
-                      {p.bookedBy?.phone}
+                      {p.bookedBy?.phone || p.bookedBy?.email}
                     </span>
                   </td>
                   <td className="py-2 px-4 capitalize">
@@ -199,7 +218,10 @@ const AdminPanel = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="text-center py-6 text-gray-500 italic">
+                <td
+                  colSpan="5"
+                  className="text-center py-6 text-gray-500 italic"
+                >
                   No payment records found.
                 </td>
               </tr>
