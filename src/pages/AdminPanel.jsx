@@ -7,7 +7,7 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 const AdminPanel = () => {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const [payments, setPayments] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const AdminPanel = () => {
       const res = await axios.get(`${API_BASE}/admin/payments`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data.success) setPayments(res.data.payments || []);
+      if (res.data.success) setPayments(res.data.orders || []);
     } catch (err) {
       console.error("Error fetching payments:", err);
       setError("Failed to load payments.");
@@ -64,14 +64,12 @@ const AdminPanel = () => {
       setLoading(false)
     );
 
-    // auto-refresh every 30 seconds
     const interval = setInterval(() => {
       fetchAllPayments();
       fetchStats();
     }, 30000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line
   }, [token]);
 
   if (loading)
@@ -128,61 +126,50 @@ const AdminPanel = () => {
           <thead className="bg-blue-600 text-white">
             <tr>
               <th className="py-2 px-4 text-left">Ticket</th>
-              <th className="py-2 px-4 text-left">Submitted By</th>
+              <th className="py-2 px-4 text-left">Payment Info</th>
+              <th className="py-2 px-4 text-left">User</th>
               <th className="py-2 px-4 text-left">Status</th>
-              <th className="py-2 px-4 text-left">Proof</th>
               <th className="py-2 px-4 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
             {payments.length > 0 ? (
               payments.map((p) => (
-                <tr
-                  key={p._id}
-                  className="border-b hover:bg-gray-50 transition"
-                >
+                <tr key={p._id} className="border-b hover:bg-gray-50 transition">
                   <td className="py-2 px-4">
-                    <strong>{p.ticketId?.trainName || "N/A"}</strong>
+                    <strong>{p.trainName}</strong>
                     <br />
                     <span className="text-sm text-gray-600">
-                      {p.ticketId?.from} → {p.ticketId?.to}
+                      {p.from} → {p.to}
                     </span>
                   </td>
+                  <td className="py-2 px-4 text-sm">
+                    <div><strong>Txn ID:</strong> {p.paymentDetails?.txnId}</div>
+                    <div><strong>Name:</strong> {p.paymentDetails?.payerName}</div>
+                    <div><strong>Mobile:</strong> {p.paymentDetails?.payerMobile}</div>
+                    <div><strong>Amount:</strong> ₹{p.paymentDetails?.amount}</div>
+                  </td>
                   <td className="py-2 px-4">
-                    {p.submittedBy?.name || "N/A"} <br />
+                    {p.bookedBy?.name || "N/A"} <br />
                     <span className="text-sm text-gray-600">
-                      {p.submittedBy?.phone}
+                      {p.bookedBy?.phone}
                     </span>
                   </td>
                   <td className="py-2 px-4 capitalize">
                     <span
                       className={`px-2 py-1 rounded text-sm ${
-                        p.status === "verified"
+                        p.paymentStatus === "verified"
                           ? "bg-green-100 text-green-700"
-                          : p.status === "rejected"
+                          : p.paymentStatus === "rejected"
                           ? "bg-red-100 text-red-700"
                           : "bg-yellow-100 text-yellow-700"
                       }`}
                     >
-                      {p.status}
+                      {p.paymentStatus}
                     </span>
                   </td>
                   <td className="py-2 px-4">
-                    {p.proofImage ? (
-                      <a
-                        href={p.proofImage}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 underline"
-                      >
-                        View Proof
-                      </a>
-                    ) : (
-                      "No image"
-                    )}
-                  </td>
-                  <td className="py-2 px-4">
-                    {p.status === "pending" && (
+                    {p.paymentStatus === "pending" && (
                       <div className="flex gap-2">
                         <button
                           onClick={() => verifyPayment(p._id, "verified")}
@@ -203,10 +190,7 @@ const AdminPanel = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="5"
-                  className="text-center py-6 text-gray-500 italic"
-                >
+                <td colSpan="5" className="text-center py-6 text-gray-500 italic">
                   No payment records found.
                 </td>
               </tr>
