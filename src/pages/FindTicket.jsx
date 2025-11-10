@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "https://ticket-backend-g5da.onrender.com/api";
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  "https://ticket-backend-g5da.onrender.com/api";
 
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
@@ -82,7 +84,7 @@ export default function FindTicket() {
     setCurrentTicketId(null);
   };
 
-  // ✅ Submit Payment Proof
+  // ✅ Submit Payment Proof (updated route)
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !payerMobile) {
@@ -97,7 +99,7 @@ export default function FindTicket() {
     setSubmittingProof(true);
     setProofMessage("");
     try {
-      const res = await fetch(`${API_BASE}/payments/upload-proof`, {
+      const res = await fetch(`${API_BASE}/payments/create-proof`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +118,9 @@ export default function FindTicket() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submission failed");
 
-      setProofMessage("✅ Proof submitted successfully. Waiting for admin verification.");
+      setProofMessage(
+        "✅ Proof submitted successfully. Waiting for admin verification."
+      );
       setTxnId("");
       setPayerName("");
       setPayerMobile("");
