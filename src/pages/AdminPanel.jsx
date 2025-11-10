@@ -54,18 +54,36 @@ const AdminPanel = () => {
   /* =============================================
      🔹 Admin: Verify or Reject Payment
   ============================================= */
-  const verifyPayment = async (id, status) => {
+  const verifyPayment = async (paymentItem, status) => {
     try {
+      // 🧩 Smart ID detection
+      const possibleId =
+        paymentItem.ticket?._id ||
+        paymentItem._id ||
+        paymentItem.ticketId ||
+        paymentItem.paymentDetails?.ticketId;
+
+      if (!possibleId) {
+        alert("❌ Error: Could not find valid Ticket ID for this payment.");
+        console.error("Missing ID in payment item:", paymentItem);
+        return;
+      }
+
+      // Debug log
+      console.log("🧾 Updating status for Ticket ID:", possibleId, "→", status);
+
       await axios.put(
-        `${API_BASE}/payments/update-status/${id}`,
+        `${API_BASE}/payments/update-status/${possibleId}`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchAllPayments();
-      fetchStats();
+
+      await fetchAllPayments();
+      await fetchStats();
+      alert(`✅ Payment marked as ${status}`);
     } catch (err) {
       console.error("Error updating payment status:", err);
-      alert("Failed to update payment status");
+      alert("Failed to update payment status. Check console for details.");
     }
   };
 
@@ -160,10 +178,7 @@ const AdminPanel = () => {
           <tbody>
             {payments.length > 0 ? (
               payments.map((p) => (
-                <tr
-                  key={p._id}
-                  className="border-b hover:bg-gray-50 transition"
-                >
+                <tr key={p._id} className="border-b hover:bg-gray-50 transition">
                   <td className="py-2 px-4">
                     <strong>{p.trainName}</strong>
                     <br />
@@ -172,10 +187,18 @@ const AdminPanel = () => {
                     </span>
                   </td>
                   <td className="py-2 px-4 text-sm">
-                    <div><strong>Txn ID:</strong> {p.paymentDetails?.txnId}</div>
-                    <div><strong>Name:</strong> {p.paymentDetails?.payerName}</div>
-                    <div><strong>Mobile:</strong> {p.paymentDetails?.payerMobile}</div>
-                    <div><strong>Amount:</strong> ₹{p.paymentDetails?.amount}</div>
+                    <div>
+                      <strong>Txn ID:</strong> {p.paymentDetails?.txnId}
+                    </div>
+                    <div>
+                      <strong>Name:</strong> {p.paymentDetails?.payerName}
+                    </div>
+                    <div>
+                      <strong>Mobile:</strong> {p.paymentDetails?.payerMobile}
+                    </div>
+                    <div>
+                      <strong>Amount:</strong> ₹{p.paymentDetails?.amount}
+                    </div>
                   </td>
                   <td className="py-2 px-4">
                     {p.bookedBy?.name || "N/A"} <br />
@@ -200,13 +223,13 @@ const AdminPanel = () => {
                     {p.paymentStatus === "pending" && (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => verifyPayment(p._id, "verified")}
+                          onClick={() => verifyPayment(p, "verified")}
                           className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
                         >
                           ✅ Verify
                         </button>
                         <button
-                          onClick={() => verifyPayment(p._id, "rejected")}
+                          onClick={() => verifyPayment(p, "rejected")}
                           className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
                         >
                           ❌ Reject
