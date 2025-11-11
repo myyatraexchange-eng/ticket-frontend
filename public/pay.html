@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pay — MyYatraExchange</title>
+</head>
+<body>
+  <h1>Pay for Your Ticket</h1>
+  <div id="orderContainer"><p>Loading order details...</p></div>
+
+  <script>
+    const apiBase = '/api/payment';
+    const qs = key => new URLSearchParams(location.search).get(key);
+
+    async function loadOrder() {
+      const orderId = qs('orderId');
+      if (!orderId) return document.getElementById('orderContainer').innerText = 'Order ID missing';
+
+      const res = await fetch(`${apiBase}/orders`);
+      const orders = await res.json();
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return document.getElementById('orderContainer').innerText = 'Order not found';
+
+      const tn = encodeURIComponent(order.orderId);
+      const upiLink = `upi://pay?pa=${encodeURIComponent("{{UPI_VPA}}")}&pn=${encodeURIComponent("MyYatraExchange")}&am=${Number(order.amount).toFixed(2)}&cu=INR&tn=${tn}`;
+      const qrUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(upiLink)}`;
+
+      document.getElementById('orderContainer').innerHTML = `
+        <p><strong>Order ID:</strong> ${order.orderId}</p>
+        <p><strong>Buyer:</strong> ${order.buyerName}</p>
+        <p><strong>Amount:</strong> ₹${Number(order.amount).toFixed(2)}</p>
+        <img src="${qrUrl}" alt="UPI QR"><br>
+        <a href="${upiLink}" target="_blank">Open UPI app to pay</a>
+        <hr>
+        <h3>Submit Payment Proof</h3>
+        <form id="paymentForm" enctype="multipart/form-data">
+          <input type="hidden" name="orderId" value="${order.orderId}">
+          <label>UTR / Transaction ID<br><input name="utr" required></label><br>
+          <label>Sender VPA<br><input name="senderVpa"></label><br>
+          <label>Screenshot<br><input type="file" name="file" accept="image/*"></label><br>
+          <button type="submit">Submit Proof</button>
+        </form>
+        <div id="msg"></div>
+      `;
+
+      document.getElementById('paymentForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const res = await fetch(`${apiBase}/submit-payment-proof`, { method: 'POST', body: fd });
+        const data = await res.json();
+        document.getElementById('msg').innerText = data.error ? 'Error: ' + data.error : 'Payment proof submitted. Wait for verification.';
+      });
+    }
+
+   
+
