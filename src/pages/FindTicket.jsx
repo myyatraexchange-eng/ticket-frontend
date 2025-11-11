@@ -84,7 +84,11 @@ export default function FindTicket() {
     setCurrentTicketId(null);
   };
 
+<<<<<<< HEAD
   // ✅ Submit Payment Proof
+=======
+  // ✅ Submit Payment Proof (updated route)
+>>>>>>> e3551f1fae246f062a4295e2cee1fd0fb8410519
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !payerMobile) {
@@ -210,23 +214,34 @@ export default function FindTicket() {
                 {t.passengerAge})
               </p>
 
+<<<<<<< HEAD
               {/* ✅ Verified Contact */}
+=======
+              {/* ✅ Auto-unlock contact when verified */}
+>>>>>>> e3551f1fae246f062a4295e2cee1fd0fb8410519
               {t.paymentStatus === "verified" && (
                 <p className="text-green-600 font-semibold mt-2">
                   📞 Contact: {t.contactNumber || "N/A"} ✅ Verified
                 </p>
               )}
 
+<<<<<<< HEAD
               {/* 🕐 Pending */}
+=======
+>>>>>>> e3551f1fae246f062a4295e2cee1fd0fb8410519
               {t.paymentStatus === "pending" && (
                 <p className="text-orange-600 font-semibold mt-2">
                   ⏳ Pending verification
                 </p>
               )}
 
+<<<<<<< HEAD
               {/* 💰 Pay Option (not_paid or rejected) */}
               {(t.paymentStatus === "not_paid" ||
                 t.paymentStatus === "rejected") && (
+=======
+              {t.paymentStatus === "not_paid" && (
+>>>>>>> e3551f1fae246f062a4295e2cee1fd0fb8410519
                 <button
                   onClick={() => handlePay(t)}
                   className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
