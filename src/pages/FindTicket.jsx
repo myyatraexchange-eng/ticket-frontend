@@ -22,7 +22,7 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  // ✅ Fetch All Tickets
+  // ✅ Fetch Only Available Tickets
   const fetchTickets = async () => {
     setLoading(true);
     setError("");
@@ -30,6 +30,7 @@ export default function FindTicket() {
       const res = await fetch(`${API_BASE}/tickets?available=true`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
+      // Ensure backend returns { tickets: [...] }
       const list = Array.isArray(data) ? data : data.tickets || [];
       setTickets(list);
       setFiltered(list);
@@ -42,7 +43,7 @@ export default function FindTicket() {
 
   useEffect(() => {
     fetchTickets();
-    const interval = setInterval(fetchTickets, 10000);
+    const interval = setInterval(fetchTickets, 10000); // refresh every 10s
     return () => clearInterval(interval);
   }, []);
 
@@ -66,7 +67,7 @@ export default function FindTicket() {
     setFiltered(out);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
-  // ✅ Handle Pay (Show QR)
+  // ✅ Show Payment QR
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
     setCurrentUpiLink(upiLink);
@@ -126,7 +127,7 @@ export default function FindTicket() {
       setPayerMobile("");
       setTimeout(() => {
         closeQR();
-        fetchTickets();
+        fetchTickets(); // refresh ticket list
       }, 1500);
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
@@ -210,23 +211,18 @@ export default function FindTicket() {
                 {t.passengerAge})
               </p>
 
-              {/* ✅ Verified Contact */}
+              {/* Payment Status */}
               {t.paymentStatus === "verified" && (
                 <p className="text-green-600 font-semibold mt-2">
                   📞 Contact: {t.contactNumber || "N/A"} ✅ Verified
                 </p>
               )}
-
-              {/* 🕐 Pending */}
               {t.paymentStatus === "pending" && (
                 <p className="text-orange-600 font-semibold mt-2">
                   ⏳ Pending verification
                 </p>
               )}
-
-              {/* 💰 Pay Option (not_paid or rejected) */}
-              {(t.paymentStatus === "not_paid" ||
-                t.paymentStatus === "rejected") && (
+              {(t.paymentStatus === "not_paid" || t.paymentStatus === "rejected") && (
                 <button
                   onClick={() => handlePay(t)}
                   className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
@@ -236,7 +232,7 @@ export default function FindTicket() {
               )}
             </div>
 
-            {/* ✅ Payment QR */}
+            {/* Payment QR */}
             {currentTicketId === t._id && showQR && (
               <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
                 <p className="mb-2 font-medium text-center uppercase text-sm">
@@ -303,3 +299,4 @@ export default function FindTicket() {
     </div>
   );
 }
+
