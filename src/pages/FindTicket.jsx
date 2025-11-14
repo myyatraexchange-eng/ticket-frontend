@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { Helmet } from "react-helmet-async";   // ✅ Added for SEO
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -22,7 +23,7 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  // ✅ Fetch Only Available Tickets
+  // Fetch tickets
   const fetchTickets = async () => {
     setLoading(true);
     setError("");
@@ -30,7 +31,6 @@ export default function FindTicket() {
       const res = await fetch(`${API_BASE}/tickets?available=true`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
       const data = await res.json();
-      // Ensure backend returns { tickets: [...] }
       const list = Array.isArray(data) ? data : data.tickets || [];
       setTickets(list);
       setFiltered(list);
@@ -43,11 +43,11 @@ export default function FindTicket() {
 
   useEffect(() => {
     fetchTickets();
-    const interval = setInterval(fetchTickets, 10000); // refresh every 10s
+    const interval = setInterval(fetchTickets, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Filters
+  // Filters
   useEffect(() => {
     let out = tickets;
     if (fromFilter)
@@ -67,7 +67,6 @@ export default function FindTicket() {
     setFiltered(out);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
-  // ✅ Show Payment QR
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
     setCurrentUpiLink(upiLink);
@@ -85,7 +84,6 @@ export default function FindTicket() {
     setCurrentTicketId(null);
   };
 
-  // ✅ Submit Payment Proof
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !payerMobile) {
@@ -127,7 +125,7 @@ export default function FindTicket() {
       setPayerMobile("");
       setTimeout(() => {
         closeQR();
-        fetchTickets(); // refresh ticket list
+        fetchTickets();
       }, 1500);
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
@@ -150,6 +148,56 @@ export default function FindTicket() {
 
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
+
+      {/* ✅ FULL SEO Helmet */}
+      <Helmet>
+        <title>
+          Find Train Tickets | Confirmed Tickets Available – MyYatraExchange
+        </title>
+
+        <meta
+          name="description"
+          content="Search and find confirmed train tickets instantly on MyYatraExchange. Filter by station, date, and route. Avoid cancellation loss and get verified passenger contact details."
+        />
+
+        <meta
+          name="keywords"
+          content="find train ticket, train ticket search, confirmed ticket, railway ticket, MyYatraExchange, ticket exchange, IRCTC ticket alternative"
+        />
+
+        <link rel="canonical" href="https://www.myyatraexchange.com/find" />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Find Train Tickets – MyYatraExchange" />
+        <meta
+          property="og:description"
+          content="Browse live confirmed train tickets posted by passengers. Pay small fee to unlock verified contact details."
+        />
+        <meta property="og:url" content="https://www.myyatraexchange.com/find" />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Find Train Tickets – MyYatraExchange" />
+        <meta
+          name="twitter:description"
+          content="Search confirmed train tickets and connect with travellers instantly."
+        />
+
+        {/* JSON-LD Schema */}
+        <script type="application/ld+json">
+          {`
+          {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Find Train Tickets",
+            "url": "https://www.myyatraexchange.com/find",
+            "description": "Search and find confirmed train tickets on MyYatraExchange."
+          }
+        `}
+        </script>
+      </Helmet>
+
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
         🎟 Find Tickets
       </h1>
@@ -222,7 +270,8 @@ export default function FindTicket() {
                   ⏳ Pending verification
                 </p>
               )}
-              {(t.paymentStatus === "not_paid" || t.paymentStatus === "rejected") && (
+              {(t.paymentStatus === "not_paid" ||
+                t.paymentStatus === "rejected") && (
                 <button
                   onClick={() => handlePay(t)}
                   className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
@@ -238,7 +287,9 @@ export default function FindTicket() {
                 <p className="mb-2 font-medium text-center uppercase text-sm">
                   Scan QR to pay ₹20
                 </p>
+
                 <QRCodeCanvas value={currentUpiLink} size={160} />
+
                 <button
                   onClick={closeQR}
                   className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm"
@@ -271,6 +322,7 @@ export default function FindTicket() {
                     className="border p-2 rounded text-sm"
                     required
                   />
+
                   <div className="flex gap-2 mt-2">
                     <button
                       type="submit"
@@ -279,6 +331,7 @@ export default function FindTicket() {
                     >
                       {submittingProof ? "Submitting..." : "Submit Proof"}
                     </button>
+
                     <button
                       type="button"
                       onClick={closeQR}
@@ -287,8 +340,11 @@ export default function FindTicket() {
                       Cancel
                     </button>
                   </div>
+
                   {proofMessage && (
-                    <div className="text-sm mt-1 text-center">{proofMessage}</div>
+                    <div className="text-sm mt-1 text-center">
+                      {proofMessage}
+                    </div>
                   )}
                 </form>
               </div>
