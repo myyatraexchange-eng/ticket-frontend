@@ -7,10 +7,10 @@ const Contact = () => {
     e.preventDefault();
 
     emailjs.sendForm(
-      'service_vnhp6em',      // ← यहाँ आपका Service ID डालें
-      'YOUR_TEMPLATE_ID',     // ← यहाँ आपका Template ID डालें
+      'service_vnhp6em',      // आपका Service ID
+      'template_vnaf3c8',     // आपका Template ID
       e.target,
-      'YOUR_USER_ID'          // ← यहाँ आपका User ID डालें
+      'Ks-Era6JWdciWPvO4'     // आपका EmailJS Public Key / User ID
     ).then(
       (result) => {
         console.log(result.text);
@@ -43,7 +43,7 @@ const Contact = () => {
               <label className="block text-gray-700">Your Name</label>
               <input
                 type="text"
-                name="name"   // ← variable matching EmailJS template {{name}}
+                name="name"   // variable matching EmailJS template {{name}}
                 className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="John Doe"
                 required
@@ -53,7 +53,7 @@ const Contact = () => {
               <label className="block text-gray-700">Your Email</label>
               <input
                 type="email"
-                name="email"  // ← variable matching EmailJS template {{email}}
+                name="email"  // variable matching EmailJS template {{email}}
                 className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="you@example.com"
                 required
@@ -62,7 +62,7 @@ const Contact = () => {
             <div>
               <label className="block text-gray-700">Your Message</label>
               <textarea
-                name="message" // ← variable matching EmailJS template {{message}}
+                name="message" // variable matching EmailJS template {{message}}
                 className="w-full mt-1 p-2 border rounded-md h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Write your message here..."
                 required
