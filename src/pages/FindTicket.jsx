@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Helmet } from "react-helmet-async";   // ✅ Added for SEO
+import { Helmet } from "react-helmet-async";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -11,19 +11,28 @@ export default function FindTicket() {
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
   const [payerMobile, setPayerMobile] = useState("");
   const [submittingProof, setSubmittingProof] = useState(false);
   const [proofMessage, setProofMessage] = useState("");
+
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  // Fetch tickets
+  // ---------------------------
+  // PAGINATION STATE
+  // ---------------------------
+  const [currentPage, setCurrentPage] = useState(1);
+  const TICKETS_PER_PAGE = 9;
+
+  // Fetch Tickets
   const fetchTickets = async () => {
     setLoading(true);
     setError("");
@@ -50,22 +59,39 @@ export default function FindTicket() {
   // Filters
   useEffect(() => {
     let out = tickets;
+
     if (fromFilter)
       out = out.filter((t) =>
         t.from?.toLowerCase().includes(fromFilter.toLowerCase())
       );
+
     if (toFilter)
       out = out.filter((t) =>
         t.to?.toLowerCase().includes(toFilter.toLowerCase())
       );
+
     if (dateFilter)
       out = out.filter(
         (t) =>
           t.fromDateTime &&
           new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
       );
+
     setFiltered(out);
+    setCurrentPage(1); // RESET PAGE WHEN FILTER CHANGES
   }, [fromFilter, toFilter, dateFilter, tickets]);
+
+  // Pagination Logic
+  const indexOfLast = currentPage * TICKETS_PER_PAGE;
+  const indexOfFirst = indexOfLast - TICKETS_PER_PAGE;
+
+  const isFiltered = fromFilter || toFilter || dateFilter;
+
+  const currentTickets = isFiltered
+    ? filtered
+    : filtered.slice(indexOfFirst, indexOfLast);
+
+  const totalPages = Math.ceil(filtered.length / TICKETS_PER_PAGE);
 
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
@@ -97,6 +123,7 @@ export default function FindTicket() {
 
     setSubmittingProof(true);
     setProofMessage("");
+
     try {
       const res = await fetch(`${API_BASE}/payments/create-proof`, {
         method: "POST",
@@ -120,9 +147,11 @@ export default function FindTicket() {
       setProofMessage(
         "✅ Proof submitted successfully. Waiting for admin verification."
       );
+
       setTxnId("");
       setPayerName("");
       setPayerMobile("");
+
       setTimeout(() => {
         closeQR();
         fetchTickets();
@@ -148,8 +177,7 @@ export default function FindTicket() {
 
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
-
-      {/* ✅ FULL SEO Helmet */}
+      {/* SEO Helmet */}
       <Helmet>
         <title>
           Find Train Tickets | Confirmed Tickets Available – MyYatraExchange
@@ -157,45 +185,10 @@ export default function FindTicket() {
 
         <meta
           name="description"
-          content="Search and find confirmed train tickets instantly on MyYatraExchange. Filter by station, date, and route. Avoid cancellation loss and get verified passenger contact details."
-        />
-
-        <meta
-          name="keywords"
-          content="find train ticket, train ticket search, confirmed ticket, railway ticket, MyYatraExchange, ticket exchange, IRCTC ticket alternative"
+          content="Search and find confirmed train tickets instantly on MyYatraExchange."
         />
 
         <link rel="canonical" href="https://www.myyatraexchange.com/find" />
-
-        {/* Open Graph */}
-        <meta property="og:title" content="Find Train Tickets – MyYatraExchange" />
-        <meta
-          property="og:description"
-          content="Browse live confirmed train tickets posted by passengers. Pay small fee to unlock verified contact details."
-        />
-        <meta property="og:url" content="https://www.myyatraexchange.com/find" />
-        <meta property="og:type" content="website" />
-
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Find Train Tickets – MyYatraExchange" />
-        <meta
-          name="twitter:description"
-          content="Search confirmed train tickets and connect with travellers instantly."
-        />
-
-        {/* JSON-LD Schema */}
-        <script type="application/ld+json">
-          {`
-          {
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": "Find Train Tickets",
-            "url": "https://www.myyatraexchange.com/find",
-            "description": "Search and find confirmed train tickets on MyYatraExchange."
-          }
-        `}
-        </script>
       </Helmet>
 
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
@@ -229,7 +222,7 @@ export default function FindTicket() {
 
       {/* Ticket List */}
       <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((t) => (
+        {currentTickets.map((t) => (
           <div
             key={t._id}
             className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
@@ -239,7 +232,8 @@ export default function FindTicket() {
                 🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
               </h2>
               <p>
-                <b>📍 Route:</b> {t.from?.toUpperCase()} → {t.to?.toUpperCase()}
+                <b>📍 Route:</b> {t.from?.toUpperCase()} →{" "}
+                {t.to?.toUpperCase()}
               </p>
               <p>
                 <b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}
@@ -255,7 +249,7 @@ export default function FindTicket() {
               </p>
               <p>
                 <b>👤 Passenger:</b>{" "}
-                {t.passengerName?.toUpperCase()} ({t.passengerGender?.toUpperCase()},{" "}
+                {t.passengerName?.toUpperCase()} ({t.passengerGender},{" "}
                 {t.passengerAge})
               </p>
 
@@ -265,11 +259,13 @@ export default function FindTicket() {
                   📞 Contact: {t.contactNumber || "N/A"} ✅ Verified
                 </p>
               )}
+
               {t.paymentStatus === "pending" && (
                 <p className="text-orange-600 font-semibold mt-2">
                   ⏳ Pending verification
                 </p>
               )}
+
               {(t.paymentStatus === "not_paid" ||
                 t.paymentStatus === "rejected") && (
                 <button
@@ -306,45 +302,30 @@ export default function FindTicket() {
                     value={txnId}
                     onChange={(e) => setTxnId(e.target.value)}
                     className="border p-2 rounded uppercase text-sm"
-                    required
                   />
                   <input
                     placeholder="Payer Name"
                     value={payerName}
                     onChange={(e) => setPayerName(e.target.value)}
                     className="border p-2 rounded uppercase text-sm"
-                    required
                   />
                   <input
                     placeholder="Payer Mobile (10 digits)"
                     value={payerMobile}
                     onChange={(e) => setPayerMobile(e.target.value)}
-                    className="border p-2 rounded text-sm"
-                    required
+                    className="border p-2 rounded uppercase text-sm"
                   />
 
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      type="submit"
-                      disabled={submittingProof}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm"
-                    >
-                      {submittingProof ? "Submitting..." : "Submit Proof"}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={closeQR}
-                      className="px-3 py-2 border rounded uppercase text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={submittingProof}
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm"
+                  >
+                    {submittingProof ? "Submitting..." : "Submit Proof"}
+                  </button>
 
                   {proofMessage && (
-                    <div className="text-sm mt-1 text-center">
-                      {proofMessage}
-                    </div>
+                    <p className="text-sm text-center mt-1">{proofMessage}</p>
                   )}
                 </form>
               </div>
@@ -352,6 +333,25 @@ export default function FindTicket() {
           </div>
         ))}
       </div>
+
+      {/* Pagination (Only when NO filters) */}
+      {!isFiltered && totalPages > 1 && (
+        <div className="flex gap-2 justify-center mt-6">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 border rounded ${
+                currentPage === i + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-white hover:bg-gray-200"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

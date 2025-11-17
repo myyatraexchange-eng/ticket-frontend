@@ -8,7 +8,9 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// ✅ Ticket Card (Memoized)
+// ----------------------------
+// ✅ MEMOIZED TICKET CARD
+// ----------------------------
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -25,28 +27,14 @@ const TicketCard = memo(({ ticket }) => (
       <p className="uppercase">
         <span className="font-semibold">⏰ Departure:</span>{" "}
         {ticket.fromDateTime
-          ? new Date(ticket.fromDateTime).toLocaleString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })
+          ? new Date(ticket.fromDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
 
       <p className="uppercase">
         <span className="font-semibold">🛬 Arrival:</span>{" "}
         {ticket.toDateTime
-          ? new Date(ticket.toDateTime).toLocaleString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })
+          ? new Date(ticket.toDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
 
@@ -76,30 +64,32 @@ export default function Home() {
   const [tickets, setTickets] = useState([]);
   const { showLoader, hideLoader } = useLoader();
 
-  // Fetch Tickets
-  const fetchTickets = async () => {
-    showLoader();
-    try {
-      const res = await fetch(`${API_BASE}/tickets?available=true`);
-      if (!res.ok) throw new Error(`Failed: ${res.status}`);
-
-      const data = await res.json();
-      setTickets((data.tickets || []).slice(0, 3)); // Only first 3
-    } catch (err) {
-      console.error("❌ Error fetching tickets:", err);
-      setTickets([]);
-    } finally {
-      hideLoader();
-    }
-  };
-
+  // ----------------------------
+  // ✅ Fetch Tickets only ONCE
+  // ----------------------------
   useEffect(() => {
-    fetchTickets();
-  }, []);
+    const loadTickets = async () => {
+      showLoader();
+      try {
+        const response = await fetch(`${API_BASE}/tickets?available=true`);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+        const data = await response.json();
+        setTickets((data.tickets || []).slice(0, 3));
+      } catch (err) {
+        console.error("❌ Fetch Failed:", err);
+        setTickets([]);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    loadTickets();
+  }, []); // 🔥 No auto-refresh, no repeat calls
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* META TAGS FOR SEO */}
+      {/* SEO HEADERS */}
       <Helmet>
         <title>
           MyYatraExchange – Find Confirmed Train Tickets | Share Unused Tickets
@@ -113,9 +103,9 @@ export default function Home() {
           content="train tickets, confirmed train ticket, ticket exchange, my yatra exchange, urgent train ticket, IRCTC alternative"
         />
         <meta name="author" content="MyYatraExchange" />
+
         <link rel="canonical" href="https://www.myyatraexchange.com/" />
 
-        {/* Social Share Meta */}
         <meta property="og:title" content="MyYatraExchange - Confirmed Train Tickets" />
         <meta
           property="og:description"
@@ -126,17 +116,16 @@ export default function Home() {
           content="https://www.myyatraexchange.com/train-banner.webp"
         />
         <meta property="og:url" content="https://www.myyatraexchange.com/" />
-
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
         <img
           src={trainImage}
-          alt="Train journey across India"
+          alt="Indian train journey"
           className="w-full h-full object-cover"
-          loading="lazy"
+          loading="lazy" // 🔥 performance boost
         />
 
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">

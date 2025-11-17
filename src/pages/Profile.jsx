@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -14,65 +14,54 @@ const Profile = () => {
     process.env.REACT_APP_API_BASE ||
     "https://ticket-backend-g5da.onrender.com/api";
 
-  const fetchProfile = async () => {
-    if (!token) return;
+  // 🔥 Single Optimized Fetch (3 API ko merge)
+  const loadAll = useCallback(async () => {
+    if (!token) return setLoading(false);
+
+    setLoading(true);
+
     try {
-      const res = await axios.get(`${API_BASE}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) setUser(res.data.user);
+      const [profileRes, postedRes, bookingRes] = await Promise.all([
+        axios.get(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${API_BASE}/tickets/my/posted`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${API_BASE}/tickets/my/bookings`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      if (profileRes.data.success) setUser(profileRes.data.user);
+      if (postedRes.data.success) setMyTickets(postedRes.data.tickets);
+      if (bookingRes.data.success) setMyBookings(bookingRes.data.bookings);
     } catch (err) {
-      console.warn("Profile fetch failed, using cached user.");
+      console.error("Profile Load Error:", err);
       if (ctxUser) setUser(ctxUser);
     }
-  };
 
-  const fetchMyTickets = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/tickets/my/posted`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) setMyTickets(res.data.tickets);
-    } catch (err) {
-      console.error("Error fetching my tickets:", err);
-    }
-  };
-
-  const fetchMyBookings = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/tickets/my/bookings`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) setMyBookings(res.data.bookings);
-    } catch (err) {
-      console.error("Error fetching bookings:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (token) {
-      (async () => {
-        setLoading(true);
-        await fetchProfile();
-        await Promise.all([fetchMyTickets(), fetchMyBookings()]);
-        setLoading(false);
-      })();
-    } else {
-      setLoading(false);
-    }
+    setLoading(false);
   }, [token]);
 
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
+
+  // ✔ Better copy function
   const copyId = async (id) => {
     try {
       await navigator.clipboard.writeText(id);
+
       setCopyMsg("Copied!");
-      setTimeout(() => setCopyMsg(""), 1800);
+      setTimeout(() => setCopyMsg(""), 1300);
     } catch {
       setCopyMsg("Copy failed");
-      setTimeout(() => setCopyMsg(""), 1800);
+      setTimeout(() => setCopyMsg(""), 1300);
     }
   };
 
+  // Loader UI
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen text-gray-600">
@@ -80,6 +69,9 @@ const Profile = () => {
       </div>
     );
 
+  // -------------------------
+  //       RETURN UI
+  // -------------------------
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-semibold text-center mb-8 text-blue-700">
@@ -94,16 +86,19 @@ const Profile = () => {
 
         {user ? (
           <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+            {/* Name */}
             <div>
               <p className="text-sm text-gray-500">Name</p>
               <p className="font-medium text-lg">{user.name || "N/A"}</p>
             </div>
 
+            {/* Phone */}
             <div>
               <p className="text-sm text-gray-500">Phone</p>
               <p className="font-medium text-lg">{user.phone || "N/A"}</p>
             </div>
 
+            {/* Joined */}
             <div>
               <p className="text-sm text-gray-500">Joined On</p>
               <p className="font-medium">
@@ -113,6 +108,7 @@ const Profile = () => {
               </p>
             </div>
 
+            {/* ID */}
             <div>
               <p className="text-sm text-gray-500">Unique ID</p>
               <div className="flex items-center gap-3">
@@ -126,7 +122,9 @@ const Profile = () => {
                   Copy
                 </button>
                 {copyMsg && (
-                  <span className="text-sm text-green-600 ml-2">{copyMsg}</span>
+                  <span className="text-sm text-green-600 ml-1">
+                    {copyMsg}
+                  </span>
                 )}
               </div>
             </div>
@@ -144,7 +142,7 @@ const Profile = () => {
             Logout
           </button>
 
-          {/* ✅ Admin Button */}
+          {/* Admin Button */}
           {localStorage.getItem("isAdmin") === "true" && (
             <div className="mt-4">
               <a
@@ -215,7 +213,6 @@ const Profile = () => {
                 </p>
                 <p>Status: {b.paymentStatus || b.status}</p>
 
-                {/* ✅ Show Seller Contact after verification */}
                 {(b.paymentStatus === "verified" || b.status === "verified") &&
                   (b.sellerContact || b.ticket?.sellerContact) && (
                     <div className="mt-2 bg-green-50 border border-green-300 p-2 rounded">
