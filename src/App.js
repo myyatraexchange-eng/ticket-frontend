@@ -1,3 +1,4 @@
+// src/App.js
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -16,7 +17,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import EditTicket from "./pages/EditTicket";
-import AdminPanel from "./pages/AdminPanel"; // ✅ existing admin panel
+import AdminPanel from "./pages/AdminPanel";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { LoaderProvider, useLoader } from "./context/LoaderContext";
@@ -30,14 +31,14 @@ function ScrollToTop() {
   return null;
 }
 
-// Loader Overlay
+// Loader Overlay (unchanged logic; improved contrast)
 const LoaderOverlay = () => {
   const { loading } = useLoader();
   return loading ? (
-    <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex items-center justify-center" role="status" aria-live="polite">
       <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16"></div>
       <style>{`
-        .loader { border-top-color: #3498db; animation: spin 1s linear infinite; }
+        .loader { border-top-color: #2563eb; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       `}</style>
     </div>
@@ -53,14 +54,12 @@ function AppContent() {
       <Navbar />
       <ScrollToTop />
       <LoaderOverlay />
-      <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
+      <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"} role="main">
         <Routes>
-          {/* Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Private Pages */}
           <Route
             path="/find"
             element={
@@ -94,7 +93,6 @@ function AppContent() {
             }
           />
 
-          {/* ✅ Admin Panel Route */}
           <Route
             path="/admin/*"
             element={
@@ -104,13 +102,11 @@ function AppContent() {
             }
           />
 
-          {/* Legal Pages */}
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
 
-          {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>

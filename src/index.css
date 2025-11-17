@@ -1,3 +1,21 @@
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* small accessibility helper: visible focus ring for keyboard users */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.45); /* blue-500 ring */
+  border-radius: 0.375rem;
+}
+
+/* optionally tweak body base text color for slightly higher contrast */
+body {
+  color: #1f2937; /* Tailwind gray-800 */
+  background-color: #f8fafc; /* Tailwind gray-50 */
+}
+
