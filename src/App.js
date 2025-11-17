@@ -1,4 +1,3 @@
-// src/App.js
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -24,22 +23,20 @@ import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
 
-// Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   React.useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
-// Loader Overlay (unchanged logic; improved contrast)
 const LoaderOverlay = () => {
   const { loading } = useLoader();
   return loading ? (
-    <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex items-center justify-center" role="status" aria-live="polite">
+    <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
       <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16"></div>
       <style>{`
-        .loader { border-top-color: #2563eb; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader { border-top-color: #3498db; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { rotate(360deg); } }
       `}</style>
     </div>
   ) : null;
@@ -54,53 +51,19 @@ function AppContent() {
       <Navbar />
       <ScrollToTop />
       <LoaderOverlay />
-      <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"} role="main">
+
+      <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          <Route
-            path="/find"
-            element={
-              <PrivateRoute>
-                <FindTicket />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/post"
-            element={
-              <PrivateRoute>
-                <Post />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/edit-ticket/:id"
-            element={
-              <PrivateRoute>
-                <EditTicket />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
+          <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
 
-          <Route
-            path="/admin/*"
-            element={
-              <PrivateRoute adminOnly={true}>
-                <AdminPanel />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/admin/*" element={<PrivateRoute adminOnly={true}><AdminPanel /></PrivateRoute>} />
 
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
@@ -111,12 +74,13 @@ function AppContent() {
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
+
       <Footer />
     </>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <TicketProvider>
@@ -127,6 +91,4 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;
 
