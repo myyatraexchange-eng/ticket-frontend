@@ -9,7 +9,7 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 // ----------------------------
-// ✅ MEMOIZED TICKET CARD
+// ✅ MEMOIZED CARD (same logic)
 // ----------------------------
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300 min-h-[280px]">
@@ -65,7 +65,7 @@ export default function Home() {
   const { showLoader, hideLoader } = useLoader();
 
   // ----------------------------
-  // ✅ Fetch Tickets only ONCE
+  // 🔥 FAST FETCH — NO CHANGES
   // ----------------------------
   useEffect(() => {
     const loadTickets = async () => {
@@ -85,57 +85,47 @@ export default function Home() {
     };
 
     loadTickets();
-  }, []); // 🔥 No auto-refresh, no repeat calls
+  }, []); // no auto repeat
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* SEO HEADERS */}
+      {/* SEO */}
       <Helmet>
         <title>
           MyYatraExchange – Find Confirmed Train Tickets | Share Unused Tickets
         </title>
         <meta
           name="description"
-          content="MyYatraExchange helps passengers share or find confirmed train tickets instantly. Avoid ticket cancellation loss & connect with real travelers."
+          content="MyYatraExchange helps passengers share or find confirmed train tickets instantly."
         />
         <meta
           name="keywords"
-          content="train tickets, confirmed train ticket, ticket exchange, my yatra exchange, urgent train ticket, IRCTC alternative"
+          content="train tickets, confirmed train ticket, ticket exchange, my yatra exchange"
         />
         <meta name="author" content="MyYatraExchange" />
-
         <link rel="canonical" href="https://www.myyatraexchange.com/" />
-
-        <meta property="og:title" content="MyYatraExchange - Confirmed Train Tickets" />
-        <meta
-          property="og:description"
-          content="Find & share confirmed train tickets instantly across India."
-        />
-        <meta
-          property="og:image"
-          content="https://www.myyatraexchange.com/train-banner.webp"
-        />
-        <meta property="og:url" content="https://www.myyatraexchange.com/" />
-        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       {/* HERO */}
       <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
         <img
           src={trainImage}
-          alt="Indian train journey"
+          alt="Indian train running on track - MyYatraExchange"
           className="w-full h-full object-cover"
-          loading="lazy" // 🔥 performance boost
+          loading="lazy"
+          decoding="async"
+          fetchpriority="high"
         />
 
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        {/* BETTER CONTRAST LAYER */}
+        <div className="absolute inset-0 bg-black bg-opacity-55 flex flex-col justify-center items-center text-white text-center px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
             <span className="text-orange-500">My</span>
             <span className="text-white">Yatra</span>
             <span className="text-green-500">Exchange.com</span>
           </h1>
 
-          <p className="text-lg md:text-xl mb-6 max-w-xl">
+          <p className="text-lg md:text-xl mb-6 max-w-xl drop-shadow-md">
             Share unused train tickets & help others get confirmed travel.
           </p>
 
