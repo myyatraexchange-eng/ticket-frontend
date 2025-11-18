@@ -115,7 +115,7 @@ export default function Home() {
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 animate-bounceIn">
+          <div className="flex flex-col sm:flex-row gap-4 animate-bounceIn mb-4">
             <Link
               to="/find"
               className="bg-white text-black px-6 py-3 rounded font-semibold hover:bg-gray-200 transition transform hover:-translate-y-1 duration-300"
@@ -129,6 +129,17 @@ export default function Home() {
             >
               Post Ticket
             </Link>
+          </div>
+
+          {/* Taglines for buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-sm sm:text-base font-medium">
+            <span className="text-yellow-300">
+              Post Ticket — “Confirm Ticket Cancel Charges Se Bachne Ka Asaan
+              Tarika!”
+            </span>
+            <span className="text-green-300">
+              Find Ticket — “Apni Zarurat Ka Ticket Turant Dhundein!”
+            </span>
           </div>
         </div>
       </div>
@@ -165,3 +176,4 @@ export default function Home() {
     </div>
   );
 }
+
