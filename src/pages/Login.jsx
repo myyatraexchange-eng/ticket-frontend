@@ -9,6 +9,7 @@ const API_BASE =
 const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // <-- New State
   const { login } = useAuth();
   const { showLoader, hideLoader } = useLoader();
 
@@ -19,6 +20,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // <-- Start button animation
     showLoader();
 
     try {
@@ -32,10 +34,8 @@ const Login = () => {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       if (data.token && data.user) {
-        // ✅ Normal login
         login(data.token, data.user);
 
-        // ✅ Admin flag save
         if (data.user.phone === "9753060916") {
           localStorage.setItem("isAdmin", "true");
         } else {
@@ -46,6 +46,7 @@ const Login = () => {
       setError(err.message);
     } finally {
       hideLoader();
+      setLoading(false); // <-- Stop animation
     }
   };
 
@@ -91,9 +92,15 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full bg-blue-600 text-white py-2 rounded-md transition 
+              ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}`}
           >
-            Login
+            {loading ? (
+              <span className="loading-dots">Logging in</span>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
 
