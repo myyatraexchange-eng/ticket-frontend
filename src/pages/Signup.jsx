@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -19,7 +18,6 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { showLoader, hideLoader } = useLoader();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,7 +27,6 @@ const Signup = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    showLoader();
 
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
@@ -54,8 +51,6 @@ const Signup = () => {
       }
     } catch (err) {
       setError(err.message);
-    } finally {
-      hideLoader();
     }
   };
 
