@@ -1,86 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- META BASIC -->
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-
-    <!-- TITLE + DESCRIPTION (SEO) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>My Yatra Exchange – Find & Post Travel Tickets Easily</title>
     <meta
       name="description"
       content="MyYatraExchange is India's trusted platform to post, find, and exchange travel tickets easily. 100% user managed. Fast, safe, and simple."
     />
-
-    <!-- KEYWORDS -->
     <meta
       name="keywords"
       content="train ticket exchange, buy confirmed ticket, sell train ticket, IRCTC confirmed ticket, ticket exchange platform"
     />
-
-    <!-- AUTHOR -->
     <meta name="author" content="MyYatraExchange" />
 
-    <!-- OPENGRAPH SOCIAL SHARE -->
+    <!-- OpenGraph -->
     <meta property="og:title" content="My Yatra Exchange" />
     <meta
       property="og:description"
       content="Sell or find travel tickets in minutes. Easy & fast!"
     />
-    <meta property="og:image" content="/logo192.png" />
+    <meta property="og:image" content="%PUBLIC_URL%/logo192.png" />
     <meta property="og:url" content="https://www.myyatraexchange.com/" />
     <meta property="og:type" content="website" />
 
-    <!-- TWITTER CARD -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="My Yatra Exchange" />
     <meta
       name="twitter:description"
       content="Post and find travel tickets quickly."
     />
-    <meta name="twitter:image" content="/logo192.png" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo192.png" />
 
-    <!-- FAVICON -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="%PUBLIC_URL%/favicon.png" />
 
-    <!-- ===== SPEED OPTIMIZATION ===== -->
-
-    <!-- 1️⃣ GOOGLE FONTS FAST LOADING -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Async load fonts (non render-blocking) -->
     <link
-      rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      media="print"
-      onload="this.media='all'"
+      rel="stylesheet"
     />
 
-    <!-- 2️⃣ PRELOAD MAIN CSS (React build auto generates file) -->
-    <link rel="preload" href="/assets/index.css" as="style" />
-    <link rel="stylesheet" href="/assets/index.css" />
-
-    <!-- CACHING -->
-    <meta http-equiv="Cache-Control" content="max-age=31536000" />
-
-    <!-- SECURITY -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="theme-color" content="#2563eb" />
-
-    <!-- NO RAZORPAY | CLEAN | LIGHT -->
+    <!-- React build CSS will be injected automatically -->
   </head>
 
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-
     <div id="root"></div>
 
-    <!-- MAIN REACT APP -->
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- React build JS will be injected automatically -->
   </body>
 </html>
 
