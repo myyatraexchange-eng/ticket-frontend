@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
@@ -9,9 +8,8 @@ const API_BASE =
 const Login = () => {
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // <-- New State
+  const [loading, setLoading] = useState(false); // <-- Only button loader
   const { login } = useAuth();
-  const { showLoader, hideLoader } = useLoader();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -20,8 +18,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true); // <-- Start button animation
-    showLoader();
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -45,8 +42,7 @@ const Login = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      hideLoader();
-      setLoading(false); // <-- Stop animation
+      setLoading(false);
     }
   };
 
