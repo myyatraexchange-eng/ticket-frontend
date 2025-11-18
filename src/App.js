@@ -19,7 +19,6 @@ import EditTicket from "./pages/EditTicket";
 import AdminPanel from "./pages/AdminPanel";
 
 import PrivateRoute from "./routes/PrivateRoute";
-import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
 
@@ -29,19 +28,6 @@ function ScrollToTop() {
   return null;
 }
 
-const LoaderOverlay = () => {
-  const { loading } = useLoader();
-  return loading ? (
-    <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
-      <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16"></div>
-      <style>{`
-        .loader { border-top-color: #3498db; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-      `}</style>
-    </div>
-  ) : null;
-};
-
 function AppContent() {
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -50,7 +36,7 @@ function AppContent() {
     <>
       <Navbar />
       <ScrollToTop />
-      <LoaderOverlay />
+
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -108,6 +94,7 @@ function AppContent() {
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
+
       <Footer />
     </>
   );
@@ -117,9 +104,7 @@ function App() {
   return (
     <AuthProvider>
       <TicketProvider>
-        <LoaderProvider>
-          <AppContent />
-        </LoaderProvider>
+        <AppContent />
       </TicketProvider>
     </AuthProvider>
   );
