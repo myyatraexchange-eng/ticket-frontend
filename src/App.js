@@ -15,7 +15,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
-import EditTicket from "./pages/EditTicket";
+// ❌ EditTicket import hata diya
 import AdminPanel from "./pages/AdminPanel";
 
 import PrivateRoute from "./routes/PrivateRoute";
@@ -67,15 +67,9 @@ function AppContent() {
               </PrivateRoute>
             }
           />
-          <Route
-            path="/edit-ticket/:id"
-            element={
-              <PrivateRoute>
-                <EditTicket />
-              </PrivateRoute>
-            }
-          />
 
+          {/* ❌ EditTicket route remove */}
+          
           <Route
             path="/admin/*"
             element={
