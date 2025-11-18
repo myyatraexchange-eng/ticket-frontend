@@ -2,7 +2,6 @@ import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import trainImage from "../assets/train.webp";
-import { useLoader } from "../context/LoaderContext";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
@@ -60,11 +59,9 @@ const TicketCard = memo(({ ticket }) => (
 
 export default function Home() {
   const [tickets, setTickets] = useState([]);
-  const { showLoader, hideLoader } = useLoader();
 
   useEffect(() => {
     const loadTickets = async () => {
-      showLoader();
       try {
         const response = await fetch(`${API_BASE}/tickets?available=true`);
         if (!response.ok) throw new Error(`Error: ${response.status}`);
@@ -74,11 +71,10 @@ export default function Home() {
       } catch (err) {
         console.error("❌ Fetch Failed:", err);
         setTickets([]);
-      } finally {
-        hideLoader();
       }
     };
 
+    // Load in background — NO loader
     loadTickets();
   }, []);
 
@@ -147,8 +143,8 @@ export default function Home() {
         </h2>
 
         {tickets.length === 0 ? (
-          <p className="text-center text-red-500 font-medium">
-            No tickets are available right now.
+          <p className="text-center text-gray-500 font-medium">
+            Loading recent tickets...
           </p>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

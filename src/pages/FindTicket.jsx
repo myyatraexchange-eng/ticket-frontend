@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Helmet } from "react-helmet-async";
 
@@ -9,7 +9,7 @@ const API_BASE =
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   const [fromFilter, setFromFilter] = useState("");
@@ -26,37 +26,39 @@ export default function FindTicket() {
   const [showQR, setShowQR] = useState(false);
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
-  // ---------------------------
-  // PAGINATION STATE
-  // ---------------------------
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const TICKETS_PER_PAGE = 9;
 
-  // Fetch Tickets
-  const fetchTickets = async () => {
-    setLoading(true);
-    setError("");
+  // ---------------------------
+  // FETCH TICKETS (Optimized)
+  // ---------------------------
+  const fetchTickets = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE}/tickets?available=true`);
-      if (!res.ok) throw new Error(`Request failed ${res.status}`);
+      if (!res.ok) throw new Error("Failed to fetch tickets");
+
       const data = await res.json();
       const list = Array.isArray(data) ? data : data.tickets || [];
+
       setTickets(list);
       setFiltered(list);
     } catch (err) {
-      setError(err.message || "Failed to load tickets");
-    } finally {
-      setLoading(false);
+      setError(err.message);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTickets();
-    const interval = setInterval(fetchTickets, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
-  // Filters
+    // Auto-refresh every 10 sec (background effects only)
+    const i = setInterval(fetchTickets, 10000);
+    return () => clearInterval(i);
+  }, [fetchTickets]);
+
+  // ---------------------------
+  // FILTERING (Optimized)
+  // ---------------------------
   useEffect(() => {
     let out = tickets;
 
@@ -78,38 +80,48 @@ export default function FindTicket() {
       );
 
     setFiltered(out);
-    setCurrentPage(1); // RESET PAGE WHEN FILTER CHANGES
+    setCurrentPage(1);
   }, [fromFilter, toFilter, dateFilter, tickets]);
 
-  // Pagination Logic
+  // ---------------------------
+  // PAGINATION
+  // ---------------------------
   const indexOfLast = currentPage * TICKETS_PER_PAGE;
   const indexOfFirst = indexOfLast - TICKETS_PER_PAGE;
 
   const isFiltered = fromFilter || toFilter || dateFilter;
 
-  const currentTickets = isFiltered
-    ? filtered
-    : filtered.slice(indexOfFirst, indexOfLast);
+  const currentTickets = useMemo(
+    () => (isFiltered ? filtered : filtered.slice(indexOfFirst, indexOfLast)),
+    [filtered, indexOfFirst, indexOfLast, isFiltered]
+  );
 
   const totalPages = Math.ceil(filtered.length / TICKETS_PER_PAGE);
 
+  // ---------------------------
+  // HANDLE PAYMENT
+  // ---------------------------
   const handlePay = (ticket) => {
-    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
-    setCurrentUpiLink(upiLink);
-    setShowQR(true);
     setCurrentTicketId(ticket._id);
+    setCurrentUpiLink(
+      `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`
+    );
     setTxnId("");
     setPayerName("");
     setPayerMobile("");
     setProofMessage("");
+    setShowQR(true);
   };
 
   const closeQR = () => {
     setShowQR(false);
-    setCurrentUpiLink("");
     setCurrentTicketId(null);
+    setCurrentUpiLink("");
   };
 
+  // ---------------------------
+  // SUBMIT PROOF
+  // ---------------------------
   const submitProof = async (e) => {
     e.preventDefault();
     if (!txnId || !payerName || !payerMobile) {
@@ -122,7 +134,6 @@ export default function FindTicket() {
     }
 
     setSubmittingProof(true);
-    setProofMessage("");
 
     try {
       const res = await fetch(`${API_BASE}/payments/create-proof`, {
@@ -144,50 +155,46 @@ export default function FindTicket() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submission failed");
 
-      setProofMessage(
-        "✅ Proof submitted successfully. Waiting for admin verification."
-      );
+      setProofMessage("✅ Proof submitted. Waiting for admin...");
 
-      setTxnId("");
-      setPayerName("");
-      setPayerMobile("");
-
+      // Refresh silently
       setTimeout(() => {
         closeQR();
         fetchTickets();
-      }, 1500);
+      }, 1200);
     } catch (err) {
-      setProofMessage(err.message || "Failed to submit proof");
+      setProofMessage(err.message);
     } finally {
       setSubmittingProof(false);
     }
   };
 
-  const formatDateTime = (dt) => {
-    if (!dt) return "N/A";
-    return new Date(dt).toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+  // ---------------------------
+  // DATE FORMAT
+  // ---------------------------
+  const formatDateTime = (dt) =>
+    dt
+      ? new Date(dt).toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "N/A";
 
+  // ---------------------------
+  // UI (NO COLOR CHANGE)
+  // ---------------------------
   return (
     <div className="p-6 container mx-auto flex flex-col items-center">
-      {/* SEO Helmet */}
       <Helmet>
-        <title>
-          Find Train Tickets | Confirmed Tickets Available – MyYatraExchange
-        </title>
-
+        <title>Find Train Tickets | MyYatraExchange</title>
         <meta
           name="description"
           content="Search and find confirmed train tickets instantly on MyYatraExchange."
         />
-
         <link rel="canonical" href="https://www.myyatraexchange.com/find" />
       </Helmet>
 
@@ -203,12 +210,14 @@ export default function FindTicket() {
           onChange={(e) => setFromFilter(e.target.value)}
           className="border p-2 rounded w-44 uppercase text-sm"
         />
+
         <input
           placeholder="To"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
           className="border p-2 rounded w-44 uppercase text-sm"
         />
+
         <input
           type="date"
           value={dateFilter}
@@ -217,11 +226,10 @@ export default function FindTicket() {
         />
       </div>
 
-      {loading && <p>Loading...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* Ticket List */}
-      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {/* Ticket Cards */}
+      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {currentTickets.map((t) => (
           <div
             key={t._id}
@@ -231,26 +239,15 @@ export default function FindTicket() {
               <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
                 🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
               </h2>
+
+              <p><b>📍 Route:</b> {t.from?.toUpperCase()} → {t.to?.toUpperCase()}</p>
+              <p><b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}</p>
+              <p><b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}</p>
+              <p><b>🪑 Class:</b> {t.classType?.toUpperCase() || "GENERAL"}</p>
+              <p><b>🎟 Ticket No:</b> {t.ticketNumber || "N/A"}</p>
               <p>
-                <b>📍 Route:</b> {t.from?.toUpperCase()} →{" "}
-                {t.to?.toUpperCase()}
-              </p>
-              <p>
-                <b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}
-              </p>
-              <p>
-                <b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}
-              </p>
-              <p>
-                <b>🪑 Class:</b> {t.classType?.toUpperCase() || "GENERAL"}
-              </p>
-              <p>
-                <b>🎟 Ticket No:</b> {t.ticketNumber || "N/A"}
-              </p>
-              <p>
-                <b>👤 Passenger:</b>{" "}
-                {t.passengerName?.toUpperCase()} ({t.passengerGender},{" "}
-                {t.passengerAge})
+                <b>👤 Passenger:</b> {t.passengerName?.toUpperCase()} (
+                {t.passengerGender}, {t.passengerAge})
               </p>
 
               {/* Payment Status */}
@@ -277,7 +274,7 @@ export default function FindTicket() {
               )}
             </div>
 
-            {/* Payment QR */}
+            {/* QR VIEW */}
             {currentTicketId === t._id && showQR && (
               <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
                 <p className="mb-2 font-medium text-center uppercase text-sm">
@@ -334,10 +331,10 @@ export default function FindTicket() {
         ))}
       </div>
 
-      {/* Pagination (Only when NO filters) */}
+      {/* Pagination */}
       {!isFiltered && totalPages > 1 && (
         <div className="flex gap-2 justify-center mt-6">
-          {Array.from({ length: totalPages }, (_, i) => (
+          {Array.from({ length: totalPages }).map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
