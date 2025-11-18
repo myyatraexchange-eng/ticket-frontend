@@ -36,7 +36,7 @@ const LoaderOverlay = () => {
       <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16"></div>
       <style>{`
         .loader { border-top-color: #3498db; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { rotate(360deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       `}</style>
     </div>
   ) : null;
@@ -51,19 +51,53 @@ function AppContent() {
       <Navbar />
       <ScrollToTop />
       <LoaderOverlay />
-
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          <Route path="/find" element={<PrivateRoute><FindTicket /></PrivateRoute>} />
-          <Route path="/post" element={<PrivateRoute><Post /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          <Route path="/edit-ticket/:id" element={<PrivateRoute><EditTicket /></PrivateRoute>} />
+          <Route
+            path="/find"
+            element={
+              <PrivateRoute>
+                <FindTicket />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/post"
+            element={
+              <PrivateRoute>
+                <Post />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-ticket/:id"
+            element={
+              <PrivateRoute>
+                <EditTicket />
+              </PrivateRoute>
+            }
+          />
 
-          <Route path="/admin/*" element={<PrivateRoute adminOnly={true}><AdminPanel /></PrivateRoute>} />
+          <Route
+            path="/admin/*"
+            element={
+              <PrivateRoute adminOnly={true}>
+                <AdminPanel />
+              </PrivateRoute>
+            }
+          />
 
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
@@ -74,13 +108,12 @@ function AppContent() {
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
-
       <Footer />
     </>
   );
 }
 
-export default function App() {
+function App() {
   return (
     <AuthProvider>
       <TicketProvider>
@@ -91,4 +124,6 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+export default App;
 

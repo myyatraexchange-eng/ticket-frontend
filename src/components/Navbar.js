@@ -10,11 +10,17 @@ const Navbar = () => {
   const activeClass = "text-yellow-300 font-semibold";
   const linkClass = "py-1 hover:underline";
 
+  const handleLinkClick = () => {
+    setMenuOpen(false);
+    setMoreOpen(false);
+  };
+
   return (
     <nav className="bg-blue-600 text-white shadow-md text-sm relative">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        
         <div className="text-base md:text-lg font-bold">
-          <NavLink to="/" className="hover:underline">
+          <NavLink to="/" onClick={handleLinkClick} className="hover:underline">
             <span className="text-orange-400">My</span>
             <span className="text-white">Yatra</span>
             <span className="text-green-400">Exchange.com</span>
@@ -22,7 +28,7 @@ const Navbar = () => {
         </div>
 
         <button
-          className="md:hidden text-white text-2xl"
+          className="md:hidden text-white text-2xl focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           ☰
@@ -31,24 +37,96 @@ const Navbar = () => {
         <div
           className={`flex-col md:flex md:flex-row md:space-x-4 ${
             menuOpen ? "flex" : "hidden"
-          } items-center`}
+          } md:flex items-center`}
         >
-          <NavLink to="/" className={linkClass}>Home</NavLink>
-          <NavLink to="/find" className={linkClass}>Find Ticket</NavLink>
-          <NavLink to="/post" className={linkClass}>Post Ticket</NavLink>
-          <NavLink to="/about" className={linkClass}>About</NavLink>
-          <NavLink to="/contact" className={linkClass}>Contact</NavLink>
+          <NavLink
+            to="/"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
+          >
+            Home
+          </NavLink>
+
+          <NavLink
+            to="/find"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
+          >
+            Find Ticket
+          </NavLink>
+
+          <NavLink
+            to="/post"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
+          >
+            Post Ticket
+          </NavLink>
+
+          <NavLink
+            to="/about"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
+          >
+            About
+          </NavLink>
+
+          <NavLink
+            to="/contact"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
+          >
+            Contact
+          </NavLink>
 
           <div className="relative">
-            <button onClick={() => setMoreOpen(!moreOpen)} className="py-1 hover:underline">
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className="py-1 hover:underline"
+            >
               More ▾
             </button>
+
             {moreOpen && (
               <div className="absolute bg-white text-black mt-1 rounded shadow-md w-48 z-50">
-                <NavLink to="/policy" className="block px-4 py-2 hover:bg-gray-100">Policy</NavLink>
-                <NavLink to="/disclaimer" className="block px-4 py-2 hover:bg-gray-100">Disclaimer</NavLink>
-                <NavLink to="/terms" className="block px-4 py-2 hover:bg-gray-100">Terms</NavLink>
-                <NavLink to="/refund-policy" className="block px-4 py-2 hover:bg-gray-100">Refund Policy</NavLink>
+                <NavLink
+                  to="/policy"
+                  onClick={handleLinkClick}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Policy
+                </NavLink>
+                <NavLink
+                  to="/disclaimer"
+                  onClick={handleLinkClick}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Disclaimer
+                </NavLink>
+                <NavLink
+                  to="/terms"
+                  onClick={handleLinkClick}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Terms
+                </NavLink>
+                <NavLink
+                  to="/refund-policy"
+                  onClick={handleLinkClick}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Refund Policy
+                </NavLink>
               </div>
             )}
           </div>
@@ -56,14 +134,16 @@ const Navbar = () => {
           {token && user ? (
             <NavLink
               to="/profile"
-              className="bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
+              onClick={handleLinkClick}
+              className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
             >
               Profile
             </NavLink>
           ) : (
             <NavLink
               to="/login"
-              className="bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
+              onClick={handleLinkClick}
+              className="ml-0 md:ml-3 mt-2 md:mt-0 bg-white text-blue-600 px-4 py-1 rounded hover:bg-gray-100 font-semibold"
             >
               Login
             </NavLink>

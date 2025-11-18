@@ -30,7 +30,7 @@ const Footer = () => {
             <li><Link to="/terms" className="hover:underline">Terms of Use</Link></li>
             <li><Link to="/refund-policy" className="hover:underline">Refund Policy</Link></li>
           </ul>
-
+          
           <div className="mt-4">
             <h2 className="font-bold text-lg mb-1">Contact</h2>
             <p className="text-sm">Email: myyatraexchange@gmail.com</p>
@@ -39,13 +39,18 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="text-center mt-4 text-sm text-gray-300">
-        © {new Date().getFullYear()} MyYatraExchange.com | Developer: Rohit Akodiya
+      <div className="text-center mt-4 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1">
+        © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. | 
+        <span className="font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300">
+          Developer by Rohit Akodiya
+        </span>
       </div>
 
       <div className="bg-yellow-200 text-yellow-900 py-2 text-sm mt-4">
-        <marquee scrollAmount="8">
-          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers.
+        <marquee behavior="scroll" direction="left" scrollAmount="8">
+          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers to share contact information for unused tickets. 
+          We do not sell, resell, transfer, modify, or issue tickets. All coordination is directly between users. 
+          This platform is independent and not affiliated with Indian Railways.
         </marquee>
       </div>
     </footer>
