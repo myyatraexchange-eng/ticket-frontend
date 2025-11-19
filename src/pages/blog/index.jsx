@@ -1,73 +1,57 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const BlogIndex = () => {
-  // Yaha future me blog list API se aa sakti hai,
-  // filhal static list rakh rahe hain.
+const BlogHome = () => {
   const blogs = [
     {
-      title: "Unused Train Ticket Sell Kaise Kare? (2025 Latest Guide)",
-      slug: "unused-train-ticket-sell",
-      description:
-        "IRCTC unused train tickets ko legal & safe tarike se sell ya exchange ka best तरीका.",
+      title: "IRCTC Seat Confirm Karne Ke Best Tricks",
+      link: "/blog/seat-confirm",
+      description: "Train seat confirm karne ka best method – full guide.",
     },
     {
-      title: "Tatkal Ticket Fast Kaise Book Kare? (2025 New Trick)",
-      slug: "tatkal-ticket-tips-2025",
-      description:
-        "2025 ke naye tatkal rules, fastest booking trick aur confirm seat tips.",
+      title: "IRCTC Tatkal Ticket Fast Booking Tips",
+      link: "/blog/tatkal-fast",
+      description: "Tatkal ticket jaldi kaise book kare – top fast tricks.",
     },
     {
-      title: "Train Seat Confirm Karne Ka No.1 Hack (Guaranteed Tips)",
-      slug: "train-seat-confirm-hack",
-      description:
-        "Waiting list aur RAC se confirm seat pane ka best tested hack.",
+      title: "Unused Ticket Ka Refund Kaise Milega?",
+      link: "/blog/unused-ticket",
+      description: "Unused ticket ka refund rule, process aur important tips.",
     },
     {
-      title: "IRCTC Cancellation Charges Kaise Bachaye? (Smart Tips)",
-      slug: "irctc-cancellation-tips",
-      description:
-        "IRCTC cancellation fees kaise kam kare ya zero kare — complete guide.",
+      title: "Waiting Ticket Cancel & Refund Full Guide",
+      link: "/blog/waiting-cancel",
+      description: "Waiting ticket cancel karne ka tarika & refund details.",
     },
   ];
 
   return (
-    <div style={{ padding: "20px", maxWidth: "900px", margin: "auto" }}>
-      <h1 style={{ fontSize: "32px", marginBottom: "20px" }}>Latest Blog Posts</h1>
+    <div className="max-w-4xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">Travel & IRCTC Blog</h1>
 
-      {blogs.map((blog) => (
-        <div
-          key={blog.slug}
-          style={{
-            background: "#fff",
-            padding: "20px",
-            borderRadius: "10px",
-            marginBottom: "20px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ fontSize: "24px" }}>{blog.title}</h2>
-          <p style={{ margin: "10px 0" }}>{blog.description}</p>
+      <div className="space-y-6">
+        {blogs.map((blog, index) => (
+          <div key={index} className="p-4 border rounded shadow-sm hover:shadow-md transition">
+            <h2 className="text-xl font-semibold">
+              <Link to={blog.link} className="text-blue-600 hover:underline">
+                {blog.title}
+              </Link>
+            </h2>
 
-          <Link
-            to={`/blog/${blog.slug}`}
-            style={{
-              display: "inline-block",
-              marginTop: "10px",
-              padding: "8px 16px",
-              background: "#1976D2",
-              color: "white",
-              borderRadius: "6px",
-              textDecoration: "none",
-            }}
-          >
-            Read More →
-          </Link>
-        </div>
-      ))}
+            <p className="text-gray-700 mt-1">{blog.description}</p>
+
+            <Link
+              to={blog.link}
+              className="text-blue-500 mt-2 inline-block hover:underline"
+            >
+              Read More →
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default BlogIndex;
+export default BlogHome;
 
