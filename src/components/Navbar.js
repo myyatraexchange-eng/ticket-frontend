@@ -89,6 +89,7 @@ const Navbar = () => {
             Contact
           </NavLink>
 
+          {/* MORE DROPDOWN */}
           <div className="relative">
             <button
               onClick={() => setMoreOpen(!moreOpen)}
@@ -99,6 +100,16 @@ const Navbar = () => {
 
             {moreOpen && (
               <div className="absolute bg-white text-black mt-1 rounded shadow-md w-48 z-50">
+
+                {/* ✅ BLOG LINK ADDED */}
+                <NavLink
+                  to="/blog"
+                  onClick={handleLinkClick}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Blog
+                </NavLink>
+
                 <NavLink
                   to="/policy"
                   onClick={handleLinkClick}
