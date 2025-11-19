@@ -1,6 +1,7 @@
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { FaTicketAlt, FaSearch } from "react-icons/fa";
 import trainImage from "../assets/train.webp";
 
 const API_BASE =
@@ -117,19 +118,19 @@ export default function Home() {
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          {/* Buttons with final taglines */}
-          <div className="flex flex-col sm:flex-row gap-6 animate-bounceIn w-full max-w-md mx-auto">
+          {/* Buttons with icons + taglines */}
+          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md mx-auto animate-bounceIn">
             
             {/* Post Ticket */}
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
                 to="/post"
-                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-orange-500 hover:to-red-600 transition transform hover:-translate-y-1 duration-300 text-center"
+                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-orange-500 hover:to-red-600 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-2"
               >
-                📝 Post Ticket
+                <FaTicketAlt size={20} /> Post Ticket
               </Link>
               <p className="mt-2 text-sm sm:text-base text-gray-100 max-w-xs sm:max-w-[220px] text-center leading-snug">
-                📝 Apni unused ticket share karo, cancellation ka paisa bachao!
+                <FaTicketAlt className="inline mr-1" /> Apni unused ticket share karo, cancellation ka paisa bachao!
               </p>
             </div>
 
@@ -137,12 +138,12 @@ export default function Home() {
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
                 to="/find"
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1 duration-300 text-center"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-2"
               >
-                🔍 Find Ticket
+                <FaSearch size={20} /> Find Ticket
               </Link>
               <p className="mt-2 text-sm sm:text-base text-gray-100 max-w-xs sm:max-w-[220px] text-center leading-snug">
-                🔍 Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
+                <FaSearch className="inline mr-1" /> Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
               </p>
             </div>
 
