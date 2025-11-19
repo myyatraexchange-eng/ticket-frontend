@@ -9,7 +9,7 @@ const API_BASE =
 
 // MEMOIZED CARD with hover animation
 const TicketCard = memo(({ ticket }) => (
-  <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
+  <div className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
       <h2 className="text-xl font-bold text-blue-800 mb-2 uppercase">
         🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} (
@@ -131,13 +131,13 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Updated Taglines with improved color & font */}
-          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-lg font-extrabold">
+          {/* Taglines */}
+          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-base font-semibold">
             <span className="text-yellow-400 drop-shadow-md">
-              Post Ticket — “Confirm Ticket Cancel Charges Se Bachne Ka Asaan Tarika!”
+              Post Ticket - "Confirm Ticket Cancel Charges Se Bachne Ka Asaan Tarika!"
             </span>
             <span className="text-green-400 drop-shadow-md">
-              Find Ticket — “Apni Zarurat Ka Ticket Turant Dhundein!”
+              Find Ticket - "Apni Zarurat Ka Ticket Turant Dhundein!"
             </span>
           </div>
         </div>
