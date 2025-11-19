@@ -1,178 +1,40 @@
-import React, { useEffect, useState, memo } from "react";
-import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
-import trainImage from "../assets/train.webp";
-
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL ||
-  "https://ticket-backend-g5da.onrender.com/api";
-
-// MEMOIZED CARD with hover animation
-const TicketCard = memo(({ ticket }) => (
-  <div className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
-    <div className="flex flex-col gap-2 text-sm">
-      <h2 className="text-xl font-bold text-blue-800 mb-2 uppercase">
-        🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} (
-        {ticket.trainNumber || "N/A"})
-      </h2>
-
-      <p className="uppercase">
-        <span className="font-semibold">📍 Route:</span>{" "}
-        {ticket.from?.toUpperCase()} → {ticket.to?.toUpperCase()}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">⏰ Departure:</span>{" "}
-        {ticket.fromDateTime
-          ? new Date(ticket.fromDateTime).toLocaleString("en-IN")
-          : "N/A"}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">🛬 Arrival:</span>{" "}
-        {ticket.toDateTime
-          ? new Date(ticket.toDateTime).toLocaleString("en-IN")
-          : "N/A"}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">🪑 Class:</span>{" "}
-        {ticket.classType?.toUpperCase() || "GENERAL"}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">🎟 Tickets:</span>{" "}
-        {ticket.ticketNumber || "N/A"}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">👤 Passenger:</span>{" "}
-        {ticket.passengerName
-          ? `${ticket.passengerName.toUpperCase()} (${
-              ticket.passengerGender?.toUpperCase() || ""
-            }, ${ticket.passengerAge || ""})`
-          : "N/A"}
-      </p>
-    </div>
-  </div>
-));
-
-export default function Home() {
-  const [tickets, setTickets] = useState([]);
-
-  useEffect(() => {
-    const loadTickets = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/tickets?available=true`);
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
-        setTickets((data.tickets || []).slice(0, 3));
-      } catch (err) {
-        console.error("❌ Fetch Failed:", err);
-        setTickets([]);
-      }
-    };
-    loadTickets();
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <Helmet>
-        <title>
-          MyYatraExchange – Find Confirmed Train Tickets | Share Unused Tickets
-        </title>
-        <meta
-          name="description"
-          content="MyYatraExchange helps passengers share or find confirmed train tickets instantly."
-        />
-        <meta
-          name="keywords"
-          content="train tickets, confirmed train ticket, ticket exchange, my yatra exchange"
-        />
-        <meta name="author" content="MyYatraExchange" />
-        <link rel="canonical" href="https://www.myyatraexchange.com/" />
-      </Helmet>
-
-      {/* HERO */}
-      <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
-        <img
-          src={trainImage}
-          alt="Indian train running on track - MyYatraExchange"
-          className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 ease-in-out"
-          loading="lazy"
-          decoding="async"
-          fetchpriority="high"
-        />
-
-        <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-3 drop-shadow-lg">
-            <span className="text-orange-400">My</span>
-            <span className="text-white">Yatra</span>
-            <span className="text-green-400">Exchange.com</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-6 max-w-xl drop-shadow-md">
-            Share unused train tickets & help others get confirmed travel.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 mb-3">
-            <Link
-              to="/find"
-              className="bg-white text-black px-6 py-3 rounded font-bold hover:bg-gray-200 transition transform hover:-translate-y-1 duration-300"
-            >
-              Find Ticket
-            </Link>
-
-            <Link
-              to="/post"
-              className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
-            >
-              Post Ticket
-            </Link>
-          </div>
-
-          {/* Taglines with updated colors and font */}
-          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-lg font-bold">
-            <span className="text-orange-400 italic">
-              Post Ticket — “Confirm Ticket Cancel Charges Se Bachne Ka Asaan Tarika!”
-            </span>
-            <span className="text-cyan-400 italic">
-              Find Ticket — “Apni Zarurat Ka Ticket Turant Dhundein!”
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* RECENT TICKETS */}
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-3xl font-bold mb-6 text-center text-blue-800">
-          Recent Tickets
-        </h2>
-
-        {tickets.length === 0 ? (
-          <p className="text-center text-gray-500 font-medium animate-pulse">
-            Loading tickets...
-          </p>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {tickets.map((ticket) => (
-              <TicketCard key={ticket._id} ticket={ticket} />
-            ))}
-          </div>
-        )}
-
-        {tickets.length > 0 && (
-          <div className="text-center mt-8">
-            <Link
-              to="/find"
-              className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
-            >
-              See All Tickets
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+module.exports = {
+  content: ["./src/**/*.{js,jsx}", "./public/index.html"],
+  theme: {
+    extend: {
+      animation: {
+        "spin-slow": "spin 2s linear infinite",
+        fadeIn: "fadeIn 1s ease-out forwards",
+        slideUp: "slideUp 1s ease-out forwards",
+        bounceIn: "bounceIn 0.8s ease-out forwards",
+        fadeInUp: "fadeInUp 1s ease-out forwards",
+        float: "float 3s ease-in-out infinite",
+      },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+        slideUp: {
+          "0%": { opacity: 0, transform: "translateY(20px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+        bounceIn: {
+          "0%": { opacity: 0, transform: "scale(0.5)" },
+          "60%": { opacity: 1, transform: "scale(1.05)" },
+          "100%": { transform: "scale(1)" },
+        },
+        fadeInUp: {
+          "0%": { opacity: 0, transform: "translateY(30px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+      },
+    },
+  },
+  plugins: [],
+};
 
