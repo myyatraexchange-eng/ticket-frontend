@@ -15,12 +15,17 @@ import RefundPolicy from "./pages/RefundPolicy";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
-// ❌ EditTicket import hata diya
 import AdminPanel from "./pages/AdminPanel";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
+
+/* ✅ Blog Imports */
+import UnusedTicket from "./pages/blog/UnusedTicket";
+import SeatConfirm from "./pages/blog/SeatConfirm";
+import WaitingCancel from "./pages/blog/WaitingCancel";
+import TatkalFast from "./pages/blog/TatkalFast";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -51,6 +56,7 @@ function AppContent() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/post"
             element={
@@ -59,6 +65,7 @@ function AppContent() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/profile"
             element={
@@ -68,8 +75,7 @@ function AppContent() {
             }
           />
 
-          {/* ❌ EditTicket route remove */}
-          
+          {/* Admin Panel */}
           <Route
             path="/admin/*"
             element={
@@ -86,6 +92,12 @@ function AppContent() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+
+          {/* ✅ Blog Routes Added */}
+          <Route path="/blog/unused-ticket" element={<UnusedTicket />} />
+          <Route path="/blog/seat-confirm" element={<SeatConfirm />} />
+          <Route path="/blog/waiting-cancel" element={<WaitingCancel />} />
+          <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
         </Routes>
       </main>
 
