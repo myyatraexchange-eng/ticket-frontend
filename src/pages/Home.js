@@ -131,13 +131,13 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Taglines */}
-          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-base font-semibold">
-            <span className="text-yellow-400 drop-shadow-md">
-              Post Ticket - "Confirm Ticket Cancel Charges Se Bachne Ka Asaan Tarika!"
+          {/* Taglines with updated colors and font */}
+          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-lg font-bold">
+            <span className="text-orange-400 italic">
+              Post Ticket — “Confirm Ticket Cancel Charges Se Bachne Ka Asaan Tarika!”
             </span>
-            <span className="text-green-400 drop-shadow-md">
-              Find Ticket - "Apni Zarurat Ka Ticket Turant Dhundein!"
+            <span className="text-cyan-400 italic">
+              Find Ticket — “Apni Zarurat Ka Ticket Turant Dhundein!”
             </span>
           </div>
         </div>
