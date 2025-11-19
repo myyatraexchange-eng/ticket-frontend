@@ -119,18 +119,18 @@ export default function Home() {
           </p>
 
           {/* Buttons with icons + taglines */}
-          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md mx-auto animate-bounceIn">
+          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-4xl mx-auto animate-bounceIn">
             
             {/* Post Ticket */}
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
                 to="/post"
-                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-orange-500 hover:to-red-600 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:from-orange-500 hover:to-red-600 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-3 text-lg sm:text-xl"
               >
-                <FaTicketAlt size={20} /> Post Ticket
+                <FaTicketAlt size={24} /> Post Ticket
               </Link>
-              <p className="mt-2 text-sm sm:text-base text-gray-100 max-w-xs sm:max-w-[220px] text-center leading-snug">
-                <FaTicketAlt className="inline mr-1" /> Apni unused ticket share karo, cancellation ka paisa bachao!
+              <p className="mt-3 text-base sm:text-lg lg:text-xl text-gray-100 max-w-xs sm:max-w-[300px] lg:max-w-[350px] text-center leading-snug">
+                <FaTicketAlt className="inline mr-2" /> Apni unused ticket share karo, cancellation ka paisa bachao!
               </p>
             </div>
 
@@ -138,12 +138,12 @@ export default function Home() {
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
                 to="/find"
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-3 text-lg sm:text-xl"
               >
-                <FaSearch size={20} /> Find Ticket
+                <FaSearch size={24} /> Find Ticket
               </Link>
-              <p className="mt-2 text-sm sm:text-base text-gray-100 max-w-xs sm:max-w-[220px] text-center leading-snug">
-                <FaSearch className="inline mr-1" /> Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
+              <p className="mt-3 text-base sm:text-lg lg:text-xl text-gray-100 max-w-xs sm:max-w-[300px] lg:max-w-[350px] text-center leading-snug">
+                <FaSearch className="inline mr-2" /> Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
               </p>
             </div>
 
