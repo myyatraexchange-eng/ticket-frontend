@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -21,12 +22,16 @@ import PrivateRoute from "./routes/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
 
-/* ✅ Blog Imports */
+/* ------------------------------
+   ✅ BLOG IMPORTS (All 5 pages)
+--------------------------------*/
+import BlogHome from "./pages/blog";
 import UnusedTicket from "./pages/blog/UnusedTicket";
 import SeatConfirm from "./pages/blog/SeatConfirm";
 import WaitingCancel from "./pages/blog/WaitingCancel";
 import TatkalFast from "./pages/blog/TatkalFast";
 
+/* Scroll To Top */
 function ScrollToTop() {
   const { pathname } = useLocation();
   React.useEffect(() => window.scrollTo(0, 0), [pathname]);
@@ -44,10 +49,13 @@ function AppContent() {
 
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Routes>
+
+          {/* Basic Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
+          {/* Auth Protected */}
           <Route
             path="/find"
             element={
@@ -85,19 +93,29 @@ function AppContent() {
             }
           />
 
+          {/* Legal Pages */}
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
 
+          {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* ✅ Blog Routes Added */}
+          {/* ---------------------------------
+               ✅ BLOG ROUTES
+             --------------------------------- */}
+
+          {/* Blog List (homepage for blog) */}
+          <Route path="/blog" element={<BlogHome />} />
+
+          {/* Individual Blog Posts */}
           <Route path="/blog/unused-ticket" element={<UnusedTicket />} />
           <Route path="/blog/seat-confirm" element={<SeatConfirm />} />
           <Route path="/blog/waiting-cancel" element={<WaitingCancel />} />
           <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
+
         </Routes>
       </main>
 
