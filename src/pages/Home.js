@@ -7,9 +7,9 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// MEMOIZED CARD with hover animation
+// MEMOIZED CARD with hover animation & gradient accent
 const TicketCard = memo(({ ticket }) => (
-  <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
+  <div className="rounded-xl shadow-lg p-5 bg-gradient-to-r from-white via-gray-50 to-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
       <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
         🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} (
@@ -105,30 +105,47 @@ export default function Home() {
         />
 
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn">
+          {/* Site Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn tracking-wide">
             <span className="text-orange-400">My</span>
             <span className="text-white">Yatra</span>
             <span className="text-green-400">Exchange.com</span>
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl mb-6 max-w-xl drop-shadow-md animate-slideUp">
+          {/* Hero Subtitle */}
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 max-w-xl drop-shadow-md animate-slideUp font-semibold leading-relaxed">
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 animate-bounceIn">
-            <Link
-              to="/find"
-              className="bg-white text-black px-6 py-3 rounded font-semibold hover:bg-gray-200 transition transform hover:-translate-y-1 duration-300"
-            >
-              Find Ticket
-            </Link>
+          {/* Buttons with final taglines */}
+          <div className="flex flex-col sm:flex-row gap-6 animate-bounceIn w-full max-w-md mx-auto">
+            
+            {/* Post Ticket */}
+            <div className="flex flex-col items-center w-full sm:w-auto">
+              <Link
+                to="/post"
+                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-orange-500 hover:to-red-600 transition transform hover:-translate-y-1 duration-300 text-center"
+              >
+                📝 Post Ticket
+              </Link>
+              <p className="mt-2 text-sm sm:text-base text-gray-100 max-w-xs sm:max-w-[220px] text-center leading-snug">
+                📝 Apni unused ticket share karo, cancellation ka paisa bachao!
+              </p>
+            </div>
 
-            <Link
-              to="/post"
-              className="bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
-            >
-              Post Ticket
-            </Link>
+            {/* Find Ticket */}
+            <div className="flex flex-col items-center w-full sm:w-auto">
+              <Link
+                to="/find"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1 duration-300 text-center"
+              >
+                🔍 Find Ticket
+              </Link>
+              <p className="mt-2 text-sm sm:text-base text-gray-100 max-w-xs sm:max-w-[220px] text-center leading-snug">
+                🔍 Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
+              </p>
+            </div>
+
           </div>
         </div>
       </div>
