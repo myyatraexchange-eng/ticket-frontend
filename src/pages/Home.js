@@ -9,9 +9,9 @@ const API_BASE =
 
 // MEMOIZED CARD with hover animation
 const TicketCard = memo(({ ticket }) => (
-  <div className="rounded-xl shadow-lg p-6 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
+  <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
-      <h2 className="text-xl font-bold text-blue-800 mb-2 uppercase">
+      <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
         🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} (
         {ticket.trainNumber || "N/A"})
       </h2>
@@ -104,48 +104,38 @@ export default function Home() {
           fetchpriority="high"
         />
 
-        <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-3 drop-shadow-lg">
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn">
             <span className="text-orange-400">My</span>
             <span className="text-white">Yatra</span>
             <span className="text-green-400">Exchange.com</span>
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl font-semibold mb-6 max-w-xl drop-shadow-md">
+          <p className="text-lg sm:text-xl md:text-2xl mb-6 max-w-xl drop-shadow-md animate-slideUp">
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-3">
+          <div className="flex flex-col sm:flex-row gap-4 animate-bounceIn">
             <Link
               to="/find"
-              className="bg-white text-black px-6 py-3 rounded font-bold hover:bg-gray-200 transition transform hover:-translate-y-1 duration-300"
+              className="bg-white text-black px-6 py-3 rounded font-semibold hover:bg-gray-200 transition transform hover:-translate-y-1 duration-300"
             >
               Find Ticket
             </Link>
 
             <Link
               to="/post"
-              className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
+              className="bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
             >
               Post Ticket
             </Link>
-          </div>
-
-          {/* Taglines with updated colors and font */}
-          <div className="flex flex-col sm:flex-row gap-6 mt-2 text-lg font-bold">
-            <span className="text-orange-400 italic">
-              Post Ticket — “Confirm Ticket Cancel Charges Se Bachne Ka Asaan Tarika!”
-            </span>
-            <span className="text-cyan-400 italic">
-              Find Ticket — “Apni Zarurat Ka Ticket Turant Dhundein!”
-            </span>
           </div>
         </div>
       </div>
 
       {/* RECENT TICKETS */}
       <div className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-3xl font-bold mb-6 text-center text-blue-800">
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-600 animate-fadeInUp">
           Recent Tickets
         </h2>
 
@@ -165,7 +155,7 @@ export default function Home() {
           <div className="text-center mt-8">
             <Link
               to="/find"
-              className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
+              className="bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
             >
               See All Tickets
             </Link>
@@ -175,3 +165,4 @@ export default function Home() {
     </div>
   );
 }
+
