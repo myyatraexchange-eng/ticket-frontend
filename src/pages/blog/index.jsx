@@ -1,64 +1,67 @@
+import React from "react";
 import { Link } from "react-router-dom";
 
-export default function BlogIndex() {
-  const blogs = [
-    {
-      title: "IRCTC Ticket Confirm Kaise Kare? (100% Working Tips)",
-      slug: "seat-confirm",
-      desc: "Train ticket confirm nahi ho raha? MyYatraExchange ke through confirm ticket pane ka best smart trick.",
-      color: "text-blue-600",
-    },
-    {
-      title: "Tatkal Ticket Fast Booking Guide – Working Formula",
-      slug: "tatkal-fast",
-      desc: "Tatkal 10 baje full ho jata hai? Yaha fast booking ka real solution + confirm seat ka alternative.",
-      color: "text-orange-600",
-    },
-    {
-      title: "Unused Ticket Ka Paisa Kaise Bachayein? Full Guide",
-      slug: "unused-ticket",
-      desc: "Agar extra ticket book ho gaya ya travel plan cancel ho gaya ho to yaha paisa loss se bacho.",
-      color: "text-purple-600",
-    },
-    {
-      title: "Waiting Ticket Confirm Hoga? Cancel Karein? Full Guide",
-      slug: "waiting-cancel",
-      desc: "Waiting ticket risky hota hai — yaha best solution + confirm ticket ka smart backup.",
-      color: "text-red-600",
-    },
-  ];
+const blogs = [
+  {
+    title: "IRCTC Ticket Confirm Kaise Kare? (MyYatraExchange Special Tricks)",
+    link: "/blog/seat-confirm",
+    tag: "Ticket Tips",
+    desc:
+      "Confirm ticket chahiye? MyYatraExchange ke smart system se confirmation 3x easy ho jata hai.",
+  },
+  {
+    title: "Tatkal Ticket Fast Booking – MyYatraExchange का Real Solution",
+    link: "/blog/tatkal-fast",
+    tag: "Tatkal Guide",
+    desc:
+      "Tatkal full ho jata hai? MyYatraExchange par log extra tickets post karte hain.",
+  },
+  {
+    title: "Unused / Extra Ticket cancel karne ke loss se kaise bache?",
+    link: "/blog/unused-ticket",
+    tag: "Save Money",
+    desc:
+      "Cancellation me heavy charges lagte hain. MyYatraExchange par post karke paisa bachaye.",
+  },
+  {
+    title: "Waiting Ticket Confirm / Cancel Process – MyYatraExchange Guide",
+    link: "/blog/waiting-cancel",
+    tag: "Waiting Tips",
+    desc:
+      "Waiting risky hota hai. MyYatraExchange se real confirmed tickets mil jate hain.",
+  },
+];
 
+export default function BlogIndex() {
   return (
-    <div className="max-w-4xl mx-auto p-6 text-gray-800">
-      <h1 className="text-3xl md:text-4xl font-bold mb-6 text-green-700">
-        MyYatraExchange – Best Travel Blogs & IRCTC Smart Tips
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <h1 className="text-4xl font-bold text-gray-900 mb-6 text-center">
+        📚 Latest Blogs – MyYatraExchange
       </h1>
 
-      <p className="mb-8 text-lg text-gray-700">
-        Yaha aapko milenge India ke sabse helpful travel blogs —
-        <strong className="text-green-700"> IRCTC tricks, confirm ticket solutions, Tatkal hacks,</strong>
-        aur paise bachane ke smart methods.
+      <p className="text-lg text-gray-600 mb-10 text-center">
+        Train tickets se related sabhi important guides, tricks aur smart solutions ek jagah.
       </p>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {blogs.map((blog, index) => (
-          <div
-            key={index}
-            className="p-5 border rounded-xl shadow hover:shadow-lg bg-white transition"
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {blogs.map((blog, i) => (
+          <Link
+            key={i}
+            to={blog.link}
+            className="bg-white shadow-lg p-6 rounded-2xl border hover:shadow-xl transition duration-300"
           >
-            <h2 className={`text-xl font-bold mb-2 ${blog.color}`}>
-              {blog.title}
-            </h2>
+            <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
+              {blog.tag}
+            </span>
 
-            <p className="text-gray-600 mb-4">{blog.desc}</p>
+            <h2 className="text-xl font-bold mt-4 text-gray-900">{blog.title}</h2>
 
-            <Link
-              to={`/blog/${blog.slug}`}
-              className="text-blue-600 font-semibold underline"
-            >
+            <p className="text-gray-600 mt-2 text-sm">{blog.desc}</p>
+
+            <button className="mt-4 text-blue-700 font-semibold underline text-sm">
               Read More →
-            </Link>
-          </div>
+            </button>
+          </Link>
         ))}
       </div>
     </div>
