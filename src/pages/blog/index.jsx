@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const blogs = [
+  /* OLD BLOGS ---------------------------------- */
   {
     title: "IRCTC Ticket Confirm Kaise Kare? (MyYatraExchange Special Tricks)",
     link: "/blog/seat-confirm",
@@ -29,6 +30,50 @@ const blogs = [
     tag: "Waiting Tips",
     desc:
       "Waiting risky hota hai. MyYatraExchange se real confirmed tickets mil jate hain.",
+  },
+  {
+    title: "Train Seat Availability Check – MyYatraExchange Method",
+    link: "/blog/seat-availability",
+    tag: "Availability",
+    desc:
+      "IRCTC seat availability ka fastest shortcut — real passengers ke posted confirmed tickets.",
+  },
+
+  /* NEW 5 BLOGS ---------------------------------- */
+  {
+    title: "RAC Ticket Kya Hota Hai? Confirm Hoga Ya Nahi?",
+    link: "/blog/rac-guide",
+    tag: "RAC Guide",
+    desc:
+      "RAC seat, berth, confirmation chances aur MyYatraExchange ke real solutions ka full guide.",
+  },
+  {
+    title: "GNWL vs PQWL vs RLWL – Kaunsa Confirm Hota Hai?",
+    link: "/blog/wl-compare",
+    tag: "WL Info",
+    desc:
+      "Waiting list ke types aur unke confirmation chances — GNWL sabse strong hota hai.",
+  },
+  {
+    title: "PNR Status Check Kaise Kare? (Smart Guide 2025)",
+    link: "/blog/pnr-guide",
+    tag: "PNR Guide",
+    desc:
+      "PNR status dekhne ka simple method aur agar waiting ho to kya karna chahiye.",
+  },
+  {
+    title: "Train Ka Chart Kab Banta Hai? (Chart Preparation Time)",
+    link: "/blog/chart-time",
+    tag: "Chart Info",
+    desc:
+      "Chart banne ke rules, timing aur chart ke baad tickets ka kya hota hai — full explanation.",
+  },
+  {
+    title: "Tatkal Ticket Book Kaise Kare? (Fastest Method 2025)",
+    link: "/blog/tatkal-guide",
+    tag: "Tatkal Tips",
+    desc:
+      "Tatkal fail ho jaye to MyYatraExchange par posted confirmed tickets instantly mil jate hain.",
   },
 ];
 

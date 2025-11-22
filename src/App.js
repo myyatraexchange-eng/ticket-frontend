@@ -23,13 +23,22 @@ import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
 
 /* ------------------------------
-   ✅ BLOG IMPORTS (All 5 pages)
+   ✅ BLOG IMPORTS (All 10 pages)
 --------------------------------*/
 import BlogHome from "./pages/blog";
+
 import UnusedTicket from "./pages/blog/UnusedTicket";
 import SeatConfirm from "./pages/blog/SeatConfirm";
 import WaitingCancel from "./pages/blog/WaitingCancel";
 import TatkalFast from "./pages/blog/TatkalFast";
+import SeatAvailability from "./pages/blog/SeatAvailability";
+
+/* NEW 5 BLOGS */
+import RacGuide from "./pages/blog/RacGuide";
+import WlCompare from "./pages/blog/WlCompare";
+import PnrGuide from "./pages/blog/PnrGuide";
+import ChartTime from "./pages/blog/ChartTime";
+import TatkalGuide from "./pages/blog/TatkalGuide";
 
 /* Scroll To Top */
 function ScrollToTop() {
@@ -83,7 +92,7 @@ function AppContent() {
             }
           />
 
-          {/* Admin Panel */}
+          {/* Admin */}
           <Route
             path="/admin/*"
             element={
@@ -107,14 +116,21 @@ function AppContent() {
                ✅ BLOG ROUTES
              --------------------------------- */}
 
-          {/* Blog List (homepage for blog) */}
           <Route path="/blog" element={<BlogHome />} />
 
-          {/* Individual Blog Posts */}
+          {/* Main 5 blogs */}
           <Route path="/blog/unused-ticket" element={<UnusedTicket />} />
           <Route path="/blog/seat-confirm" element={<SeatConfirm />} />
           <Route path="/blog/waiting-cancel" element={<WaitingCancel />} />
           <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
+          <Route path="/blog/seat-availability" element={<SeatAvailability />} />
+
+          {/* NEW 5 Blogs */}
+          <Route path="/blog/rac-guide" element={<RacGuide />} />
+          <Route path="/blog/wl-compare" element={<WlCompare />} />
+          <Route path="/blog/pnr-guide" element={<PnrGuide />} />
+          <Route path="/blog/chart-time" element={<ChartTime />} />
+          <Route path="/blog/tatkal-guide" element={<TatkalGuide />} />
 
         </Routes>
       </main>
