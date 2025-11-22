@@ -42,7 +42,7 @@ const blogs = [
   /* NEW 5 BLOGS ---------------------------------- */
   {
     title: "RAC Ticket Kya Hota Hai? Confirm Hoga Ya Nahi?",
-    link: "/blog/Rac-guide",
+    link: "/blog/rac-guide", // ✔ FIXED
     tag: "RAC Guide",
     desc:
       "RAC seat, berth, confirmation chances aur MyYatraExchange ke real solutions ka full guide.",

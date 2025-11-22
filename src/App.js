@@ -23,7 +23,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
 
 /* ------------------------------
-   ✅ BLOG IMPORTS (All 10 pages)
+   BLOG IMPORTS (All 10 pages)
 --------------------------------*/
 import BlogHome from "./pages/blog";
 
@@ -35,15 +35,17 @@ import SeatAvailability from "./pages/blog/SeatAvailability";
 
 /* NEW 5 BLOGS */
 import RacGuide from "./pages/blog/RacGuide";
-import WlCompare from "./pages/blog/WlCompare";
-import PnrGuide from "./pages/blog/PnrGuide";
+import WLCompare from "./pages/blog/WLCompare";  // Correct casing
+import PNRGuide from "./pages/blog/PNRGuide";
 import ChartTime from "./pages/blog/ChartTime";
 import TatkalGuide from "./pages/blog/TatkalGuide";
 
 /* Scroll To Top */
 function ScrollToTop() {
   const { pathname } = useLocation();
-  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -64,7 +66,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Auth Protected */}
+          {/* Protected */}
           <Route
             path="/find"
             element={
@@ -102,7 +104,7 @@ function AppContent() {
             }
           />
 
-          {/* Legal Pages */}
+          {/* Legal */}
           <Route path="/policy" element={<Policy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/terms" element={<TermsOfUse />} />
@@ -112,10 +114,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* ---------------------------------
-               ✅ BLOG ROUTES
-             --------------------------------- */}
-
+          {/* BLOG HOME */}
           <Route path="/blog" element={<BlogHome />} />
 
           {/* Main 5 blogs */}
@@ -125,10 +124,10 @@ function AppContent() {
           <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
           <Route path="/blog/seat-availability" element={<SeatAvailability />} />
 
-          {/* NEW 5 Blogs */}
+          {/* New 5 blogs */}
           <Route path="/blog/rac-guide" element={<RacGuide />} />
-          <Route path="/blog/wl-compare" element={<WlCompare />} />
-          <Route path="/blog/pnr-guide" element={<PnrGuide />} />
+          <Route path="/blog/wl-compare" element={<WLCompare />} />
+          <Route path="/blog/pnr-guide" element={<PNRGuide />} />
           <Route path="/blog/chart-time" element={<ChartTime />} />
           <Route path="/blog/tatkal-guide" element={<TatkalGuide />} />
 
