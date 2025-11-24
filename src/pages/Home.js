@@ -18,23 +18,27 @@ const TicketCard = memo(({ ticket }) => (
       </h2>
 
       <p className="uppercase">
-        <span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase()} → {ticket.to?.toUpperCase()}
+        <span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase()} →{" "}
+        {ticket.to?.toUpperCase()}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">⏰ Departure:</span> {ticket.fromDateTime
+        <span className="font-semibold">⏰ Departure:</span>{" "}
+        {ticket.fromDateTime
           ? new Date(ticket.fromDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">🛬 Arrival:</span> {ticket.toDateTime
+        <span className="font-semibold">🛬 Arrival:</span>{" "}
+        {ticket.toDateTime
           ? new Date(ticket.toDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}
+        <span className="font-semibold">🪑 Class:</span>{" "}
+        {ticket.classType?.toUpperCase() || "GENERAL"}
       </p>
 
       <p className="uppercase">
@@ -42,8 +46,11 @@ const TicketCard = memo(({ ticket }) => (
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">👤 Passenger:</span> {ticket.passengerName
-          ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender?.toUpperCase() || ""}, ${ticket.passengerAge || ""})`
+        <span className="font-semibold">👤 Passenger:</span>{" "}
+        {ticket.passengerName
+          ? `${ticket.passengerName.toUpperCase()} (${
+              ticket.passengerGender?.toUpperCase() || ""
+            }, ${ticket.passengerAge || ""})`
           : "N/A"}
       </p>
     </div>
@@ -71,7 +78,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
-        <title>My Yatra Exchange – Find Confirmed Train Tickets | Share Unused Tickets</title>
+        <title>
+          My Yatra Exchange – Find Confirmed Train Tickets | Share Unused Tickets
+        </title>
         <meta
           name="description"
           content="My Yatra Exchange helps passengers share or find confirmed train tickets instantly."
@@ -110,16 +119,26 @@ export default function Home() {
 
           {/* Buttons Section */}
           <div className="flex flex-col sm:flex-row gap-10 w-full max-w-5xl mx-auto animate-bounceIn justify-center">
+
             {/* Post Ticket */}
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
                 to="/post"
-                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white px-10 py-4 rounded-lg font-semibold shadow-lg hover:from-orange-500 hover:to-red-600 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-3 text-lg md:text-xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white 
+                px-6 py-3 sm:px-10 sm:py-4 
+                rounded-lg font-semibold shadow-lg 
+                hover:from-orange-500 hover:to-red-600 transition 
+                transform hover:-translate-y-1 duration-300 
+                text-center flex items-center justify-center gap-3 
+                text-base sm:text-lg md:text-xl"
               >
-                <FaTicketAlt size={26} /> Post Ticket
+                <FaTicketAlt size={22} className="sm:hidden" />
+                <FaTicketAlt size={26} className="hidden sm:block" />
+                Post Ticket
               </Link>
               <p className="mt-3 text-sm md:text-base lg:text-lg text-gray-100 max-w-xs md:max-w-[300px] lg:max-w-[350px] text-center leading-snug">
-                <FaTicketAlt className="inline mr-2" /> Apni unused ticket share karo, cancellation ka paisa bachao!
+                <FaTicketAlt className="inline mr-2" /> Apni unused ticket share
+                karo, cancellation ka paisa bachao!
               </p>
             </div>
 
@@ -127,12 +146,21 @@ export default function Home() {
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
                 to="/find"
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-10 py-4 rounded-lg font-semibold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1 duration-300 text-center flex items-center justify-center gap-3 text-lg md:text-xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white 
+                px-6 py-3 sm:px-10 sm:py-4 
+                rounded-lg font-semibold shadow-lg 
+                hover:from-blue-600 hover:to-indigo-700 transition 
+                transform hover:-translate-y-1 duration-300 
+                text-center flex items-center justify-center gap-3 
+                text-base sm:text-lg md:text-xl"
               >
-                <FaSearch size={26} /> Find Ticket
+                <FaSearch size={22} className="sm:hidden" />
+                <FaSearch size={26} className="hidden sm:block" />
+                Find Ticket
               </Link>
               <p className="mt-3 text-sm md:text-base lg:text-lg text-gray-100 max-w-xs md:max-w-[300px] lg:max-w-[350px] text-center leading-snug">
-                <FaSearch className="inline mr-2" /> Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
+                <FaSearch className="inline mr-2" /> Confirm ticket chahiye?
+                Dusre ke unused ticket se travel karo!
               </p>
             </div>
           </div>
