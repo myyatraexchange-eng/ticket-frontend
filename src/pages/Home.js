@@ -111,34 +111,45 @@ export default function Home() {
             <span className="text-green-400">Exchange.com</span>
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl mb-6 max-w-xl drop-shadow-md animate-slideUp">
+          <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl drop-shadow-md animate-slideUp">
             Share unused train tickets & help others get confirmed travel.
+          </p>
+
+          {/* ⭐ SLOGAN ADDED BACK */}
+          <p className="text-sm sm:text-base md:text-lg italic opacity-90 mb-6 animate-fadeInUp">
+            "Connecting travelers, saving journeys."
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 animate-bounceIn">
 
-            {/* UPDATED BUTTONS (mobile-friendly) */}
+            {/* ⭐ 3D FIND BUTTON */}
             <Link
               to="/find"
               className="bg-white text-black 
                          px-4 py-2 
-                         sm:px-6 sm:py-3 
-                         rounded font-semibold 
-                         hover:bg-gray-200 transition transform hover:-translate-y-1 duration-300"
+                         sm:px-8 sm:py-4 
+                         rounded-xl font-semibold 
+                         shadow-[0_4px_0_#bcbcbc]
+                         active:translate-y-1 active:shadow-[0_1px_0_#bcbcbc]
+                         hover:bg-gray-100 transition-all duration-300"
             >
               Find Ticket
             </Link>
 
+            {/* ⭐ 3D POST BUTTON */}
             <Link
               to="/post"
               className="bg-blue-600 text-white 
                          px-4 py-2 
-                         sm:px-6 sm:py-3 
-                         rounded font-semibold 
-                         hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
+                         sm:px-8 sm:py-4 
+                         rounded-xl font-semibold 
+                         shadow-[0_4px_0_#1e40af]
+                         active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
+                         hover:bg-blue-700 transition-all duration-300"
             >
               Post Ticket
             </Link>
+
           </div>
         </div>
       </div>
