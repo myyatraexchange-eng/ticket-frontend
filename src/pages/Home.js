@@ -103,7 +103,7 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn">
             <span className="text-orange-400">My</span>
             <span className="text-white">Yatra</span>
-            <span className="text-green-400">Exchange.com</span>
+            <span className="text-green-400">Exchange</span>
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl drop-shadow-md animate-slideUp">
@@ -132,7 +132,7 @@ export default function Home() {
                 Find Ticket
               </Link>
 
-              <p className="text-xs sm:text-sm mt-2 opacity-90">
+              <p className="text-xs sm:text-sm mt-2 opacity-100">
                 Find confirmed tickets shared by others.
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function Home() {
                 Post Ticket
               </Link>
 
-              <p className="text-xs sm:text-sm mt-2 opacity-90">
+              <p className="text-xs sm:text-sm mt-2 opacity-100">
                 Share your unused ticket to help someone else.
               </p>
             </div>
