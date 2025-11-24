@@ -1,4 +1,4 @@
-/* --- FINAL UPDATED HOME PAGE WITH PERFECT MOBILE UI & TEXT --- */
+/* --- FINAL HOME PAGE WITH SHOW ALL TICKETS BUTTON RESTORED --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -80,87 +80,73 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
-        <title>
-          MyYatraExchange – Find Confirmed Train Tickets | Share Unused Tickets
-        </title>
-        <meta
-          name="description"
-          content="MyYatraExchange helps passengers share or find confirmed train tickets instantly."
-        />
+        <title>MyYatraExchange – Find & Share Train Tickets</title>
       </Helmet>
 
       {/* HERO SECTION */}
       <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
         <img
           src={trainImage}
-          alt="Indian train running on track"
+          alt="Indian train"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          loading="lazy"
-          decoding="async"
         />
 
-        {/* OVERLAY CONTENT */}
+        {/* OVERLAY */}
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
-          {/* LOGO TEXT */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
             <span className="text-orange-400">My</span>
             <span className="text-white"> Yatra</span>
             <span className="text-green-400"> Exchange</span>
           </h1>
 
-          {/* SUBTITLE */}
-          <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl drop-shadow-md">
-            Share unused train tickets & help others get confirmed travel.
+          <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl">
+            Share unused tickets & help others get confirmed travel.
           </p>
 
-          <p className="text-sm sm:text-base md:text-lg italic opacity-90 mb-6">
+          <p className="text-sm sm:text-base italic opacity-90 mb-6">
             "Connecting travelers, saving journeys."
           </p>
 
-          {/* BUTTONS + TEXT */}
+          {/* BUTTONS */}
           <div className="flex flex-col sm:flex-row gap-6">
 
-            {/* FIND TICKET WITH TEXT */}
+            {/* Find Ticket */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/find"
                 className="bg-white text-black 
-                           px-5 py-3 
-                           sm:px-10 sm:py-5 
-                           rounded-2xl font-bold text-lg
-                           shadow-[0_5px_0_#bcbcbc]
-                           active:translate-y-1 active:shadow-[0_1px_0_#bcbcbc]
-                           hover:bg-gray-100 transition-all duration-300"
+                px-5 py-3 sm:px-10 sm:py-5 
+                rounded-2xl font-bold text-lg
+                shadow-[0_5px_0_#bbb]
+                active:translate-y-1 active:shadow-[0_1px_0_#bbb]
+                hover:bg-gray-100 transition-all"
               >
                 Find Ticket
               </Link>
-
-              <p className="text-xs sm:text-sm mt-2 leading-5 opacity-100">
+              <p className="text-xs sm:text-sm mt-2 leading-5">
                 Waiting list se chutkaara paaye!  
-                Yahan shared confirmed tickets milte hain —  
+                Yahan shared confirmed tickets milte hain—  
                 turant confirmed travel ka mauka.
               </p>
             </div>
 
-            {/* POST TICKET WITH TEXT */}
+            {/* Post Ticket */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/post"
                 className="bg-blue-600 text-white 
-                           px-5 py-3 
-                           sm:px-10 sm:py-5 
-                           rounded-2xl font-bold text-lg
-                           shadow-[0_5px_0_#1e40af]
-                           active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
-                           hover:bg-blue-700 transition-all duration-300"
+                px-5 py-3 sm:px-10 sm:py-5 
+                rounded-2xl font-bold text-lg
+                shadow-[0_5px_0_#1e40af]
+                active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
+                hover:bg-blue-700 transition-all"
               >
                 Post Ticket
               </Link>
-
-              <p className="text-xs sm:text-sm mt-2 leading-5 opacity-100">
+              <p className="text-xs sm:text-sm mt-2 leading-5">
                 Apna extra ticket post karein aur  
-                ticket cancel se hone wale loss se bachein —  
-                kisi aur ki journey bhi ban jayegi.
+                cancel karne se hone wale loss se bachein—  
+                kisi aur ki journey ban jayegi.
               </p>
             </div>
 
@@ -175,13 +161,30 @@ export default function Home() {
         </h2>
 
         {tickets.length === 0 ? (
-          <p className="text-center text-gray-500 font-medium">Loading tickets...</p>
+          <p className="text-center text-gray-500">Loading tickets...</p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {tickets.map((ticket) => (
-              <TicketCard key={ticket._id} ticket={ticket} />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {tickets.map((ticket) => (
+                <TicketCard key={ticket._id} ticket={ticket} />
+              ))}
+            </div>
+
+            {/* ⭐ SHOW ALL TICKETS BUTTON (RESTORED + 3D EFFECT) */}
+            <div className="flex justify-center mt-8">
+              <Link
+                to="/find"
+                className="bg-green-500 text-white 
+                px-6 py-3 sm:px-10 sm:py-4 
+                rounded-2xl font-bold text-lg
+                shadow-[0_5px_0_#166534]
+                active:translate-y-1 active:shadow-[0_1px_0_#166534]
+                hover:bg-green-600 transition-all"
+              >
+                Show All Tickets
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </div>
