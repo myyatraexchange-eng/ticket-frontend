@@ -125,7 +125,7 @@ export default function Home() {
               <Link
                 to="/post"
                 className="w-full sm:w-auto bg-gradient-to-r from-orange-400 to-red-500 text-white 
-                px-5 py-2.5
+                px-6 py-3
                 rounded-md font-semibold shadow-lg 
                 hover:from-orange-500 hover:to-red-600 transition 
                 transform hover:-translate-y-1 duration-300 
@@ -147,7 +147,7 @@ export default function Home() {
               <Link
                 to="/find"
                 className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white 
-                px-5 py-2.5
+                px-6 py-3
                 rounded-md font-semibold shadow-lg 
                 hover:from-blue-600 hover:to-indigo-700 transition 
                 transform hover:-translate-y-1 duration-300 
