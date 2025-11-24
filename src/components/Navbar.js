@@ -20,13 +20,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
 
         {/* BRAND NAME */}
-        <div className="text-base md:text-lg font-bold">
-          <NavLink to="/" onClick={handleLinkClick} className="hover:underline">
-            <span className="text-yellow-300">My</span>
-            <span className="text-white"> Yatra</span>
-            <span className="text-yellow-300"> Exchange</span>
-          </NavLink>
-        </div>
+       <div className="text-base md:text-lg font-bold">
+         <NavLink to="/" onClick={handleLinkClick} className="hover:underline">
+         <span className="text-orange-400">My</span>
+         <span className="text-white"> Yatra</span>
+         <span className="text-green-400"> Exchange</span>
+        </NavLink>
+       </div>
 
         {/* MOBILE MENU BUTTON */}
         <button
