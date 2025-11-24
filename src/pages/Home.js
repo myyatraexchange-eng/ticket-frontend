@@ -1,3 +1,4 @@
+// Updated Home Component with brand spacing and removed .com
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -8,7 +9,6 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// MEMOIZED CARD with hover animation & gradient accent
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-gradient-to-r from-white via-gray-50 to-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -18,40 +18,32 @@ const TicketCard = memo(({ ticket }) => (
       </h2>
 
       <p className="uppercase">
-        <span className="font-semibold">📍 Route:</span>{" "}
-        {ticket.from?.toUpperCase()} → {ticket.to?.toUpperCase()}
+        <span className="font-semibold">📍 Route:</span> {ticket.from?.toUpperCase()} → {ticket.to?.toUpperCase()}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">⏰ Departure:</span>{" "}
-        {ticket.fromDateTime
+        <span className="font-semibold">⏰ Departure:</span> {ticket.fromDateTime
           ? new Date(ticket.fromDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">🛬 Arrival:</span>{" "}
-        {ticket.toDateTime
+        <span className="font-semibold">🛬 Arrival:</span> {ticket.toDateTime
           ? new Date(ticket.toDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">🪑 Class:</span>{" "}
-        {ticket.classType?.toUpperCase() || "GENERAL"}
+        <span className="font-semibold">🪑 Class:</span> {ticket.classType?.toUpperCase() || "GENERAL"}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">🎟 Tickets:</span>{" "}
-        {ticket.ticketNumber || "N/A"}
+        <span className="font-semibold">🎟 Tickets:</span> {ticket.ticketNumber || "N/A"}
       </p>
 
       <p className="uppercase">
-        <span className="font-semibold">👤 Passenger:</span>{" "}
-        {ticket.passengerName
-          ? `${ticket.passengerName.toUpperCase()} (${
-              ticket.passengerGender?.toUpperCase() || ""
-            }, ${ticket.passengerAge || ""})`
+        <span className="font-semibold">👤 Passenger:</span> {ticket.passengerName
+          ? `${ticket.passengerName.toUpperCase()} (${ticket.passengerGender?.toUpperCase() || ""}, ${ticket.passengerAge || ""})`
           : "N/A"}
       </p>
     </div>
@@ -79,18 +71,16 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
-        <title>
-          MyYatraExchange – Find Confirmed Train Tickets | Share Unused Tickets
-        </title>
+        <title>My Yatra Exchange – Find Confirmed Train Tickets | Share Unused Tickets</title>
         <meta
           name="description"
-          content="MyYatraExchange helps passengers share or find confirmed train tickets instantly."
+          content="My Yatra Exchange helps passengers share or find confirmed train tickets instantly."
         />
         <meta
           name="keywords"
           content="train tickets, confirmed train ticket, ticket exchange, my yatra exchange"
         />
-        <meta name="author" content="MyYatraExchange" />
+        <meta name="author" content="My Yatra Exchange" />
         <link rel="canonical" href="https://www.myyatraexchange.com/" />
       </Helmet>
 
@@ -98,7 +88,7 @@ export default function Home() {
       <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
         <img
           src={trainImage}
-          alt="Indian train running on track - MyYatraExchange"
+          alt="Indian train running on track - My Yatra Exchange"
           className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 ease-in-out"
           loading="lazy"
           decoding="async"
@@ -108,9 +98,9 @@ export default function Home() {
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
           {/* Site Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn tracking-wide">
-            <span className="text-orange-400">My</span>
-            <span className="text-white">Yatra</span>
-            <span className="text-green-400">Exchange.com</span>
+            <span className="text-orange-400">My </span>
+            <span className="text-white">Yatra </span>
+            <span className="text-green-400">Exchange</span>
           </h1>
 
           {/* Hero Subtitle */}
@@ -118,9 +108,8 @@ export default function Home() {
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          {/* Buttons with icons + taglines */}
+          {/* Buttons Section */}
           <div className="flex flex-col sm:flex-row gap-10 w-full max-w-5xl mx-auto animate-bounceIn justify-center">
-            
             {/* Post Ticket */}
             <div className="flex flex-col items-center w-full sm:w-auto">
               <Link
@@ -146,12 +135,11 @@ export default function Home() {
                 <FaSearch className="inline mr-2" /> Confirm ticket chahiye? Dusre ke unused ticket se travel karo!
               </p>
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* RECENT TICKETS */}
+      {/* Recent Tickets */}
       <div className="max-w-6xl mx-auto px-4 py-10">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600 animate-fadeInUp">
           Recent Tickets
