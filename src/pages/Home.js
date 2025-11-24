@@ -1,4 +1,4 @@
-/* --- आपका पूरा code वही है, सिर्फ Hero section में दो changes किए हैं --- */
+/* --- FINAL UPDATED HOME PAGE WITH PERFECT MOBILE UI & TEXT --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
+// --- Ticket Card ---
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -88,37 +89,39 @@ export default function Home() {
         />
       </Helmet>
 
-      {/* HERO */}
+      {/* HERO SECTION */}
       <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
         <img
           src={trainImage}
-          alt="Indian train running on track - MyYatraExchange"
-          className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 ease-in-out"
+          alt="Indian train running on track"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           loading="lazy"
           decoding="async"
-          fetchpriority="high"
         />
 
+        {/* OVERLAY CONTENT */}
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn">
+          {/* LOGO TEXT */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
             <span className="text-orange-400">My</span>
             <span className="text-white"> Yatra</span>
             <span className="text-green-400"> Exchange</span>
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl drop-shadow-md animate-slideUp">
+          {/* SUBTITLE */}
+          <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl drop-shadow-md">
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          <p className="text-sm sm:text-base md:text-lg italic opacity-90 mb-6 animate-fadeInUp">
+          <p className="text-sm sm:text-base md:text-lg italic opacity-90 mb-6">
             "Connecting travelers, saving journeys."
           </p>
 
-          {/* ⭐ BUTTONS + EXPLANATION RE-ADDED */}
-          <div className="flex flex-col sm:flex-row gap-6 animate-bounceIn">
+          {/* BUTTONS + TEXT */}
+          <div className="flex flex-col sm:flex-row gap-6">
 
-            <div className="flex flex-col items-center">
-              {/* ⭐ Bigger 3D FIND button */}
+            {/* FIND TICKET WITH TEXT */}
+            <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/find"
                 className="bg-white text-black 
@@ -132,13 +135,15 @@ export default function Home() {
                 Find Ticket
               </Link>
 
-              <p className="text-xs sm:text-sm mt-2 opacity-100">
-                Find confirmed tickets shared by others.
+              <p className="text-xs sm:text-sm mt-2 leading-5 opacity-100">
+                Waiting list se chutkaara paaye!  
+                Yahan shared confirmed tickets milte hain —  
+                turant confirmed travel ka mauka.
               </p>
             </div>
 
-            <div className="flex flex-col items-center">
-              {/* ⭐ Bigger 3D POST button */}
+            {/* POST TICKET WITH TEXT */}
+            <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/post"
                 className="bg-blue-600 text-white 
@@ -152,8 +157,10 @@ export default function Home() {
                 Post Ticket
               </Link>
 
-              <p className="text-xs sm:text-sm mt-2 opacity-100">
-                Share your unused ticket to help someone else.
+              <p className="text-xs sm:text-sm mt-2 leading-5 opacity-100">
+                Apna extra ticket post karein aur  
+                ticket cancel se hone wale loss se bachein —  
+                kisi aur ki journey bhi ban jayegi.
               </p>
             </div>
 
