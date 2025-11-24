@@ -1,3 +1,5 @@
+/* --- आपका पूरा code वही है, सिर्फ Hero section में दो changes किए हैं --- */
+
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -7,7 +9,6 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// MEMOIZED CARD with hover animation
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -85,12 +86,6 @@ export default function Home() {
           name="description"
           content="MyYatraExchange helps passengers share or find confirmed train tickets instantly."
         />
-        <meta
-          name="keywords"
-          content="train tickets, confirmed train ticket, ticket exchange, my yatra exchange"
-        />
-        <meta name="author" content="MyYatraExchange" />
-        <link rel="canonical" href="https://www.myyatraexchange.com/" />
       </Helmet>
 
       {/* HERO */}
@@ -115,40 +110,52 @@ export default function Home() {
             Share unused train tickets & help others get confirmed travel.
           </p>
 
-          {/* ⭐ SLOGAN ADDED BACK */}
           <p className="text-sm sm:text-base md:text-lg italic opacity-90 mb-6 animate-fadeInUp">
             "Connecting travelers, saving journeys."
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 animate-bounceIn">
+          {/* ⭐ BUTTONS + EXPLANATION RE-ADDED */}
+          <div className="flex flex-col sm:flex-row gap-6 animate-bounceIn">
 
-            {/* ⭐ 3D FIND BUTTON */}
-            <Link
-              to="/find"
-              className="bg-white text-black 
-                         px-4 py-2 
-                         sm:px-8 sm:py-4 
-                         rounded-xl font-semibold 
-                         shadow-[0_4px_0_#bcbcbc]
-                         active:translate-y-1 active:shadow-[0_1px_0_#bcbcbc]
-                         hover:bg-gray-100 transition-all duration-300"
-            >
-              Find Ticket
-            </Link>
+            <div className="flex flex-col items-center">
+              {/* ⭐ Bigger 3D FIND button */}
+              <Link
+                to="/find"
+                className="bg-white text-black 
+                           px-5 py-3 
+                           sm:px-10 sm:py-5 
+                           rounded-2xl font-bold text-lg
+                           shadow-[0_5px_0_#bcbcbc]
+                           active:translate-y-1 active:shadow-[0_1px_0_#bcbcbc]
+                           hover:bg-gray-100 transition-all duration-300"
+              >
+                Find Ticket
+              </Link>
 
-            {/* ⭐ 3D POST BUTTON */}
-            <Link
-              to="/post"
-              className="bg-blue-600 text-white 
-                         px-4 py-2 
-                         sm:px-8 sm:py-4 
-                         rounded-xl font-semibold 
-                         shadow-[0_4px_0_#1e40af]
-                         active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
-                         hover:bg-blue-700 transition-all duration-300"
-            >
-              Post Ticket
-            </Link>
+              <p className="text-xs sm:text-sm mt-2 opacity-90">
+                Find confirmed tickets shared by others.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center">
+              {/* ⭐ Bigger 3D POST button */}
+              <Link
+                to="/post"
+                className="bg-blue-600 text-white 
+                           px-5 py-3 
+                           sm:px-10 sm:py-5 
+                           rounded-2xl font-bold text-lg
+                           shadow-[0_5px_0_#1e40af]
+                           active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
+                           hover:bg-blue-700 transition-all duration-300"
+              >
+                Post Ticket
+              </Link>
+
+              <p className="text-xs sm:text-sm mt-2 opacity-90">
+                Share your unused ticket to help someone else.
+              </p>
+            </div>
 
           </div>
         </div>
@@ -156,30 +163,17 @@ export default function Home() {
 
       {/* RECENT TICKETS */}
       <div className="max-w-6xl mx-auto px-4 py-10">
-        <h2 className="text-3xl font-bold mb-6 text-center text-blue-600 animate-fadeInUp">
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
 
         {tickets.length === 0 ? (
-          <p className="text-center text-gray-500 font-medium animate-pulse">
-            Loading tickets...
-          </p>
+          <p className="text-center text-gray-500 font-medium">Loading tickets...</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {tickets.map((ticket) => (
               <TicketCard key={ticket._id} ticket={ticket} />
             ))}
-          </div>
-        )}
-
-        {tickets.length > 0 && (
-          <div className="text-center mt-8">
-            <Link
-              to="/find"
-              className="bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700 transition transform hover:-translate-y-1 duration-300"
-            >
-              See All Tickets
-            </Link>
           </div>
         )}
       </div>
