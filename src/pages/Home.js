@@ -102,8 +102,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg animate-fadeIn">
             <span className="text-orange-400">My</span>
-            <span className="text-white">Yatra</span>
-            <span className="text-green-400">Exchange</span>
+            <span className="text-white"> Yatra</span>
+            <span className="text-green-400"> Exchange</span>
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl drop-shadow-md animate-slideUp">
