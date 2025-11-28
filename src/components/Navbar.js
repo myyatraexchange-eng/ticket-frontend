@@ -27,8 +27,8 @@ const Navbar = () => {
           <img 
             src={logo} 
             alt="My Yatra Exchange" 
-            className="h-12 md:h-14 w-auto object-contain"
-            style={{ maxWidth: "210px" }}   // wide look without extra height
+            className="h-14 md:h-16 w-auto object-contain"
+            style={{ maxWidth: "260px" }} 
           />
         </NavLink>
 
