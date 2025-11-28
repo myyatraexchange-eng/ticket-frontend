@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+// ⬇️ IMPORT YOUR LOGO
+import logo from "../assets/logo.webp";
+
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -19,14 +22,14 @@ const Navbar = () => {
     <nav className="bg-blue-700 text-white shadow-md text-sm relative">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
 
-        {/* BRAND NAME */}
-       <div className="text-base md:text-lg font-bold">
-         <NavLink to="/" onClick={handleLinkClick} className="hover:underline">
-         <span className="text-orange-400">My</span>
-         <span className="text-white"> Yatra</span>
-         <span className="text-green-400"> Exchange</span>
+        {/* BRAND LOGO */}
+        <NavLink to="/" onClick={handleLinkClick} className="flex items-center">
+          <img 
+            src={logo} 
+            alt="My Yatra Exchange" 
+            className="h-8 md:h-10 w-auto"
+          />
         </NavLink>
-       </div>
 
         {/* MOBILE MENU BUTTON */}
         <button
@@ -127,3 +130,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
