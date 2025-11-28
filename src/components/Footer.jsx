@@ -1,22 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-// ⬇️ Import Logo
-import logo from "../assets/logo.webp";
+// ⬇️ Import New Transparent Logo
+import logo from "../assets/mylogo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-800 text-white pt-8 mt-12">
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+    <footer className="bg-blue-800 text-white pt-10 mt-12">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 
         {/* BRAND + ABOUT */}
         <div>
           {/* LOGO */}
-          <div className="flex justify-center md:justify-start mb-3">
+          <div className="flex justify-center md:justify-start mb-4">
             <img 
               src={logo} 
               alt="My Yatra Exchange Logo" 
-              className="h-10 w-auto"
+              className="h-14 w-auto"
             />
           </div>
 
@@ -57,7 +57,7 @@ const Footer = () => {
       </div>
 
       {/* COPYRIGHT */}
-      <div className="text-center mt-6 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1 pb-2">
+      <div className="text-center mt-8 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1 pb-3">
         © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. | 
         <span className="font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300">
           Developer by Rohit Akodiya

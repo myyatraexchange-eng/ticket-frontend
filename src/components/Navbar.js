@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// ⬇️ IMPORT YOUR LOGO
-import logo from "../assets/logo.webp";
+// ⬇️ Import New Transparent Logo
+import logo from "../assets/mylogo.png";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,7 +27,7 @@ const Navbar = () => {
           <img 
             src={logo} 
             alt="My Yatra Exchange" 
-            className="h-8 md:h-10 w-auto"
+            className="h-10 md:h-12 w-auto"
           />
         </NavLink>
 
