@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaYoutube, FaInstagram } from "react-icons/fa";  // ⬅️ Social Icons
 
-// ⬇️ Import New Transparent Logo
 import logo from "../assets/mylogo.png";
 
 const Footer = () => {
@@ -16,15 +16,38 @@ const Footer = () => {
             <img 
               src={logo} 
               alt="My Yatra Exchange Logo" 
-              className="h-24 w-auto object-contain drop-shadow-md"
-              style={{ maxWidth: "260px" }}
+              className="h-20 w-auto object-contain drop-shadow-md"
+              style={{ maxWidth: "220px" }}
             />
           </div>
 
-          <h2 className="font-bold text-lg mb-2">MyYatraExchange.com</h2>
-          <p>
-            Helping you share unused train tickets safely without cancellation losses.
-          </p>
+          <h2 className="font-bold text-lg mb-1">MyYatraExchange.com</h2>
+          <p>Helping you share unused train tickets safely without cancellation losses.</p>
+
+          {/* SOCIAL ICONS */}
+          <div className="flex justify-center md:justify-start gap-4 mt-3">
+            
+            {/* YouTube */}
+            <a 
+              href="https://youtube.com/@my_yatra_exchange?si=V2UB_RbmlCilbU5R"
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-red-500 bg-white p-2 rounded-full text-xl hover:scale-110 transition-all shadow-md"
+            >
+              <FaYoutube />
+            </a>
+
+            {/* Instagram */}
+            <a 
+              href="https://www.instagram.com/myyatraexchange?igsh=cnprZGVqbmkzMnFy"
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-pink-500 bg-white p-2 rounded-full text-xl hover:scale-110 transition-all shadow-md"
+            >
+              <FaInstagram />
+            </a>
+
+          </div>
         </div>
 
         {/* EXPLORE */}
@@ -68,8 +91,8 @@ const Footer = () => {
       {/* DISCLAIMER MARQUEE */}
       <div className="bg-yellow-200 text-yellow-900 py-2 text-sm mt-2">
         <marquee behavior="scroll" direction="left" scrollAmount="8">
-          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers to share contact information 
-          for unused tickets. We do not sell, resell, transfer, modify, or issue tickets. All coordination 
+          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers to share contact information
+          for unused tickets. We do not sell, resell, transfer, modify, or issue tickets. All coordination
           is between users. This platform is independent and not affiliated with Indian Railways.
         </marquee>
       </div>
