@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaYoutube, FaInstagram } from "react-icons/fa";  // ⬅️ Social Icons
+import { FaYoutube, FaInstagram } from "react-icons/fa";
 
 import logo from "../assets/mylogo.png";
 
@@ -16,8 +16,7 @@ const Footer = () => {
             <img 
               src={logo} 
               alt="My Yatra Exchange Logo" 
-              className="h-20 w-auto object-contain drop-shadow-md"
-              style={{ maxWidth: "220px" }}
+              className="h-12 md:h-16 w-auto object-contain drop-shadow-md"
             />
           </div>
 

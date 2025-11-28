@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// ⬇️ Import New Transparent Logo
+// Logo
 import logo from "../assets/mylogo.png";
 
 const Navbar = () => {
@@ -27,8 +27,7 @@ const Navbar = () => {
           <img 
             src={logo} 
             alt="My Yatra Exchange" 
-            className="h-14 md:h-16 w-auto object-contain"
-            style={{ maxWidth: "260px" }} 
+            className="h-10 md:h-14 w-auto object-contain"
           />
         </NavLink>
 
@@ -49,7 +48,9 @@ const Navbar = () => {
           <NavLink
             to="/"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Home
           </NavLink>
@@ -57,7 +58,9 @@ const Navbar = () => {
           <NavLink
             to="/find"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Find Ticket
           </NavLink>
@@ -65,7 +68,9 @@ const Navbar = () => {
           <NavLink
             to="/post"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Post Ticket
           </NavLink>
@@ -73,7 +78,9 @@ const Navbar = () => {
           <NavLink
             to="/about"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             About
           </NavLink>
@@ -81,7 +88,9 @@ const Navbar = () => {
           <NavLink
             to="/contact"
             onClick={handleLinkClick}
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
+            className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }
           >
             Contact
           </NavLink>
@@ -106,7 +115,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* LOGIN / PROFILE */}
+          {/* LOGIN / PROFILE BUTTON */}
           {token && user ? (
             <NavLink
               to="/profile"
