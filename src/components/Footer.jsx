@@ -12,7 +12,7 @@ const Footer = () => {
         {/* BRAND + ABOUT */}
         <div>
           {/* LOGO */}
-          <div className="flex justify-center md:justify-start mb-6">
+          <div className="flex justify-center md:justify-start mb-3">
             <img 
               src={logo} 
               alt="My Yatra Exchange Logo" 
