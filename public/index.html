@@ -108,19 +108,27 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- HIDE SEO CONTENT FROM USERS (BUT GOOGLE CAN READ IT) -->
+    <style>
+      #seo-content {
+        display: none !important;
+        visibility: hidden !important;
+      }
+    </style>
   </head>
 
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <!-- ==========================
-        STATIC SEO CONTENT (GOOGLE CRAWLS THIS)
+        STATIC SEO CONTENT (HIDDEN FROM USERS)
     ============================= -->
-    <section style="padding:20px; max-width:900px; margin:auto; font-family:Poppins;">
+    <div id="seo-content">
       <h1>MyYatraExchange – India ka Sabse Trusted Train Ticket Exchange Platform</h1>
 
       <p>
-        MyYatraExchange India ka pehla aur सबसे तेज़ train ticket exchange platform hai jahan users
+        MyYatraExchange India ka pehla aur sabse tez train ticket exchange platform hai jahan users
         unused ya cancel hone wali train tickets ko share, find, ya exchange kar sakte hain.
         Yeh platform 100% free, safe aur transparent hai.
       </p>
@@ -142,8 +150,10 @@
       </ul>
 
       <h2>Popular Searches</h2>
-      <p>Train ticket exchange, confirmed ticket find, WL ticket confirm trick, IRCTC ticket sharing</p>
-    </section>
+      <p>
+        Train ticket exchange, confirmed ticket find, WL ticket confirm trick, IRCTC ticket sharing
+      </p>
+    </div>
 
     <div id="root"></div>
   </body>
