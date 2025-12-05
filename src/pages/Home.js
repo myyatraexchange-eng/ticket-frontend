@@ -1,4 +1,4 @@
-/* --- FULLY OPTIMIZED HOME PAGE (SEO + SPEED + SEMANTIC) --- */
+/* --- FINAL OPTIMIZED HOME PAGE (SEO + SPEED + CLEAN UI) --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -11,7 +11,7 @@ const API_BASE =
   "https://ticket-backend-g5da.onrender.com/api";
 
 /* ===============================
-   SEO OPTIMIZED TICKET CARD
+   TICKET CARD (SEO OPTIMIZED)
 ================================*/
 const TicketCard = memo(({ ticket }) => (
   <article
@@ -101,9 +101,9 @@ export default function Home() {
       </Helmet>
 
       {/* ===============================
-              HERO SECTION
+              HERO SECTION (CLEAN + FIXED)
       ================================ */}
-      <header className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
+      <section className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
         <img
           src={trainImage}
           loading="lazy"
@@ -127,9 +127,9 @@ export default function Home() {
             "Connecting travelers, saving journeys."
           </p>
 
-          {/* ACTION BUTTONS */}
-          <nav className="flex flex-col sm:flex-row gap-6">
-            
+          {/* BUTTONS */}
+          <div className="flex flex-col sm:flex-row gap-6">
+
             {/* FIND TICKET */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
@@ -144,8 +144,7 @@ export default function Home() {
                 Find Ticket
               </Link>
               <p className="text-xs sm:text-sm mt-2 leading-5">
-                Waiting list se chutkaara paaye.  
-                Yahan shared confirmed tickets mil sakte hain!
+                Waiting list se chutkaara paaye!
               </p>
             </div>
 
@@ -163,14 +162,13 @@ export default function Home() {
                 Post Ticket
               </Link>
               <p className="text-xs sm:text-sm mt-2 leading-5">
-                Extra ticket ko share karein aur  
-                kisi aur ki journey bachayein.
+                Extra ticket share karein, kisi ki journey bachayein.
               </p>
             </div>
 
-          </nav>
+          </div>
         </div>
-      </header>
+      </section>
 
       {/* ===============================
               RECENT TICKETS
