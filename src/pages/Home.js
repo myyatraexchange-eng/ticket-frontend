@@ -1,17 +1,23 @@
-/* --- FINAL HOME PAGE WITH SHOW ALL TICKETS BUTTON RESTORED --- */
+/* --- FULLY OPTIMIZED HOME PAGE (SEO + SPEED + SEMANTIC) --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import trainImage from "../assets/train.webp";
 
+/* API BASE URL */
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// --- Ticket Card ---
+/* ===============================
+   SEO OPTIMIZED TICKET CARD
+================================*/
 const TicketCard = memo(({ ticket }) => (
-  <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
+  <article
+    className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]"
+    aria-label={`${ticket.trainName || "Train"} ticket card`}
+  >
     <div className="flex flex-col gap-2 text-sm">
       <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
         🚆 {ticket.trainName?.toUpperCase() || "UNKNOWN TRAIN"} (
@@ -56,9 +62,12 @@ const TicketCard = memo(({ ticket }) => (
           : "N/A"}
       </p>
     </div>
-  </div>
+  </article>
 ));
 
+/* ===============================
+          MAIN HOME PAGE
+================================*/
 export default function Home() {
   const [tickets, setTickets] = useState([]);
 
@@ -79,19 +88,30 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
+
+      {/* ===============================
+              SEO META TAGS
+      ================================ */}
       <Helmet>
         <title>MyYatraExchange – Find & Share Train Tickets</title>
+        <meta
+          name="description"
+          content="Find and share unused train tickets instantly. MyYatraExchange helps travelers get confirmed tickets through community sharing. 100% free and user-driven."
+        />
       </Helmet>
 
-      {/* HERO SECTION */}
-      <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
+      {/* ===============================
+              HERO SECTION
+      ================================ */}
+      <header className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
         <img
           src={trainImage}
-          alt="Indian train"
+          loading="lazy"
+          alt="Indian train travel - MyYatraExchange ticket exchange platform"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
 
-        {/* OVERLAY */}
+        {/* OVERLAY CONTENT */}
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
             <span className="text-orange-400">My</span>
@@ -107,10 +127,10 @@ export default function Home() {
             "Connecting travelers, saving journeys."
           </p>
 
-          {/* BUTTONS */}
-          <div className="flex flex-col sm:flex-row gap-6">
-
-            {/* Find Ticket */}
+          {/* ACTION BUTTONS */}
+          <nav className="flex flex-col sm:flex-row gap-6">
+            
+            {/* FIND TICKET */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/find"
@@ -124,13 +144,12 @@ export default function Home() {
                 Find Ticket
               </Link>
               <p className="text-xs sm:text-sm mt-2 leading-5">
-                Waiting list se chutkaara paaye!  
-                Yahan shared confirmed tickets milte hain—  
-                turant confirmed travel ka mauka.
+                Waiting list se chutkaara paaye.  
+                Yahan shared confirmed tickets mil sakte hain!
               </p>
             </div>
 
-            {/* Post Ticket */}
+            {/* POST TICKET */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/post"
@@ -144,18 +163,19 @@ export default function Home() {
                 Post Ticket
               </Link>
               <p className="text-xs sm:text-sm mt-2 leading-5">
-                Apna extra ticket post karein aur  
-                cancel karne se hone wale loss se bachein—  
-                kisi aur ki journey ban jayegi.
+                Extra ticket ko share karein aur  
+                kisi aur ki journey bachayein.
               </p>
             </div>
 
-          </div>
+          </nav>
         </div>
-      </div>
+      </header>
 
-      {/* RECENT TICKETS */}
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      {/* ===============================
+              RECENT TICKETS
+      ================================ */}
+      <section className="max-w-6xl mx-auto px-4 py-10">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
@@ -170,7 +190,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* ⭐ SHOW ALL TICKETS BUTTON (RESTORED + 3D EFFECT) */}
+            {/* VIEW ALL BUTTON */}
             <div className="flex justify-center mt-8">
               <Link
                 to="/find"
@@ -186,7 +206,7 @@ export default function Home() {
             </div>
           </>
         )}
-      </div>
+      </section>
     </div>
   );
 }
