@@ -2,6 +2,16 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const blogs = [
+  /* NEW TRENDING BLOG ---------------------------------- */
+  {
+    title:
+      "Dhurandhar Movie Shooting Location: Kaise Pahunche? Full Train Route Guide (8.1/10 Review)",
+    link: "/blog/dhurandhar-movie-shooting-location-train-guide",
+    tag: "Trending",
+    desc:
+      "Dhurandhar (2025) ki shooting locations – Bangkok, Amritsar, Mumbai, Madh Island – ke full travel & train route guide ke saath.",
+  },
+
   /* OLD BLOGS ---------------------------------- */
   {
     title: "IRCTC Ticket Confirm Kaise Kare? (MyYatraExchange Special Tricks)",
@@ -42,7 +52,7 @@ const blogs = [
   /* NEW 5 BLOGS ---------------------------------- */
   {
     title: "RAC Ticket Kya Hota Hai? Confirm Hoga Ya Nahi?",
-    link: "/blog/rac-guide", // ✔ FIXED
+    link: "/blog/rac-guide",
     tag: "RAC Guide",
     desc:
       "RAC seat, berth, confirmation chances aur MyYatraExchange ke real solutions ka full guide.",
@@ -85,7 +95,8 @@ export default function BlogIndex() {
       </h1>
 
       <p className="text-lg text-gray-600 mb-10 text-center">
-        Train tickets se related sabhi important guides, tricks aur smart solutions ek jagah.
+        Train tickets se related sabhi important guides, tricks aur smart
+        solutions ek jagah.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -99,7 +110,9 @@ export default function BlogIndex() {
               {blog.tag}
             </span>
 
-            <h2 className="text-xl font-bold mt-4 text-gray-900">{blog.title}</h2>
+            <h2 className="text-xl font-bold mt-4 text-gray-900">
+              {blog.title}
+            </h2>
 
             <p className="text-gray-600 mt-2 text-sm">{blog.desc}</p>
 

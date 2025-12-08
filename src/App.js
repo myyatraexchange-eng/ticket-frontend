@@ -25,12 +25,20 @@ const UnusedTicket = React.lazy(() => import("./pages/blog/UnusedTicket"));
 const SeatConfirm = React.lazy(() => import("./pages/blog/SeatConfirm"));
 const WaitingCancel = React.lazy(() => import("./pages/blog/WaitingCancel"));
 const TatkalFast = React.lazy(() => import("./pages/blog/TatkalFast"));
-const SeatAvailability = React.lazy(() => import("./pages/blog/SeatAvailability"));
+const SeatAvailability = React.lazy(() =>
+  import("./pages/blog/SeatAvailability")
+);
+
 const RacGuide = React.lazy(() => import("./pages/blog/RacGuide"));
 const WLCompare = React.lazy(() => import("./pages/blog/WLCompare"));
 const PNRGuide = React.lazy(() => import("./pages/blog/PNRGuide"));
 const ChartTime = React.lazy(() => import("./pages/blog/ChartTime"));
 const TatkalGuide = React.lazy(() => import("./pages/blog/TatkalGuide"));
+
+/* ⭐ NEW – Dhurandhar Movie Blog */
+const DhurandharMovieShootingLocation = React.lazy(() =>
+  import("./pages/blog/DhurandharMovieShootingLocation")
+);
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
@@ -119,7 +127,10 @@ function AppContent() {
             <Route path="/blog/seat-confirm" element={<SeatConfirm />} />
             <Route path="/blog/waiting-cancel" element={<WaitingCancel />} />
             <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
-            <Route path="/blog/seat-availability" element={<SeatAvailability />} />
+            <Route
+              path="/blog/seat-availability"
+              element={<SeatAvailability />}
+            />
 
             {/* New 5 blogs */}
             <Route path="/blog/rac-guide" element={<RacGuide />} />
@@ -127,6 +138,12 @@ function AppContent() {
             <Route path="/blog/pnr-guide" element={<PNRGuide />} />
             <Route path="/blog/chart-time" element={<ChartTime />} />
             <Route path="/blog/tatkal-guide" element={<TatkalGuide />} />
+
+            {/* ⭐ NEW — Dhurandhar Movie Blog Route */}
+            <Route
+              path="/blog/dhurandhar-movie-shooting-location-train-guide"
+              element={<DhurandharMovieShootingLocation />}
+            />
 
           </Routes>
         </Suspense>
