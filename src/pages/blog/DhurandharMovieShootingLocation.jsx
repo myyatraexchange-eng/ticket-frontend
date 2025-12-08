@@ -1,4 +1,5 @@
-import Head from "next/head";
+import React from "react";
+import { Helmet } from "react-helmet";
 
 export default function DhurandharMovieShootingLocation() {
   const schemaData = {
@@ -60,7 +61,7 @@ export default function DhurandharMovieShootingLocation() {
 
   return (
     <>
-      <Head>
+      <Helmet>
         <title>
           Dhurandhar Movie Shooting Location: Kaha Shoot Hui & Kaise Pahunche?
           Train Guide (8.1/10 Review)
@@ -76,13 +77,13 @@ export default function DhurandharMovieShootingLocation() {
           href="https://myyatraexchange.com/blog/dhurandhar-movie-shooting-location-train-guide"
         />
 
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-        />
-      </Head>
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
 
       <article className="blog-article max-w-4xl mx-auto px-4 py-8 leading-relaxed">
+        
         {/* HEADER */}
         <header>
           <h1 className="text-3xl font-bold mb-2">
@@ -122,6 +123,7 @@ export default function DhurandharMovieShootingLocation() {
               href="https://myyatraexchange.com/"
               target="_blank"
               className="text-blue-600 font-semibold"
+              rel="noopener noreferrer"
             >
               MyYatraExchange
             </a>{" "}
@@ -131,7 +133,9 @@ export default function DhurandharMovieShootingLocation() {
 
         {/* MOVIE DETAILS */}
         <section className="mt-10">
-          <h2 className="text-2xl font-bold mb-3">Dhurandhar (2025) – Movie Details</h2>
+          <h2 className="text-2xl font-bold mb-3">
+            Dhurandhar (2025) – Movie Details
+          </h2>
 
           <table className="table-auto border-collapse w-full border">
             <tbody>
@@ -167,6 +171,7 @@ export default function DhurandharMovieShootingLocation() {
               href="https://myyatraexchange.com/"
               target="_blank"
               className="text-blue-600 font-semibold"
+              rel="noopener noreferrer"
             >
               MyYatraExchange
             </a>{" "}
@@ -194,15 +199,16 @@ export default function DhurandharMovieShootingLocation() {
           </ul>
 
           <p className="mt-2">
-            Plan change ho?{" "}
+            Travel plan change ho jaye?{" "}
             <a
               href="https://myyatraexchange.com/"
               target="_blank"
               className="text-blue-600 font-semibold"
+              rel="noopener noreferrer"
             >
               Ticket exchange
             </a>{" "}
-            use karo — cancellation charges se bach jaoge.
+            use karo — cancellation charges se bachoge.
           </p>
 
           {/* AMRITSAR */}
@@ -229,16 +235,19 @@ export default function DhurandharMovieShootingLocation() {
 
           <p className="mt-2">
             Waiting list ho?{" "}
-            <a href="https://myyatraexchange.com/" target="_blank" className="text-blue-600 font-semibold">
+            <a
+              href="https://myyatraexchange.com/"
+              target="_blank"
+              className="text-blue-600 font-semibold"
+              rel="noopener noreferrer"
+            >
               Confirm ticket yahan milega
             </a>
           </p>
 
           {/* FILMISTAN */}
           <h3 className="text-xl font-semibold mt-6">3. Filmistan Studios, Mumbai</h3>
-          <p>
-            Indoor action sets aur intelligence HQ scenes yahan filmaye gaye.
-          </p>
+          <p>Indoor action sets aur intelligence HQ scenes yahan filmaye gaye.</p>
           <ul className="list-disc ml-7">
             <li>Nearest Stations: Goregaon (2.5 km), Malad (3 km)</li>
           </ul>
@@ -297,8 +306,8 @@ export default function DhurandharMovieShootingLocation() {
 
           <h3 className="font-semibold mt-4">Verdict</h3>
           <p>
-            Agar aapko URI, Baby, ya spy thrillers pasand aati hain to
-            Dhurandhar must-watch hai.
+            Agar aapko URI, Baby, ya spy thrillers pasand hain to Dhurandhar{" "}
+            <strong>must-watch</strong> hai.
           </p>
         </section>
 
@@ -314,6 +323,7 @@ export default function DhurandharMovieShootingLocation() {
               href="https://myyatraexchange.com/"
               target="_blank"
               className="text-blue-600 font-semibold"
+              rel="noopener noreferrer"
             >
               MyYatraExchange
             </a>{" "}
