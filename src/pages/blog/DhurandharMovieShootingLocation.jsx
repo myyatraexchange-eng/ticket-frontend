@@ -48,7 +48,7 @@ export default function DhurandharMovieShootingLocation() {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: "8.1",
-        ratingCount": "10000",
+        "ratingCount": "10000",
       },
       description:
         "Dhurandhar ek high-intensity action–intelligence thriller hai, jahan ek elite Indian covert team ek global threat ko rokne nikalti hai.",
