@@ -2,14 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const blogs = [
-  /* NEW TRENDING BLOG ---------------------------------- */
+  /* ⭐ NEW TRENDING BLOG ---------------------------------- */
   {
     title:
-      "Dhurandhar Movie Shooting Location: Kaise Pahunche? Full Train Route Guide (8.1/10 Review)",
+      "Dhurandhar Movie Shooting Spots: Thailand to Mumbai — Full Travel + Train Route Breakdown (8.1/10 Review)",
     link: "/blog/dhurandhar-movie-shooting-location-train-guide",
-    tag: "Trending",
+    tag: "🔥 Trending",
     desc:
-      "Dhurandhar (2025) ki shooting locations – Bangkok, Amritsar, Mumbai, Madh Island – ke full travel & train route guide ke saath.",
+      "Dhurandhar (2025) ki shooting locations – Thailand, Amritsar, Mumbai & Madh Island ke travel + train route guide ke saath.",
+    thumbnail: "/thumbnails/dhurandhar-thumbnail.jpg",
   },
 
   /* OLD BLOGS ---------------------------------- */
@@ -19,6 +20,7 @@ const blogs = [
     tag: "Ticket Tips",
     desc:
       "Confirm ticket chahiye? MyYatraExchange ke smart system se confirmation 3x easy ho jata hai.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "Tatkal Ticket Fast Booking – MyYatraExchange का Real Solution",
@@ -26,6 +28,7 @@ const blogs = [
     tag: "Tatkal Guide",
     desc:
       "Tatkal full ho jata hai? MyYatraExchange par log extra tickets post karte hain.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "Unused / Extra Ticket cancel karne ke loss se kaise bache?",
@@ -33,6 +36,7 @@ const blogs = [
     tag: "Save Money",
     desc:
       "Cancellation me heavy charges lagte hain. MyYatraExchange par post karke paisa bachaye.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "Waiting Ticket Confirm / Cancel Process – MyYatraExchange Guide",
@@ -40,6 +44,7 @@ const blogs = [
     tag: "Waiting Tips",
     desc:
       "Waiting risky hota hai. MyYatraExchange se real confirmed tickets mil jate hain.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "Train Seat Availability Check – MyYatraExchange Method",
@@ -47,6 +52,7 @@ const blogs = [
     tag: "Availability",
     desc:
       "IRCTC seat availability ka fastest shortcut — real passengers ke posted confirmed tickets.",
+    thumbnail: "/thumbnails/default.jpg",
   },
 
   /* NEW 5 BLOGS ---------------------------------- */
@@ -56,6 +62,7 @@ const blogs = [
     tag: "RAC Guide",
     desc:
       "RAC seat, berth, confirmation chances aur MyYatraExchange ke real solutions ka full guide.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "GNWL vs PQWL vs RLWL – Kaunsa Confirm Hota Hai?",
@@ -63,6 +70,7 @@ const blogs = [
     tag: "WL Info",
     desc:
       "Waiting list ke types aur unke confirmation chances — GNWL sabse strong hota hai.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "PNR Status Check Kaise Kare? (Smart Guide 2025)",
@@ -70,6 +78,7 @@ const blogs = [
     tag: "PNR Guide",
     desc:
       "PNR status dekhne ka simple method aur agar waiting ho to kya karna chahiye.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "Train Ka Chart Kab Banta Hai? (Chart Preparation Time)",
@@ -77,6 +86,7 @@ const blogs = [
     tag: "Chart Info",
     desc:
       "Chart banne ke rules, timing aur chart ke baad tickets ka kya hota hai — full explanation.",
+    thumbnail: "/thumbnails/default.jpg",
   },
   {
     title: "Tatkal Ticket Book Kaise Kare? (Fastest Method 2025)",
@@ -84,6 +94,7 @@ const blogs = [
     tag: "Tatkal Tips",
     desc:
       "Tatkal fail ho jaye to MyYatraExchange par posted confirmed tickets instantly mil jate hain.",
+    thumbnail: "/thumbnails/default.jpg",
   },
 ];
 
@@ -95,8 +106,7 @@ export default function BlogIndex() {
       </h1>
 
       <p className="text-lg text-gray-600 mb-10 text-center">
-        Train tickets se related sabhi important guides, tricks aur smart
-        solutions ek jagah.
+        Train tickets se related sabhi important guides, tips & smart solutions ek jagah.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -104,21 +114,32 @@ export default function BlogIndex() {
           <Link
             key={i}
             to={blog.link}
-            className="bg-white shadow-lg p-6 rounded-2xl border hover:shadow-xl transition duration-300"
+            className="bg-white shadow-lg rounded-2xl border hover:shadow-2xl transition duration-300 overflow-hidden"
           >
-            <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-              {blog.tag}
-            </span>
+            {/* THUMBNAIL */}
+            <img
+              src={blog.thumbnail}
+              alt={blog.title}
+              className="w-full h-44 object-cover"
+            />
 
-            <h2 className="text-xl font-bold mt-4 text-gray-900">
-              {blog.title}
-            </h2>
+            <div className="p-6">
+              <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">
+                {blog.tag}
+              </span>
 
-            <p className="text-gray-600 mt-2 text-sm">{blog.desc}</p>
+              <h2 className="text-xl font-bold mt-4 text-gray-900 line-clamp-2">
+                {blog.title}
+              </h2>
 
-            <button className="mt-4 text-blue-700 font-semibold underline text-sm">
-              Read More →
-            </button>
+              <p className="text-gray-600 mt-2 text-sm line-clamp-3">
+                {blog.desc}
+              </p>
+
+              <button className="mt-4 text-blue-700 font-semibold underline text-sm">
+                Read More →
+              </button>
+            </div>
           </Link>
         ))}
       </div>
