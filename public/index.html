@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- =======================
-         SEO TITLE + CANONICAL
+         SEO TITLE
     =========================== -->
     <title>MyYatraExchange – India’s No.1 Train Ticket Exchange Platform</title>
-    <link rel="canonical" href="https://www.myyatraexchange.com/" />
+
+    <!-- ❌ Canonical removed to allow React Helmet to control page-level canonical -->
 
     <!-- =======================
          META DESCRIPTION
@@ -68,7 +69,7 @@
     </script>
 
     <!-- ==========================
-        FAQ SCHEMA (BOOSTS RANKING)
+        FAQ SCHEMA
     ============================= -->
     <script type="application/ld+json">
     {
@@ -109,7 +110,7 @@
       rel="stylesheet"
     />
 
-    <!-- HIDE SEO CONTENT FROM USERS (BUT GOOGLE CAN READ IT) -->
+    <!-- Hidden SEO content -->
     <style>
       #seo-content {
         display: none !important;
@@ -121,38 +122,23 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
-    <!-- ==========================
-        STATIC SEO CONTENT (HIDDEN FROM USERS)
-    ============================= -->
     <div id="seo-content">
       <h1>MyYatraExchange – India ka Sabse Trusted Train Ticket Exchange Platform</h1>
 
       <p>
         MyYatraExchange India ka pehla aur sabse tez train ticket exchange platform hai jahan users
-        unused ya cancel hone wali train tickets ko share, find, ya exchange kar sakte hain.
-        Yeh platform 100% free, safe aur transparent hai.
+        unused ya cancel hone wali tickets ko share ya find kar sakte hain.
       </p>
 
       <h2>MyYatraExchange kaise kaam karta hai?</h2>
       <ul>
-        <li>Users apni ticket details post kar sakte hain</li>
-        <li>Dusre users available tickets find kar sakte hain</li>
-        <li>Koi payment ya charges involved nahi</li>
-        <li>Pure India me sabse active ticket exchange community</li>
-      </ul>
-
-      <h2>MyYatraExchange kyu choose karein?</h2>
-      <ul>
-        <li>Fast ticket discovery</li>
-        <li>Real users, real tickets</li>
-        <li>No signup fee</li>
-        <li>IRCTC users ke liye helpful platform</li>
+        <li>Users ticket post kar sakte hain</li>
+        <li>Dusre users tickets find kar sakte hain</li>
+        <li>Koi payment involved nahi</li>
       </ul>
 
       <h2>Popular Searches</h2>
-      <p>
-        Train ticket exchange, confirmed ticket find, WL ticket confirm trick, IRCTC ticket sharing
-      </p>
+      <p>Train ticket exchange, IRCTC ticket share, WL ticket confirm trick</p>
     </div>
 
     <div id="root"></div>
