@@ -1,8 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
-
 const blogs = [
-  /* ⭐ NEW TRENDING BLOG ---------------------------------- */
+  /* ⭐ NEW TRENDING BLOG #1 — Dhurandhar ---------------------------------- */
   {
     title:
       "Dhurandhar Movie Shooting Spots: Thailand to Mumbai — Full Travel + Train Route Breakdown (8.1/10 Review)",
@@ -11,6 +8,17 @@ const blogs = [
     desc:
       "Dhurandhar (2025) ki shooting locations – Thailand, Amritsar, Mumbai & Madh Island ke travel + train route guide ke saath.",
     thumbnail: "/thumbnails/dhurandhar-thumbnail.jpg",
+  },
+
+  /* ⭐ NEW TRENDING BLOG #2 — Indigo Share Price ---------------------------------- */
+  {
+    title:
+      "Indigo Share Price Today: Flight Cancel होने से Stock पर क्या असर पड़ा? और Train में Confirm Seat कैसे पाएं?",
+    link: "/blog/indigo-share-price-flight-cancel-train-seat",
+    tag: "🔥 Trending",
+    desc:
+      "Indigo share price, flight cancellations reason, DGCA rules impact — aur urgent situation me train me confirm seat kaise milega? Full guide.",
+    thumbnail: "/thumbnails/indigo-thumbnail.jpg",
   },
 
   /* OLD BLOGS ---------------------------------- */
@@ -97,53 +105,4 @@ const blogs = [
     thumbnail: "/thumbnails/default.jpg",
   },
 ];
-
-export default function BlogIndex() {
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-4xl font-bold text-gray-900 mb-6 text-center">
-        📚 Latest Blogs – MyYatraExchange
-      </h1>
-
-      <p className="text-lg text-gray-600 mb-10 text-center">
-        Train tickets se related sabhi important guides, tips & smart solutions ek jagah.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blogs.map((blog, i) => (
-          <Link
-            key={i}
-            to={blog.link}
-            className="bg-white shadow-lg rounded-2xl border hover:shadow-2xl transition duration-300 overflow-hidden"
-          >
-            {/* THUMBNAIL */}
-            <img
-              src={blog.thumbnail}
-              alt={blog.title}
-              className="w-full h-44 object-cover"
-            />
-
-            <div className="p-6">
-              <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">
-                {blog.tag}
-              </span>
-
-              <h2 className="text-xl font-bold mt-4 text-gray-900 line-clamp-2">
-                {blog.title}
-              </h2>
-
-              <p className="text-gray-600 mt-2 text-sm line-clamp-3">
-                {blog.desc}
-              </p>
-
-              <button className="mt-4 text-blue-700 font-semibold underline text-sm">
-                Read More →
-              </button>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 

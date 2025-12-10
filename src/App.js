@@ -40,6 +40,11 @@ const DhurandharMovieShootingLocation = React.lazy(() =>
   import("./pages/blog/DhurandharMovieShootingLocation")
 );
 
+/* ⭐ NEW – Indigo Share Price Blog */
+const IndigoSharePrice = React.lazy(() =>
+  import("./pages/blog/IndigoSharePrice")
+);
+
 import PrivateRoute from "./routes/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
@@ -143,6 +148,12 @@ function AppContent() {
             <Route
               path="/blog/dhurandhar-movie-shooting-location-train-guide"
               element={<DhurandharMovieShootingLocation />}
+            />
+
+            {/* ⭐ NEW — Indigo Share Price Blog Route */}
+            <Route
+              path="/blog/indigo-share-price-flight-cancel-train-seat"
+              element={<IndigoSharePrice />}
             />
 
           </Routes>
