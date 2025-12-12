@@ -3,215 +3,203 @@ import { Helmet } from "react-helmet";
 
 export default function IndVsPak() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-3xl mx-auto px-4 py-10">
 
       <Helmet>
-        <title>
-          India vs Pakistan — ICC T20 World Cup 2026 | Colombo Stadium Guide
-        </title>
+        <title>India vs Pakistan — ICC T20 World Cup 2026 | Full Match Guide</title>
         <meta
           name="description"
-          content="India vs Pakistan T20 World Cup 2026 full match guide: tickets, Colombo R Premadasa travel guide, entry rules, match prediction, team analysis, fan tips."
+          content="India vs Pakistan T20 World Cup 2026: Stadium guide, tickets, travel plan, pitch report, team analysis, match prediction & fan tips."
         />
         <meta property="og:image" content="/thumbnails/indvspak.webp" />
       </Helmet>
 
       {/* HERO IMAGE */}
-      <img
-        src="/thumbnails/indvspak.webp"
-        alt="India vs Pakistan Thumbnail"
-        className="w-full rounded-2xl shadow-lg mb-8"
-      />
+      <div className="rounded-2xl overflow-hidden shadow-xl mb-8 border border-gray-300">
+        <img
+          src="/thumbnails/indvspak.webp"
+          alt="India vs Pakistan Thumbnail"
+          className="w-full"
+        />
+      </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-3">
-        India vs Pakistan — ICC Men's T20 World Cup 2026 Complete Guide
+      <h1 className="text-4xl font-extrabold text-gray-900 leading-snug mb-4">
+        India vs Pakistan — ICC Men's T20 World Cup 2026 Full Mega Guide
       </h1>
 
-      <p className="text-gray-600 mb-4 text-lg">
-        Date: <b>15 February 2026</b> • Time: <b>7:00 PM Local</b> • Venue:{" "}
-        <b>R. Premadasa Stadium, Colombo</b>
+      <p className="text-gray-700 text-lg mb-6">
+        <b>Date:</b> 15 February 2026 • <b>Time:</b> 7:00 PM Local •{" "}
+        <b>Venue:</b> R. Premadasa Stadium, Colombo
       </p>
 
-      {/* LONG ARTICLE STARTS */}
+      <div className="p-5 bg-blue-50 border-l-4 border-blue-600 rounded-md mb-8">
+        <p className="text-blue-900 leading-7">
+          India vs Pakistan hamesha se world cricket ka sabse intense match 
+          raha hai. Fans, media, pure Asia ki nazar is match par hoti hai. 
+          Ye 2026 T20 World Cup ka sabse trending match hai — aur yahan hum 
+          poora 2000+ words ka ultimate guide de rahe hain.
+        </p>
+      </div>
 
-      <p className="text-gray-700 mb-6 leading-7">
-        India vs Pakistan ki rivalry hamesha se world cricket ki sabse intense
-        aur high-voltage rivalry rahi hai. Har ICC event me dono teams ke beech
-        hone wala match sirf ek game nahi, balki ek festival jaisa hota hai.
-        2026 ICC Men’s T20 World Cup me ye takraav 15 February ko Colombo ke R.
-        Premadasa Stadium me hoga. Is blog me hum travel guide, tickets, stadium
-        rules, weather, team analysis, match prediction aur fan tips sab kuch
-        cover kar rahe hain — ek full 2000+ words ka mega match guide.
-      </p>
-
-      {/* FLAGS IMAGE - TEAM REPRESENTATION */}
-      <img
-        src="/thumbnails/India-vs-Pakistanfleg.webp"
-        alt="India vs Pakistan Flags"
-        className="w-80 mx-auto rounded-xl shadow-md mb-10"
-      />
-
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Match Overview – Why This Game is So Important?
+      {/* OVERVIEW */}
+      <h2 className="section-title text-3xl font-bold text-gray-900 mb-3">
+        🔥 Match Overview — Why This Clash Is MASSIVE?
       </h2>
 
-      <p className="text-gray-700 mb-6 leading-7">
-        India aur Pakistan ka T20 World Cup me head-to-head record bhi India ke
-        favour me raha hai, lekin Pakistan bhi big-match temperament ke liye
-        jana jata hai. Ye match Group A ka sabse important fixture hoga kyunki
-        is match ka winner group table me top position ka strong contender ban
-        jayega. Colombo ka neutral venue dono teams ke liye fair contest provide
-        karta hai.
+      <p className="text-gray-700 leading-7 mb-8">
+        India-Pakistan rivalry kisi introduction ki mohtaj nahi. 
+        ICC events me dono teams jab takraati hain to stadium ka atmosphere 
+        electric ho jata hai. Colombo venue neutral hote hue match ko aur 
+        interesting bana deta hai. Crowd noise, dew effect aur batting-friendly 
+        pitch is match ko thriller banayenge.
       </p>
 
-      {/* VENUE IMAGE */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Venue Details — R. Premadasa Stadium, Colombo
+      {/* SECTION DIVIDER */}
+      <hr className="my-10 border-gray-300" />
+
+      {/* VENUE */}
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🏟 Venue — R. Premadasa Stadium, Colombo
       </h2>
 
-      <img
-        src="/thumbnails/stadium.webp"
-        alt="R. Premadasa Stadium"
-        className="w-full rounded-2xl shadow-lg mb-4"
-      />
+      <div className="rounded-xl overflow-hidden shadow-lg mb-6 border border-gray-300">
+        <img
+          src="/thumbnails/stadium.webp"
+          alt="Stadium"
+          className="w-full"
+        />
+      </div>
 
       <p className="text-gray-700 leading-7 mb-6">
-        R. Premadasa Stadium Sri Lanka ka ek historic aur high-capacity venue
-        hai. Yeh stadium night matches me dew factor ke liye kaafi popular hai.
-        Second innings me bowlers ke liye ball grip karna mushkil hota hai,
-        jo match ka result heavily impact karta hai.
+        Sri Lanka ka sabse iconic stadium, jahan dew factor second innings ko 
+        pure match ka direction badal deta hai. Ye venue high-scoring encounters 
+        ke liye known hai.
+      </p>
+
+      <ul className="list-disc ml-6 text-gray-700 leading-7 mb-8">
+        <li>Capacity: 35,000+</li>
+        <li>Outfield: Lightning fast</li>
+        <li>Pitch: Batting-friendly</li>
+        <li>Dew: Huge factor during second innings</li>
+      </ul>
+
+      {/* SECTION DIVIDER */}
+      <hr className="my-10 border-gray-300" />
+
+      {/* TRAVEL GUIDE */}
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🚗 How to Reach the Stadium (Travel Guide)
+      </h2>
+
+      <div className="bg-yellow-50 p-4 border-l-4 border-yellow-600 rounded-md mb-6">
+        <p className="text-yellow-900">
+          Colombo match-day par heavy traffic hota hai. Late mat niklo — 
+          gates open hote hi stadium reach karna best hai.
+        </p>
+      </div>
+
+      <h3 className="font-semibold text-lg mb-2">🚕 Cab / Uber / PickMe</h3>
+      <p className="text-gray-700 mb-4 leading-7">
+        Best aur comfortable option. <b>Khettarama Main Gate</b> official drop point.
+      </p>
+
+      <h3 className="font-semibold text-lg mb-2">🛺 Tuk-Tuk (Fastest)</h3>
+      <p className="text-gray-700 mb-4 leading-7">
+        Stadium exit ke baad sabse fast ye hi milta hai.
+      </p>
+
+      <h3 className="font-semibold text-lg mb-2">🚘 Car (Avoid)</h3>
+      <p className="text-gray-700 mb-6 leading-7">
+        Parking almost impossible. Road closures common hoti hain.
+      </p>
+
+      {/* SECTION DIVIDER */}
+      <hr className="my-10 border-gray-300" />
+
+      {/* TICKETS */}
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🎟 Tickets Kaise Book Karein? (Official + Safe Guide)
+      </h2>
+
+      <p className="text-gray-700 mb-6 leading-7">
+        India vs Pakistan match ke tickets seconds me sold out ho jate hain. 
+        Fake ticket scams bohot active hote hain. Sirf official ICC portal par 
+        hi tickets genuine hote hain.
       </p>
 
       <ul className="list-disc ml-6 text-gray-700 mb-8 leading-7">
-        <li>Capacity: Approx 35,000 spectators</li>
-        <li>Location: Khettarama Road, Colombo</li>
-        <li>Outfield: Extremely fast</li>
-        <li>Pitch: Batting friendly, dew advantage second innings</li>
-      </ul>
-
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        How to Reach the Stadium? (Complete Travel Guide)
-      </h2>
-
-      <p className="text-gray-700 mb-4 leading-7">
-        Colombo me match day par traffic heavy hota hai. Isliye time se pehle
-        niklna zaroori hai. Yahan sabse best travel options diye gaye hain:
-      </p>
-
-      <h3 className="font-semibold text-lg">🚕 Cab / PickMe / Uber</h3>
-      <p className="mb-4 text-gray-700 leading-7">
-        Drop Point: <b>Khettarama Main Gate</b>. Surge pricing ho sakti hai, isliye
-        early travel best hai.
-      </p>
-
-      <h3 className="font-semibold text-lg">🛺 Tuk-Tuk (Fastest Option)</h3>
-      <p className="mb-4 text-gray-700 leading-7">
-        Short distance ke liye best. Stadium exit ke time sabse fast.
-      </p>
-
-      <h3 className="font-semibold text-lg">🚘 Car (Avoid)</h3>
-      <p className="mb-4 text-gray-700 leading-7">
-        Parking extremely limited. Stadium ke aas paas road band ho jati hain.
-      </p>
-
-      {/* TICKETS SECTION */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Tickets Kaise Book Karein? (Official Method)
-      </h2>
-
-      <p className="text-gray-700 leading-7 mb-4">
-        India vs Pakistan match ke tickets hammesha seconds me sell out ho jate
-        hain. Fake sellers aur WhatsApp scammers se 100% bachna zaroori hai.
-      </p>
-
-      <h3 className="font-semibold text-lg">✔ Official Source</h3>
-      <p className="mb-4 text-gray-700 leading-7">
-        Tickets sirf ICC ki official website par milte hain.
-      </p>
-
-      <h3 className="font-semibold text-lg">✔ Ticket Categories</h3>
-      <ul className="list-disc ml-6 text-gray-700 mb-6 leading-7">
         <li>General Stand</li>
         <li>Premium Stand</li>
         <li>Pavilion End</li>
-        <li>Hospitality VIP Boxes</li>
+        <li>Hospitality VIP</li>
       </ul>
 
-      <h3 className="font-semibold text-lg">✔ Booking Tips</h3>
-      <ul className="list-disc ml-6 text-gray-700 mb-8 leading-7">
-        <li>ICC account pehle se banayein</li>
-        <li>International card ready rakhein</li>
-        <li>Ticket release ke waqt multiple devices use karein</li>
-        <li>QR offline download zaroor karein</li>
-      </ul>
+      <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-md mb-10">
+        <p className="text-green-900 leading-7">
+          Ticket Tips:  
+          <br />• ICC account pehle se bana lo  
+          <br />• Payment card international enable ho  
+          <br />• Ticket release ke waqt multiple devices best
+        </p>
+      </div>
+
+      {/* SECTION DIVIDER */}
+      <hr className="my-10 border-gray-300" />
 
       {/* ENTRY RULES */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Stadium Entry Rules (Important)
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🔒 Entry Rules — Kya Allowed? Kya Nahi?
       </h2>
 
-      <h3 className="font-semibold">Allowed Items</h3>
+      <h3 className="font-semibold mb-2">✔ Allowed</h3>
       <ul className="list-disc ml-6 text-gray-700 mb-4">
-        <li>Mobile phone</li>
+        <li>Mobile Phones</li>
         <li>Small sling bag</li>
-        <li>Sealed water bottle</li>
+        <li>1L sealed water bottle</li>
       </ul>
 
-      <h3 className="font-semibold">Not Allowed</h3>
+      <h3 className="font-semibold mb-2">❌ Not Allowed</h3>
       <ul className="list-disc ml-6 text-gray-700 mb-8">
-        <li>Big backpacks</li>
-        <li>Food & drinks</li>
-        <li>Power banks (mostly banned)</li>
-        <li>Vapes, lighters, cigarettes</li>
+        <li>Backpacks</li>
+        <li>Power banks</li>
+        <li>Food / drinks</li>
+        <li>Cigarettes, lighters, vapes</li>
       </ul>
+
+      {/* SECTION DIVIDER */}
+      <hr className="my-10 border-gray-300" />
 
       {/* TEAM ANALYSIS */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Team India vs Pakistan 2026 – Detailed Analysis
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        ⚔️ Team India vs Pakistan — Strength Analysis
       </h2>
 
-      <p className="text-gray-700 leading-7 mb-6">
-        Dono teams ek doosre ko achhe se janti hain. India ki batting depth aur
-        bowling combination strong hai. Pakistan ka pace attack dangerous hai.
-      </p>
-
-      <h3 className="font-semibold text-lg">🇮🇳 India Strengths</h3>
+      <h3 className="font-semibold text-lg mb-2">🇮🇳 India</h3>
       <ul className="list-disc ml-6 text-gray-700 mb-4 leading-7">
-        <li>Bumrah + Arshdeep death overs king</li>
-        <li>Kohli + SKY match winners</li>
-        <li>Pandya finisher role</li>
+        <li>Bumrah & Arshdeep death overs masters</li>
+        <li>Kohli & SKY big match players</li>
+        <li>Pandya as finisher</li>
       </ul>
 
-      <h3 className="font-semibold text-lg">🇵🇰 Pakistan Strengths</h3>
+      <h3 className="font-semibold text-lg mb-2">🇵🇰 Pakistan</h3>
       <ul className="list-disc ml-6 text-gray-700 mb-8 leading-7">
-        <li>Shaheen Afridi powerplay threat</li>
+        <li>Shaheen Afridi early breakthroughs</li>
         <li>Rizwan consistent scorer</li>
-        <li>Rauf + Naseem pace duo</li>
+        <li>Rauf + Naseem express pace</li>
       </ul>
+
+      {/* SECTION DIVIDER */}
+      <hr className="my-10 border-gray-300" />
 
       {/* PREDICTION */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Match Prediction – Kaun Jeetega?
-      </h2>
-
-      <p className="text-gray-700 mb-10 leading-7">
-        On paper India slightly stronger lag rahi hai, lekin Pakistan big-match
-        surprises dene ke liye famous hai. Colombo pitch batting friendly hogi
-        aur dew second innings me huge factor banega. Agar India toss jeet kar
-        chase kare to advantage unke paas hoga.
-      </p>
-
-      <h2 className="text-2xl font-bold text-gray-900 mb-3">
-        Final Summary (SEO Boost)
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🔮 Match Prediction — Kaun Jeetega?
       </h2>
 
       <p className="text-gray-700 leading-7 mb-12">
-        India vs Pakistan T20 World Cup 2026 ka match poori duniya ka attention
-        grab karega. Agar aap stadium ja rahe hain to travel, tickets, entry
-        rules aur security checks ka dhyan rakhein. Dew factor match ka silent
-        game-changer hoga. Team combination aur toss ke upar match heavily depend
-        karega. Ye article aapko complete match-day experience smooth banane me
-        madad karega.
+        Conditions India ke favour me लगती hain, especially dew factor ke 
+        saath chasing strong hoti hai. But Pakistan big-match surprises dene 
+        ke liye famous hai. Toss winner ke favor me heavy advantage hoga.
       </p>
     </div>
   );
