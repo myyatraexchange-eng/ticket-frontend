@@ -85,6 +85,13 @@
     <priority>0.92</priority>
   </url>
 
+  <!-- ⭐ NEW — INDIA vs PAKISTAN T20 WORLD CUP 2026 BLOG -->
+  <url>
+    <loc>https://www.myyatraexchange.com/blog/ind-vs-pak</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.96</priority>
+  </url>
+
   <!-- 📝 OTHER BLOGS -->
   <url><loc>https://www.myyatraexchange.com/blog/rac-guide</loc></url>
   <url><loc>https://www.myyatraexchange.com/blog/wl-compare</loc></url>
