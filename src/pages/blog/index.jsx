@@ -2,7 +2,18 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const blogs = [
-  /* ⭐ NEW TRENDING BLOG #1 — Dhurandhar ---------------------------------- */
+  /* ⭐ NEW TRENDING BLOG — India vs Pakistan ---------------------------------- */
+  {
+    title:
+      "India vs Pakistan T20 World Cup 2026 – Colombo Stadium Guide, Tickets, Travel & Match Info",
+    link: "/blog/ind-vs-pak",
+    tag: "🔥 Trending",
+    desc:
+      "India vs Pakistan (15 Feb 2026) – R. Premadasa Stadium ka full guide: tickets, travel, entry rules, fan tips & match-day hacks.",
+    thumbnail: "/thumbnails/indvspak.webp",
+  },
+
+  /* ⭐ Existing Trending Blog #1 — Dhurandhar ---------------------------------- */
   {
     title:
       "Dhurandhar Movie Shooting Spots: Thailand to Mumbai — Full Travel + Train Route Breakdown (8.1/10 Review)",
@@ -10,10 +21,10 @@ const blogs = [
     tag: "🔥 Trending",
     desc:
       "Dhurandhar (2025) ki shooting locations – Thailand, Amritsar, Mumbai & Madh Island ke travel + train route guide ke saath.",
-    thumbnail: "/thumbnails/dhurandhar-thumbnail.jpg",
+    thumbnail: "/thumbnails/dhurandhar-thumbnail.webp",
   },
 
-  /* ⭐ NEW TRENDING BLOG #2 — Indigo Share Price ---------------------------------- */
+  /* ⭐ Existing Trending Blog #2 — Indigo ---------------------------------- */
   {
     title:
       "Indigo Share Price Today: Flight Cancel होने से Stock पर क्या असर पड़ा? और Train में Confirm Seat कैसे पाएं?",

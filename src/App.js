@@ -25,9 +25,7 @@ const UnusedTicket = React.lazy(() => import("./pages/blog/UnusedTicket"));
 const SeatConfirm = React.lazy(() => import("./pages/blog/SeatConfirm"));
 const WaitingCancel = React.lazy(() => import("./pages/blog/WaitingCancel"));
 const TatkalFast = React.lazy(() => import("./pages/blog/TatkalFast"));
-const SeatAvailability = React.lazy(() =>
-  import("./pages/blog/SeatAvailability")
-);
+const SeatAvailability = React.lazy(() => import("./pages/blog/SeatAvailability"));
 
 const RacGuide = React.lazy(() => import("./pages/blog/RacGuide"));
 const WLCompare = React.lazy(() => import("./pages/blog/WLCompare"));
@@ -43,6 +41,11 @@ const DhurandharMovieShootingLocation = React.lazy(() =>
 /* ⭐ NEW – Indigo Share Price Blog */
 const IndigoSharePrice = React.lazy(() =>
   import("./pages/blog/IndigoSharePrice")
+);
+
+/* ⭐ NEW – India vs Pakistan 2026 Blog */
+const IndVsPak = React.lazy(() =>
+  import("./pages/blog/ind-vs-pak")
 );
 
 import PrivateRoute from "./routes/PrivateRoute";
@@ -132,10 +135,7 @@ function AppContent() {
             <Route path="/blog/seat-confirm" element={<SeatConfirm />} />
             <Route path="/blog/waiting-cancel" element={<WaitingCancel />} />
             <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
-            <Route
-              path="/blog/seat-availability"
-              element={<SeatAvailability />}
-            />
+            <Route path="/blog/seat-availability" element={<SeatAvailability />} />
 
             {/* New 5 blogs */}
             <Route path="/blog/rac-guide" element={<RacGuide />} />
@@ -144,17 +144,20 @@ function AppContent() {
             <Route path="/blog/chart-time" element={<ChartTime />} />
             <Route path="/blog/tatkal-guide" element={<TatkalGuide />} />
 
-            {/* ⭐ NEW — Dhurandhar Movie Blog Route */}
+            {/* ⭐ NEW — Dhurandhar Movie */}
             <Route
               path="/blog/dhurandhar-movie-shooting-location-train-guide"
               element={<DhurandharMovieShootingLocation />}
             />
 
-            {/* ⭐ NEW — Indigo Share Price Blog Route */}
+            {/* ⭐ NEW — Indigo Share Price */}
             <Route
               path="/blog/indigo-share-price-flight-cancel-train-seat"
               element={<IndigoSharePrice />}
             />
+
+            {/* ⭐ NEW — India vs Pakistan 2026 Blog */}
+            <Route path="/blog/ind-vs-pak" element={<IndVsPak />} />
 
           </Routes>
         </Suspense>
