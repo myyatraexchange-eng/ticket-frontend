@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// Logo
-import logo from "../assets/mylogo.png";
+// OPTIMIZED LOGO (WebP + Transparent)
+import logo from "../assets/mylogo.webp";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,24 +22,33 @@ const Navbar = () => {
     <nav className="bg-blue-700 text-white shadow-md text-sm relative">
       <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
 
-        {/* BRAND LOGO */}
+        {/* ================= BRAND LOGO ================= */}
         <NavLink to="/" onClick={handleLinkClick} className="flex items-center">
-          <img 
-            src={logo} 
-            alt="My Yatra Exchange" 
-            className="h-10 md:h-14 w-auto object-contain"
+          <img
+            src={logo}
+            alt="My Yatra Exchange Logo"
+            width="278"
+            height="84"
+            fetchpriority="high"
+            decoding="async"
+            className="
+              h-8 sm:h-9 md:h-10 lg:h-12
+              w-auto
+              object-contain
+            "
           />
         </NavLink>
 
-        {/* MOBILE MENU BUTTON */}
+        {/* ================= MOBILE MENU BUTTON ================= */}
         <button
           className="md:hidden text-white text-2xl focus:outline-none"
+          aria-label="Open menu"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           ☰
         </button>
 
-        {/* MENU LINKS */}
+        {/* ================= MENU LINKS ================= */}
         <div
           className={`flex-col md:flex md:flex-row md:space-x-4 ${
             menuOpen ? "flex" : "hidden"
@@ -95,11 +104,13 @@ const Navbar = () => {
             Contact
           </NavLink>
 
-          {/* MORE DROPDOWN */}
+          {/* ================= MORE DROPDOWN ================= */}
           <div className="relative">
             <button
               onClick={() => setMoreOpen(!moreOpen)}
               className="py-1 hover:underline"
+              aria-haspopup="true"
+              aria-expanded={moreOpen}
             >
               More ▾
             </button>
@@ -115,7 +126,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* LOGIN / PROFILE BUTTON */}
+          {/* ================= LOGIN / PROFILE ================= */}
           {token && user ? (
             <NavLink
               to="/profile"

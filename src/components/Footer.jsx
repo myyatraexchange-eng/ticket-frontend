@@ -1,58 +1,70 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 import { FaYoutube, FaInstagram } from "react-icons/fa";
 
-import logo from "../assets/mylogo.png";
+import logo from "../assets/mylogo.webp";
 
 const Footer = () => {
   return (
     <footer className="bg-blue-800 text-white pt-10 mt-12">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 
-        {/* BRAND + ABOUT */}
+        {/* ================= BRAND + ABOUT ================= */}
         <div>
           {/* LOGO */}
           <div className="flex justify-center md:justify-start mb-3">
-            <img 
-              src={logo} 
-              alt="My Yatra Exchange Logo" 
-              className="h-12 md:h-16 w-auto object-contain drop-shadow-md"
+            <img
+              src={logo}
+              alt="My Yatra Exchange Logo"
+              width="278"
+              height="84"
+              loading="lazy"
+              decoding="async"
+              className="
+                h-8 sm:h-9 md:h-10
+                w-auto
+                object-contain
+                drop-shadow-md
+              "
             />
           </div>
 
           <h2 className="font-bold text-lg mb-1">MyYatraExchange.com</h2>
-          <p>Helping you share unused train tickets safely without cancellation losses.</p>
+          <p className="text-sm leading-6">
+            Helping you share unused train tickets safely without cancellation
+            losses.
+          </p>
 
           {/* SOCIAL ICONS */}
-          <div className="flex justify-center md:justify-start gap-4 mt-3">
-            
+          <div className="flex justify-center md:justify-start gap-4 mt-4">
             {/* YouTube */}
-            <a 
+            <a
               href="https://youtube.com/@my_yatra_exchange?si=V2UB_RbmlCilbU5R"
-              target="_blank" 
+              target="_blank"
               rel="noopener noreferrer"
+              aria-label="My Yatra Exchange YouTube"
               className="text-red-500 bg-white p-2 rounded-full text-xl hover:scale-110 transition-all shadow-md"
             >
               <FaYoutube />
             </a>
 
             {/* Instagram */}
-            <a 
+            <a
               href="https://www.instagram.com/myyatraexchange?igsh=cnprZGVqbmkzMnFy"
-              target="_blank" 
+              target="_blank"
               rel="noopener noreferrer"
+              aria-label="My Yatra Exchange Instagram"
               className="text-pink-500 bg-white p-2 rounded-full text-xl hover:scale-110 transition-all shadow-md"
             >
               <FaInstagram />
             </a>
-
           </div>
         </div>
 
-        {/* EXPLORE */}
+        {/* ================= EXPLORE ================= */}
         <div>
-          <h2 className="font-bold text-lg mb-2">Explore</h2>
-          <ul className="space-y-1">
+          <h2 className="font-bold text-lg mb-3">Explore</h2>
+          <ul className="space-y-2 text-sm">
             <li><Link to="/" className="hover:underline">Home</Link></li>
             <li><Link to="/find" className="hover:underline">Find Ticket</Link></li>
             <li><Link to="/post" className="hover:underline">Post Ticket</Link></li>
@@ -61,38 +73,40 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* LEGAL + CONTACT */}
+        {/* ================= LEGAL + CONTACT ================= */}
         <div>
-          <h2 className="font-bold text-lg mb-2">Legal</h2>
-          <ul className="space-y-1">
+          <h2 className="font-bold text-lg mb-3">Legal</h2>
+          <ul className="space-y-2 text-sm">
             <li><Link to="/policy" className="hover:underline">Policy</Link></li>
             <li><Link to="/disclaimer" className="hover:underline">Disclaimer</Link></li>
             <li><Link to="/terms" className="hover:underline">Terms of Use</Link></li>
             <li><Link to="/refund-policy" className="hover:underline">Refund Policy</Link></li>
           </ul>
 
-          <div className="mt-4">
+          <div className="mt-4 text-sm">
             <h2 className="font-bold text-lg mb-1">Contact</h2>
-            <p className="text-sm">Email: myyatraexchange@gmail.com</p>
-            <p className="text-sm">Location: INDORE, INDIA</p>
+            <p>Email: myyatraexchange@gmail.com</p>
+            <p>Location: Indore, India</p>
           </div>
         </div>
       </div>
 
-      {/* COPYRIGHT */}
+      {/* ================= COPYRIGHT ================= */}
       <div className="text-center mt-8 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1 pb-3">
-        © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. | 
+        © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. |
         <span className="font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300">
           Developer by Rohit Akodiya
         </span>
       </div>
 
-      {/* DISCLAIMER MARQUEE */}
+      {/* ================= DISCLAIMER ================= */}
       <div className="bg-yellow-200 text-yellow-900 py-2 text-sm mt-2">
         <marquee behavior="scroll" direction="left" scrollAmount="8">
-          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers to share contact information
-          for unused tickets. We do not sell, resell, transfer, modify, or issue tickets. All coordination
-          is between users. This platform is independent and not affiliated with Indian Railways.
+          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers
+          to share contact information for unused tickets. We do not sell,
+          resell, transfer, modify, or issue tickets. All coordination is between
+          users. This platform is independent and not affiliated with Indian
+          Railways.
         </marquee>
       </div>
     </footer>
