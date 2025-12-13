@@ -5,31 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- =======================
-         SEO TITLE
+         SEO TITLE (BASE)
     =========================== -->
     <title>MyYatraExchange – India’s No.1 Train Ticket Exchange Platform</title>
-
-    <!-- ❌ Canonical removed to allow React Helmet to control page-level canonical -->
 
     <!-- =======================
          META DESCRIPTION
     =========================== -->
     <meta
       name="description"
-      content="MyYatraExchange is India's trusted platform to post, exchange and find unused train tickets. 100% safe, user-driven, and fast. Find confirmed tickets or share yours easily."
+      content="MyYatraExchange is India's trusted platform to post, exchange and find unused train tickets. 100% safe, user-driven, and fast."
     />
     <meta
       name="keywords"
-      content="train ticket exchange, sell train ticket, buy train ticket, IRCTC ticket exchange, ticket sharing app, MyYatraExchange"
+      content="train ticket exchange, IRCTC ticket exchange, ticket sharing, MyYatraExchange"
     />
     <meta name="author" content="MyYatraExchange" />
 
     <!-- ==========================
-         PERFORMANCE BOOST
+         PERFORMANCE (IMPORTANT)
     =============================-->
-    <link rel="preload" href="/logo512.png" as="image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- GOOGLE FONTS -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- ==========================
          OPEN GRAPH
@@ -46,8 +49,13 @@
     <!-- TWITTER CARD -->
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- GOOGLE ANALYTICS -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C9B9KEXCXP"></script>
+    <!-- ==========================
+         GOOGLE ANALYTICS (NON-BLOCKING)
+    =============================-->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-C9B9KEXCXP"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -68,79 +76,12 @@
     }
     </script>
 
-    <!-- ==========================
-        FAQ SCHEMA
-    ============================= -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "MyYatraExchange kya hai?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "MyYatraExchange ek platform hai jahan aap unused train tickets post, exchange ya find kar sakte hain. Ye 100% user-driven platform hai."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Kya MyYatraExchange safe hai?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Haan, platform sirf user-to-user ticket sharing allow karta hai. Koi payment ya fraud risk nahi hota."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Main ticket kaise post kar sakta hoon?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Aap homepage par 'Post Ticket' button par click karke apni ticket details add kar sakte hain."
-          }
-        }
-      ]
-    }
-    </script>
-
-    <!-- GOOGLE FONTS -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Hidden SEO content -->
-    <style>
-      #seo-content {
-        display: none !important;
-        visibility: hidden !important;
-      }
-    </style>
   </head>
 
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
-    <div id="seo-content">
-      <h1>MyYatraExchange – India ka Sabse Trusted Train Ticket Exchange Platform</h1>
-
-      <p>
-        MyYatraExchange India ka pehla aur sabse tez train ticket exchange platform hai jahan users
-        unused ya cancel hone wali tickets ko share ya find kar sakte hain.
-      </p>
-
-      <h2>MyYatraExchange kaise kaam karta hai?</h2>
-      <ul>
-        <li>Users ticket post kar sakte hain</li>
-        <li>Dusre users tickets find kar sakte hain</li>
-        <li>Koi payment involved nahi</li>
-      </ul>
-
-      <h2>Popular Searches</h2>
-      <p>Train ticket exchange, IRCTC ticket share, WL ticket confirm trick</p>
-    </div>
-
+    <!-- React Root -->
     <div id="root"></div>
   </body>
 </html>

@@ -87,19 +87,21 @@ const Footer = () => {
       {/* ================= COPYRIGHT ================= */}
       <div className="text-center mt-8 text-sm text-gray-300 flex flex-col md:flex-row items-center justify-center gap-1 pb-3">
         © {new Date().getFullYear()} MyYatraExchange.com. All rights reserved. |
-        <span className="font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300">
+        <span className="font-semibold text-yellow-400">
           Developer by Rohit Akodiya
         </span>
       </div>
 
-      {/* ================= DISCLAIMER (CLS SAFE) ================= */}
+      {/* ================= MOVING DISCLAIMER ================= */}
       <div className="bg-yellow-200 text-yellow-900 py-2 text-sm overflow-hidden">
-        <div className="whitespace-nowrap animate-footer-marquee px-4">
-          <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers
-          to share contact information for unused tickets. We do not sell,
-          resell, transfer, modify, or issue tickets. All coordination is between
-          users. This platform is independent and not affiliated with Indian
-          Railways.
+        <div className="relative w-full">
+          <div className="inline-block whitespace-nowrap animate-footer-marquee px-4">
+            <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers
+            to share contact information for unused tickets. We do not sell,
+            resell, transfer, modify, or issue tickets. All coordination is
+            between users. This platform is independent and not affiliated with
+            Indian Railways.
+          </div>
         </div>
       </div>
     </footer>
