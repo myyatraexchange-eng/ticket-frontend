@@ -19,7 +19,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-blue-700 text-white shadow-md text-sm relative">
+    <nav className="bg-blue-700 text-white shadow-md text-sm relative min-h-[64px]">
       <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
 
         {/* ================= BRAND LOGO ================= */}
@@ -31,11 +31,7 @@ const Navbar = () => {
             height="84"
             fetchpriority="high"
             decoding="async"
-            className="
-              h-8 sm:h-9 md:h-10 lg:h-12
-              w-auto
-              object-contain
-            "
+            className="h-10 w-auto object-contain"
           />
         </NavLink>
 
@@ -50,9 +46,11 @@ const Navbar = () => {
 
         {/* ================= MENU LINKS ================= */}
         <div
-          className={`flex-col md:flex md:flex-row md:space-x-4 ${
-            menuOpen ? "flex" : "hidden"
-          } md:flex items-center`}
+          className={`
+            flex flex-col md:flex md:flex-row md:space-x-4 items-center
+            transition-all duration-300 overflow-hidden
+            ${menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0 md:max-h-none md:opacity-100"}
+          `}
         >
           <NavLink
             to="/"

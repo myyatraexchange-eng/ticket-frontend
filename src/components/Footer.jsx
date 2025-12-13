@@ -20,12 +20,7 @@ const Footer = () => {
               height="84"
               loading="lazy"
               decoding="async"
-              className="
-                h-8 sm:h-9 md:h-10
-                w-auto
-                object-contain
-                drop-shadow-md
-              "
+              className="h-10 w-auto object-contain drop-shadow-md"
             />
           </div>
 
@@ -37,7 +32,6 @@ const Footer = () => {
 
           {/* SOCIAL ICONS */}
           <div className="flex justify-center md:justify-start gap-4 mt-4">
-            {/* YouTube */}
             <a
               href="https://youtube.com/@my_yatra_exchange?si=V2UB_RbmlCilbU5R"
               target="_blank"
@@ -48,7 +42,6 @@ const Footer = () => {
               <FaYoutube />
             </a>
 
-            {/* Instagram */}
             <a
               href="https://www.instagram.com/myyatraexchange?igsh=cnprZGVqbmkzMnFy"
               target="_blank"
@@ -99,15 +92,15 @@ const Footer = () => {
         </span>
       </div>
 
-      {/* ================= DISCLAIMER ================= */}
-      <div className="bg-yellow-200 text-yellow-900 py-2 text-sm mt-2">
-        <marquee behavior="scroll" direction="left" scrollAmount="8">
+      {/* ================= DISCLAIMER (CLS SAFE) ================= */}
+      <div className="bg-yellow-200 text-yellow-900 py-2 text-sm overflow-hidden">
+        <div className="whitespace-nowrap animate-footer-marquee px-4">
           <strong>Disclaimer:</strong> MyYatraExchange.com only connects travelers
           to share contact information for unused tickets. We do not sell,
           resell, transfer, modify, or issue tickets. All coordination is between
           users. This platform is independent and not affiliated with Indian
           Railways.
-        </marquee>
+        </div>
       </div>
     </footer>
   );
