@@ -20,14 +20,14 @@ const Navbar = () => {
 
   return (
     <nav className="bg-blue-700 text-white shadow-md text-sm relative">
-      <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
 
         {/* BRAND LOGO */}
         <NavLink to="/" onClick={handleLinkClick} className="flex items-center">
           <img 
-            src={logo} 
-            alt="My Yatra Exchange" 
-            className="h-10 md:h-14 w-auto object-contain"
+            src={logo}
+            alt="My Yatra Exchange"
+            className="h-14 md:h-20 lg:h-24 w-auto max-w-[240px] object-contain"
           />
         </NavLink>
 
