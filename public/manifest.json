@@ -4,8 +4,10 @@
   "start_url": "/",
   "display": "standalone",
 
-  "theme_color": "#1E3A8A",
-  "background_color": "#1E3A8A",
+  "theme_color": "1E40AF
+",
+  "background_color": "1E40AF
+",
 
   "icons": [
     {
