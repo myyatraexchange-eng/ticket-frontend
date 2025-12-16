@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — MyYatraExchange</title>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+  <input type="password" id="token" placeholder="Admin Token">
+  <button id="load">Load Orders</button>
+  <div id="ordersList"></div>
+
+  <script>
+    const apiBase = '/api/payment';
+    document.getElementById('load').addEventListener('click', async () => {
+      const token = document.getElementById('token').value.trim();
+      if (!token) return alert('Enter admin token');
+
+      const res = await fetch(`${apiBase}/orders`, { headers: { 'x-admin-token': token } });
+      const orders = await res.json();
+      if (orders.error) return alert(orders.error);
+
+      const container = document.getElementById('ordersList');
+      container.innerHTML = '';
+      orders.forEach(order => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <strong>Order ID:</strong> ${order.orderId}<br>
+          <strong>Buyer:</strong> ${order.buyerName}<br>
+          <strong>Amount:</strong> ₹${order.amount}<br>
+          <strong>Status:</strong> ${order.status}<br>
+          <strong>UTR:</strong> ${order.utr || '-'}<br>
+          <strong>Sender VPA:</strong> ${order.senderVpa || '-'}<br>
+          ${order.screenshotUrl ? `<img src="${order.screenshotUrl}">` : ''}
+          <button class="approve" data-id="${order.orderId}">Approve</button>
+          <button class="reject" data-id="${order.orderId}">Reject</button>
+          <hr>
+        `;
+        container.appendChild(div);
+      });
+
+      document.querySelectorAll('.approve').forEach(btn => btn.addEventListener('click', () => updateStatus(btn.dataset.id, 'approve', token)));
+      document.querySelectorAll('.reject').forEach(btn => btn.addEventListener('click', () => updateStatus(btn.dataset.id, 'reject', token)));
+    });
+
+    async function updateStatus(orderId, action, token) {
+      const res = await fetch(`${apiBase}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ orderId, action })
+      });
+      const data = await res.json();
+      if (data.error) return alert(data.error);
+      alert(`Order ${orderId} ${action} successfully`);
+      document.getElementById('load').click();
+    }
+  </script>
+</body>
+</html>
+
