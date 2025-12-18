@@ -168,7 +168,8 @@ export default function FindTicket() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 container mx-auto flex flex-col items-center">
+    {/* 🔑 ONLY CHANGE IS HERE (px-4 instead of p-6 + container) */}
+    <div className="min-h-screen bg-gray-50 px-4 py-6 mx-auto flex flex-col items-center">
       <Helmet>
         <title>Find Train Tickets | MyYatraExchange</title>
       </Helmet>
