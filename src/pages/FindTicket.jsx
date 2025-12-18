@@ -8,7 +8,6 @@ const API_BASE =
 
 export default function FindTicket() {
   const [tickets, setTickets] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -27,18 +26,30 @@ export default function FindTicket() {
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const TICKETS_PER_PAGE = 9;
+  const TICKETS_PER_PAGE = 15; // backend limit ke equal
 
-  const fetchTickets = async () => {
+  /* ===========================
+     🔄 FETCH TICKETS (BACKEND FILTER)
+  =========================== */
+  const fetchTickets = async (page = 1) => {
     setLoading(true);
     setError("");
+
     try {
-      const res = await fetch(`${API_BASE}/tickets?available=true`);
+      const params = new URLSearchParams({
+        available: true,
+        page,
+      });
+
+      if (fromFilter) params.append("from", fromFilter.toUpperCase());
+      if (toFilter) params.append("to", toFilter.toUpperCase());
+      if (dateFilter) params.append("date", dateFilter);
+
+      const res = await fetch(`${API_BASE}/tickets?${params.toString()}`);
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
+
       const data = await res.json();
-      const list = Array.isArray(data) ? data : data.tickets || [];
-      setTickets(list);
-      setFiltered(list);
+      setTickets(data.tickets || []);
     } catch (err) {
       setError(err.message || "Failed to load tickets");
     } finally {
@@ -46,48 +57,28 @@ export default function FindTicket() {
     }
   };
 
+  /* ===========================
+     🚀 INITIAL LOAD
+  =========================== */
   useEffect(() => {
-    fetchTickets();
-    const interval = setInterval(fetchTickets, 10000);
-    return () => clearInterval(interval);
+    fetchTickets(1);
   }, []);
 
-  // Filters
+  /* ===========================
+     🔍 AUTO SEARCH (DEBOUNCE)
+  =========================== */
   useEffect(() => {
-    let out = tickets;
+    const delay = setTimeout(() => {
+      setCurrentPage(1);
+      fetchTickets(1);
+    }, 300);
 
-    if (fromFilter)
-      out = out.filter((t) =>
-        t.from?.toLowerCase().includes(fromFilter.toLowerCase())
-      );
+    return () => clearTimeout(delay);
+  }, [fromFilter, toFilter, dateFilter]);
 
-    if (toFilter)
-      out = out.filter((t) =>
-        t.to?.toLowerCase().includes(toFilter.toLowerCase())
-      );
-
-    if (dateFilter)
-      out = out.filter(
-        (t) =>
-          t.fromDateTime &&
-          new Date(t.fromDateTime).toISOString().slice(0, 10) === dateFilter
-      );
-
-    setFiltered(out);
-    setCurrentPage(1);
-  }, [fromFilter, toFilter, dateFilter, tickets]);
-
-  const indexOfLast = currentPage * TICKETS_PER_PAGE;
-  const indexOfFirst = indexOfLast - TICKETS_PER_PAGE;
-
-  const isFiltered = fromFilter || toFilter || dateFilter;
-
-  const currentTickets = isFiltered
-    ? filtered
-    : filtered.slice(indexOfFirst, indexOfLast);
-
-  const totalPages = Math.ceil(filtered.length / TICKETS_PER_PAGE);
-
+  /* ===========================
+     💰 PAYMENT HANDLERS
+  =========================== */
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
     setCurrentUpiLink(upiLink);
@@ -107,10 +98,12 @@ export default function FindTicket() {
 
   const submitProof = async (e) => {
     e.preventDefault();
+
     if (!txnId || !payerName || !payerMobile) {
       setProofMessage("कृपया सभी विवरण भरें");
       return;
     }
+
     if (!/^\d{10}$/.test(payerMobile)) {
       setProofMessage("Enter valid 10-digit mobile");
       return;
@@ -143,13 +136,9 @@ export default function FindTicket() {
         "✅ Proof submitted successfully. Waiting for admin verification."
       );
 
-      setTxnId("");
-      setPayerName("");
-      setPayerMobile("");
-
       setTimeout(() => {
         closeQR();
-        fetchTickets();
+        fetchTickets(currentPage);
       }, 1500);
     } catch (err) {
       setProofMessage(err.message || "Failed to submit proof");
@@ -158,6 +147,9 @@ export default function FindTicket() {
     }
   };
 
+  /* ===========================
+     🕒 DATE FORMAT
+  =========================== */
   const formatDateTime = (dt) => {
     if (!dt) return "N/A";
     return new Date(dt).toLocaleString("en-IN", {
@@ -187,7 +179,7 @@ export default function FindTicket() {
         🎟 Find Tickets
       </h1>
 
-      {/* Filters */}
+      {/* 🔍 FILTERS */}
       <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-4xl">
         <input
           placeholder="From"
@@ -201,131 +193,82 @@ export default function FindTicket() {
           onChange={(e) => setToFilter(e.target.value)}
           className="border p-2 rounded w-44 uppercase text-sm"
         />
-
-        {/* ★ Updated Date Input */}
         <input
           type="date"
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded text-sm date-input"
-          placeholder="DD/MM/YYYY"
-          data-placeholder="DD/MM/YYYY"
+          className="border p-2 rounded text-sm"
         />
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <p className="text-gray-600 text-lg flex items-center">
-          Loading<span className="loading-dots"></span>
-        </p>
-      )}
-
+      {loading && <p className="text-gray-600">Loading...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* Ticket List */}
-      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {currentTickets.map((t) => (
+      {/* 🎫 TICKETS */}
+      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {tickets.map((t) => (
           <div
             key={t._id}
-            className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl transition duration-300"
+            className="rounded-xl shadow-lg p-5 bg-white border"
           >
-            <div className="flex flex-col gap-2 text-sm">
-              <h2 className="text-xl font-semibold text-blue-700 mb-2 uppercase">
-                🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
-              </h2>
-              <p>
-                <b>📍 Route:</b> {t.from?.toUpperCase()} →{" "}
-                {t.to?.toUpperCase()}
-              </p>
-              <p>
-                <b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}
-              </p>
-              <p>
-                <b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}
-              </p>
-              <p>
-                <b>🪑 Class:</b> {t.classType?.toUpperCase() || "GENERAL"}
-              </p>
-              <p>
-                <b>🎟 Ticket No:</b> {t.ticketNumber || "N/A"}
-              </p>
-              <p>
-                <b>👤 Passenger:</b>{" "}
-                {t.passengerName?.toUpperCase()} ({t.passengerGender},{" "}
-                {t.passengerAge})
-              </p>
+            <h2 className="text-xl font-semibold text-blue-700 uppercase">
+              🚆 {t.trainName} ({t.trainNumber})
+            </h2>
 
-              {t.paymentStatus === "verified" && (
-                <p className="text-green-600 font-semibold mt-2">
-                  📞 Contact: {t.contactNumber || "N/A"} ✅ Verified
-                </p>
-              )}
+            <p>
+              <b>📍 Route:</b> {t.from} → {t.to}
+            </p>
+            <p>
+              <b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}
+            </p>
+            <p>
+              <b>🪑 Class:</b> {t.classType}
+            </p>
+            <p>
+              <b>👤 Passenger:</b> {t.passengerName}
+            </p>
 
-              {t.paymentStatus === "pending" && (
-                <p className="text-orange-600 font-semibold mt-2">
-                  ⏳ Pending verification
-                </p>
-              )}
-
-              {(t.paymentStatus === "not_paid" ||
-                t.paymentStatus === "rejected") && (
-                <button
-                  onClick={() => handlePay(t)}
-                  className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition uppercase text-sm"
-                >
-                  Pay ₹20 (Platform Fee) To Unlock Contact
-                </button>
-              )}
-            </div>
+            {(t.paymentStatus === "not_paid" ||
+              t.paymentStatus === "rejected") && (
+              <button
+                onClick={() => handlePay(t)}
+                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Pay ₹20 To Unlock Contact
+              </button>
+            )}
 
             {currentTicketId === t._id && showQR && (
-              <div className="mt-4 flex flex-col items-center p-3 border rounded-lg shadow-md bg-gray-50">
-                <p className="mb-2 font-medium text-center uppercase text-sm">
-                  Scan QR to pay ₹20
-                </p>
-
+              <div className="mt-3 border p-3 rounded">
                 <QRCodeCanvas value={currentUpiLink} size={160} />
-
-                <button
-                  onClick={closeQR}
-                  className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 uppercase text-sm"
-                >
-                  Close QR
-                </button>
-
-                <form
-                  className="mt-3 w-full max-w-md flex flex-col gap-2"
-                  onSubmit={submitProof}
-                >
+                <form onSubmit={submitProof} className="mt-2 flex flex-col gap-2">
                   <input
                     placeholder="Transaction ID"
                     value={txnId}
                     onChange={(e) => setTxnId(e.target.value)}
-                    className="border p-2 rounded uppercase text-sm"
+                    className="border p-2 rounded"
                   />
                   <input
                     placeholder="Payer Name"
                     value={payerName}
                     onChange={(e) => setPayerName(e.target.value)}
-                    className="border p-2 rounded uppercase text-sm"
+                    className="border p-2 rounded"
                   />
                   <input
-                    placeholder="Payer Mobile (10 digits)"
+                    placeholder="Mobile"
                     value={payerMobile}
                     onChange={(e) => setPayerMobile(e.target.value)}
-                    className="border p-2 rounded uppercase text-sm"
+                    className="border p-2 rounded"
                   />
-
                   <button
                     type="submit"
                     disabled={submittingProof}
-                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60 uppercase text-sm"
+                    className="bg-green-600 text-white py-2 rounded"
                   >
                     {submittingProof ? "Submitting..." : "Submit Proof"}
                   </button>
-
                   {proofMessage && (
-                    <p className="text-sm text-center mt-1">{proofMessage}</p>
+                    <p className="text-sm text-center">{proofMessage}</p>
                   )}
                 </form>
               </div>
@@ -334,23 +277,21 @@ export default function FindTicket() {
         ))}
       </div>
 
-      {!isFiltered && totalPages > 1 && (
-        <div className="flex gap-2 justify-center mt-6">
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 border rounded ${
-                currentPage === i + 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-white hover:bg-gray-200"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* 📄 PAGINATION */}
+      <div className="flex gap-2 mt-6">
+        {tickets.length === TICKETS_PER_PAGE && (
+          <button
+            onClick={() => {
+              const next = currentPage + 1;
+              setCurrentPage(next);
+              fetchTickets(next);
+            }}
+            className="px-4 py-2 border rounded bg-blue-600 text-white"
+          >
+            Load More
+          </button>
+        )}
+      </div>
     </div>
   );
 }
