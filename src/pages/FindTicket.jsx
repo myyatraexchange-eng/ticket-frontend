@@ -11,10 +11,13 @@ export default function FindTicket() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🔍 FILTER STATES
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [trainNumberFilter, setTrainNumberFilter] = useState("");
 
+  // 💳 PAYMENT STATES
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
@@ -26,7 +29,7 @@ export default function FindTicket() {
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const TICKETS_PER_PAGE = 15; // backend limit ke equal
+  const TICKETS_PER_PAGE = 15;
 
   /* ===========================
      🔄 FETCH TICKETS (BACKEND FILTER)
@@ -41,8 +44,10 @@ export default function FindTicket() {
         page,
       });
 
-      if (fromFilter) params.append("from", fromFilter.toUpperCase());
-      if (toFilter) params.append("to", toFilter.toUpperCase());
+      if (fromFilter) params.append("from", fromFilter.trim());
+      if (toFilter) params.append("to", toFilter.trim());
+      if (trainNumberFilter)
+        params.append("trainNumber", trainNumberFilter.trim());
       if (dateFilter) params.append("date", dateFilter);
 
       const res = await fetch(`${API_BASE}/tickets?${params.toString()}`);
@@ -74,13 +79,13 @@ export default function FindTicket() {
     }, 300);
 
     return () => clearTimeout(delay);
-  }, [fromFilter, toFilter, dateFilter]);
+  }, [fromFilter, toFilter, dateFilter, trainNumberFilter]);
 
   /* ===========================
      💰 PAYMENT HANDLERS
   =========================== */
   const handlePay = (ticket) => {
-    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Ticket Payment`;
+    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Platform Fees`;
     setCurrentUpiLink(upiLink);
     setShowQR(true);
     setCurrentTicketId(ticket._id);
@@ -180,18 +185,24 @@ export default function FindTicket() {
       </h1>
 
       {/* 🔍 FILTERS */}
-      <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-4xl">
+      <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-5xl">
         <input
           placeholder="From"
           value={fromFilter}
           onChange={(e) => setFromFilter(e.target.value)}
-          className="border p-2 rounded w-44 uppercase text-sm"
+          className="border p-2 rounded w-40 uppercase text-sm"
         />
         <input
           placeholder="To"
           value={toFilter}
           onChange={(e) => setToFilter(e.target.value)}
-          className="border p-2 rounded w-44 uppercase text-sm"
+          className="border p-2 rounded w-40 uppercase text-sm"
+        />
+        <input
+          placeholder="Train No"
+          value={trainNumberFilter}
+          onChange={(e) => setTrainNumberFilter(e.target.value)}
+          className="border p-2 rounded w-32 uppercase text-sm"
         />
         <input
           type="date"
@@ -212,20 +223,29 @@ export default function FindTicket() {
             className="rounded-xl shadow-lg p-5 bg-white border"
           >
             <h2 className="text-xl font-semibold text-blue-700 uppercase">
-              🚆 {t.trainName} ({t.trainNumber})
+              🚆 {t.trainName?.toUpperCase()} ({t.trainNumber})
             </h2>
 
             <p>
-              <b>📍 Route:</b> {t.from} → {t.to}
+              <b>📍 Route:</b> {t.from?.toUpperCase()} →{" "}
+              {t.to?.toUpperCase()}
             </p>
             <p>
               <b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}
             </p>
             <p>
-              <b>🪑 Class:</b> {t.classType}
+              <b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}
             </p>
             <p>
-              <b>👤 Passenger:</b> {t.passengerName}
+              <b>🪑 Class:</b> {t.classType?.toUpperCase()}
+            </p>
+            <p>
+              <b>🎟 Ticket No:</b> {t.ticketNumber}
+            </p>
+            <p>
+              <b>👤 Passenger:</b>{" "}
+              {t.passengerName?.toUpperCase()} ({t.passengerGender},{" "}
+              {t.passengerAge})
             </p>
 
             {(t.paymentStatus === "not_paid" ||
@@ -234,7 +254,7 @@ export default function FindTicket() {
                 onClick={() => handlePay(t)}
                 className="mt-3 bg-blue-600 text-white px-4 py-2 rounded"
               >
-                Pay ₹20 To Unlock Contact
+                Pay ₹20 (Platform Fees) to Unlock Contact
               </button>
             )}
 
@@ -277,21 +297,19 @@ export default function FindTicket() {
         ))}
       </div>
 
-      {/* 📄 PAGINATION */}
-      <div className="flex gap-2 mt-6">
-        {tickets.length === TICKETS_PER_PAGE && (
-          <button
-            onClick={() => {
-              const next = currentPage + 1;
-              setCurrentPage(next);
-              fetchTickets(next);
-            }}
-            className="px-4 py-2 border rounded bg-blue-600 text-white"
-          >
-            Load More
-          </button>
-        )}
-      </div>
+      {/* 📄 LOAD MORE */}
+      {tickets.length === TICKETS_PER_PAGE && (
+        <button
+          onClick={() => {
+            const next = currentPage + 1;
+            setCurrentPage(next);
+            fetchTickets(next);
+          }}
+          className="mt-6 px-4 py-2 border rounded bg-blue-600 text-white"
+        >
+          Load More
+        </button>
+      )}
     </div>
   );
 }
