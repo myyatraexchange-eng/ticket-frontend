@@ -11,13 +11,13 @@ export default function FindTicket() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔍 FILTER STATES
+  // 🔍 Filters
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [trainNumberFilter, setTrainNumberFilter] = useState("");
 
-  // 💳 PAYMENT STATES
+  // 💳 Payment states
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
@@ -32,7 +32,7 @@ export default function FindTicket() {
   const TICKETS_PER_PAGE = 15;
 
   /* ===========================
-     🔄 FETCH TICKETS (BACKEND FILTER)
+     🔄 FETCH TICKETS
   =========================== */
   const fetchTickets = async (page = 1) => {
     setLoading(true);
@@ -168,16 +168,9 @@ export default function FindTicket() {
   };
 
   return (
-    <div className="p-6 container mx-auto flex flex-col items-center">
+    <div className="min-h-screen bg-gray-50 p-6 container mx-auto flex flex-col items-center">
       <Helmet>
-        <title>
-          Find Train Tickets | Confirmed Tickets Available – MyYatraExchange
-        </title>
-        <meta
-          name="description"
-          content="Search and find confirmed train tickets instantly on MyYatraExchange."
-        />
-        <link rel="canonical" href="https://www.myyatraexchange.com/find" />
+        <title>Find Train Tickets | MyYatraExchange</title>
       </Helmet>
 
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 uppercase">
@@ -185,7 +178,7 @@ export default function FindTicket() {
       </h1>
 
       {/* 🔍 FILTERS */}
-      <div className="flex gap-3 mb-6 flex-wrap justify-center w-full max-w-5xl">
+      <div className="flex gap-3 mb-8 flex-wrap justify-center w-full max-w-5xl">
         <input
           placeholder="From"
           value={fromFilter}
@@ -216,79 +209,112 @@ export default function FindTicket() {
       {error && <p className="text-red-600">{error}</p>}
 
       {/* 🎫 TICKETS */}
-      <div className="grid gap-6 w-full max-w-6xl grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
         {tickets.map((t) => (
           <div
             key={t._id}
-            className="rounded-xl shadow-lg p-5 bg-white border"
+            className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 
+                       hover:shadow-2xl hover:scale-105 transition-all duration-300 
+                       min-h-[280px]"
           >
-            <h2 className="text-xl font-semibold text-blue-700 uppercase">
-              🚆 {t.trainName?.toUpperCase()} ({t.trainNumber})
-            </h2>
+            <div className="flex flex-col gap-2 text-sm uppercase">
+              <h2 className="text-xl font-semibold text-blue-700 mb-2">
+                🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
+              </h2>
 
-            <p>
-              <b>📍 Route:</b> {t.from?.toUpperCase()} →{" "}
-              {t.to?.toUpperCase()}
-            </p>
-            <p>
-              <b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}
-            </p>
-            <p>
-              <b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}
-            </p>
-            <p>
-              <b>🪑 Class:</b> {t.classType?.toUpperCase()}
-            </p>
-            <p>
-              <b>🎟 Ticket No:</b> {t.ticketNumber}
-            </p>
-            <p>
-              <b>👤 Passenger:</b>{" "}
-              {t.passengerName?.toUpperCase()} ({t.passengerGender},{" "}
-              {t.passengerAge})
-            </p>
+              <p>
+                <span className="font-semibold">📍 Route:</span>{" "}
+                {t.from?.toUpperCase()} → {t.to?.toUpperCase()}
+              </p>
 
-            {(t.paymentStatus === "not_paid" ||
-              t.paymentStatus === "rejected") && (
-              <button
-                onClick={() => handlePay(t)}
-                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Pay ₹20 (Platform Fees) to Unlock Contact
-              </button>
-            )}
+              <p>
+                <span className="font-semibold">⏰ Departure:</span>{" "}
+                {formatDateTime(t.fromDateTime)}
+              </p>
 
+              <p>
+                <span className="font-semibold">🛬 Arrival:</span>{" "}
+                {formatDateTime(t.toDateTime)}
+              </p>
+
+              <p>
+                <span className="font-semibold">🪑 Class:</span>{" "}
+                {t.classType?.toUpperCase()}
+              </p>
+
+              <p>
+                <span className="font-semibold">🎟 Ticket:</span>{" "}
+                {t.ticketNumber}
+              </p>
+
+              <p>
+                <span className="font-semibold">👤 Passenger:</span>{" "}
+                {t.passengerName?.toUpperCase()} (
+                {t.passengerGender?.toUpperCase()}, {t.passengerAge})
+              </p>
+
+              {(t.paymentStatus === "not_paid" ||
+                t.paymentStatus === "rejected") && (
+                <button
+                  onClick={() => handlePay(t)}
+                  className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 
+                             rounded-lg shadow-md hover:bg-blue-700 transition"
+                >
+                  Pay ₹20 (Platform Fees) to Unlock Contact
+                </button>
+              )}
+            </div>
+
+            {/* 🔳 QR + PROOF */}
             {currentTicketId === t._id && showQR && (
-              <div className="mt-3 border p-3 rounded">
+              <div className="mt-4 flex flex-col items-center p-4 border rounded-lg bg-gray-50 shadow-md">
+                <p className="mb-2 font-semibold text-sm uppercase">
+                  Scan QR to pay ₹20
+                </p>
+
                 <QRCodeCanvas value={currentUpiLink} size={160} />
-                <form onSubmit={submitProof} className="mt-2 flex flex-col gap-2">
+
+                <button
+                  onClick={closeQR}
+                  className="mt-3 px-4 py-1 bg-red-600 text-white 
+                             rounded hover:bg-red-700 text-sm uppercase"
+                >
+                  Close
+                </button>
+
+                <form
+                  onSubmit={submitProof}
+                  className="mt-3 w-full max-w-xs flex flex-col gap-2"
+                >
                   <input
                     placeholder="Transaction ID"
                     value={txnId}
                     onChange={(e) => setTxnId(e.target.value)}
-                    className="border p-2 rounded"
+                    className="border p-2 rounded text-sm"
                   />
                   <input
                     placeholder="Payer Name"
                     value={payerName}
                     onChange={(e) => setPayerName(e.target.value)}
-                    className="border p-2 rounded"
+                    className="border p-2 rounded text-sm"
                   />
                   <input
-                    placeholder="Mobile"
+                    placeholder="Mobile (10 digits)"
                     value={payerMobile}
                     onChange={(e) => setPayerMobile(e.target.value)}
-                    className="border p-2 rounded"
+                    className="border p-2 rounded text-sm"
                   />
                   <button
                     type="submit"
                     disabled={submittingProof}
-                    className="bg-green-600 text-white py-2 rounded"
+                    className="bg-green-600 text-white py-2 rounded 
+                               hover:bg-green-700 disabled:opacity-60 text-sm"
                   >
                     {submittingProof ? "Submitting..." : "Submit Proof"}
                   </button>
+
                   {proofMessage && (
-                    <p className="text-sm text-center">{proofMessage}</p>
+                    <p className="text-xs text-center">{proofMessage}</p>
                   )}
                 </form>
               </div>
@@ -305,7 +331,8 @@ export default function FindTicket() {
             setCurrentPage(next);
             fetchTickets(next);
           }}
-          className="mt-6 px-4 py-2 border rounded bg-blue-600 text-white"
+          className="mt-8 px-6 py-3 bg-blue-600 text-white 
+                     rounded-2xl font-bold shadow hover:bg-blue-700"
         >
           Load More
         </button>
