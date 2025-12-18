@@ -31,9 +31,6 @@ export default function FindTicket() {
   const [currentPage, setCurrentPage] = useState(1);
   const TICKETS_PER_PAGE = 15;
 
-  /* ===========================
-     🔄 FETCH TICKETS
-  =========================== */
   const fetchTickets = async (page = 1) => {
     setLoading(true);
     setError("");
@@ -62,16 +59,10 @@ export default function FindTicket() {
     }
   };
 
-  /* ===========================
-     🚀 INITIAL LOAD
-  =========================== */
   useEffect(() => {
     fetchTickets(1);
   }, []);
 
-  /* ===========================
-     🔍 AUTO SEARCH (DEBOUNCE)
-  =========================== */
   useEffect(() => {
     const delay = setTimeout(() => {
       setCurrentPage(1);
@@ -81,9 +72,6 @@ export default function FindTicket() {
     return () => clearTimeout(delay);
   }, [fromFilter, toFilter, dateFilter, trainNumberFilter]);
 
-  /* ===========================
-     💰 PAYMENT HANDLERS
-  =========================== */
   const handlePay = (ticket) => {
     const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Platform Fees`;
     setCurrentUpiLink(upiLink);
@@ -152,9 +140,6 @@ export default function FindTicket() {
     }
   };
 
-  /* ===========================
-     🕒 DATE FORMAT
-  =========================== */
   const formatDateTime = (dt) => {
     if (!dt) return "N/A";
     return new Date(dt).toLocaleString("en-IN", {
@@ -168,8 +153,7 @@ export default function FindTicket() {
   };
 
   return (
-    {/* 🔑 ONLY CHANGE IS HERE (px-4 instead of p-6 + container) */}
-    <div className="min-h-screen bg-gray-50 px-4 py-6 mx-auto flex flex-col items-center">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 w-full flex flex-col">
       <Helmet>
         <title>Find Train Tickets | MyYatraExchange</title>
       </Helmet>
@@ -178,8 +162,7 @@ export default function FindTicket() {
         🎟 Find Tickets
       </h1>
 
-      {/* 🔍 FILTERS */}
-      <div className="flex gap-3 mb-8 flex-wrap justify-center w-full max-w-5xl">
+      <div className="flex gap-3 mb-8 flex-wrap justify-center w-full max-w-5xl mx-auto">
         <input
           placeholder="From"
           value={fromFilter}
@@ -206,11 +189,10 @@ export default function FindTicket() {
         />
       </div>
 
-      {loading && <p className="text-gray-600">Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {loading && <p className="text-center text-gray-600">Loading...</p>}
+      {error && <p className="text-center text-red-600">{error}</p>}
 
-      {/* 🎫 TICKETS */}
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl mx-auto">
         {tickets.map((t) => (
           <div
             key={t._id}
@@ -223,121 +205,29 @@ export default function FindTicket() {
                 🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
               </h2>
 
+              <p><b>📍 Route:</b> {t.from} → {t.to}</p>
+              <p><b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}</p>
+              <p><b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}</p>
+              <p><b>🪑 Class:</b> {t.classType}</p>
+              <p><b>🎟 Ticket:</b> {t.ticketNumber}</p>
               <p>
-                <span className="font-semibold">📍 Route:</span>{" "}
-                {t.from?.toUpperCase()} → {t.to?.toUpperCase()}
-              </p>
-
-              <p>
-                <span className="font-semibold">⏰ Departure:</span>{" "}
-                {formatDateTime(t.fromDateTime)}
-              </p>
-
-              <p>
-                <span className="font-semibold">🛬 Arrival:</span>{" "}
-                {formatDateTime(t.toDateTime)}
-              </p>
-
-              <p>
-                <span className="font-semibold">🪑 Class:</span>{" "}
-                {t.classType?.toUpperCase()}
-              </p>
-
-              <p>
-                <span className="font-semibold">🎟 Ticket:</span>{" "}
-                {t.ticketNumber}
-              </p>
-
-              <p>
-                <span className="font-semibold">👤 Passenger:</span>{" "}
-                {t.passengerName?.toUpperCase()} (
-                {t.passengerGender?.toUpperCase()}, {t.passengerAge})
+                <b>👤 Passenger:</b>{" "}
+                {t.passengerName} ({t.passengerGender}, {t.passengerAge})
               </p>
 
               {(t.paymentStatus === "not_paid" ||
                 t.paymentStatus === "rejected") && (
                 <button
                   onClick={() => handlePay(t)}
-                  className="mt-3 w-fit bg-blue-600 text-white px-5 py-2 
-                             rounded-lg shadow-md hover:bg-blue-700 transition"
+                  className="mt-3 bg-blue-600 text-white px-5 py-2 rounded-lg"
                 >
                   Pay ₹20 (Platform Fees) to Unlock Contact
                 </button>
               )}
             </div>
-
-            {/* 🔳 QR + PROOF */}
-            {currentTicketId === t._id && showQR && (
-              <div className="mt-4 flex flex-col items-center p-4 border rounded-lg bg-gray-50 shadow-md">
-                <p className="mb-2 font-semibold text-sm uppercase">
-                  Scan QR to pay ₹20
-                </p>
-
-                <QRCodeCanvas value={currentUpiLink} size={160} />
-
-                <button
-                  onClick={closeQR}
-                  className="mt-3 px-4 py-1 bg-red-600 text-white 
-                             rounded hover:bg-red-700 text-sm uppercase"
-                >
-                  Close
-                </button>
-
-                <form
-                  onSubmit={submitProof}
-                  className="mt-3 w-full max-w-xs flex flex-col gap-2"
-                >
-                  <input
-                    placeholder="Transaction ID"
-                    value={txnId}
-                    onChange={(e) => setTxnId(e.target.value)}
-                    className="border p-2 rounded text-sm"
-                  />
-                  <input
-                    placeholder="Payer Name"
-                    value={payerName}
-                    onChange={(e) => setPayerName(e.target.value)}
-                    className="border p-2 rounded text-sm"
-                  />
-                  <input
-                    placeholder="Mobile (10 digits)"
-                    value={payerMobile}
-                    onChange={(e) => setPayerMobile(e.target.value)}
-                    className="border p-2 rounded text-sm"
-                  />
-                  <button
-                    type="submit"
-                    disabled={submittingProof}
-                    className="bg-green-600 text-white py-2 rounded 
-                               hover:bg-green-700 disabled:opacity-60 text-sm"
-                  >
-                    {submittingProof ? "Submitting..." : "Submit Proof"}
-                  </button>
-
-                  {proofMessage && (
-                    <p className="text-xs text-center">{proofMessage}</p>
-                  )}
-                </form>
-              </div>
-            )}
           </div>
         ))}
       </div>
-
-      {/* 📄 LOAD MORE */}
-      {tickets.length === TICKETS_PER_PAGE && (
-        <button
-          onClick={() => {
-            const next = currentPage + 1;
-            setCurrentPage(next);
-            fetchTickets(next);
-          }}
-          className="mt-8 px-6 py-3 bg-blue-600 text-white 
-                     rounded-2xl font-bold shadow hover:bg-blue-700"
-        >
-          Load More
-        </button>
-      )}
     </div>
   );
 }
