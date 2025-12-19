@@ -198,13 +198,18 @@ export default function FindTicket() {
           >
             <div className="flex flex-col gap-2 text-sm uppercase">
               <h2 className="text-xl font-semibold text-blue-700">
-                🚆 {t.trainName} ({t.trainNumber})
+                🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
               </h2>
 
               <p><b>📍 Route:</b> {t.from} → {t.to}</p>
               <p><b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}</p>
               <p><b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}</p>
               <p><b>🪑 Class:</b> {t.classType}</p>
+              <p><b>🎟 Ticket:</b> {t.ticketNumber}</p>
+              <p>
+                <b>👤 Passenger:</b>{" "}
+                {t.passengerName} ({t.passengerGender}, {t.passengerAge})
+              </p>
 
               {(t.paymentStatus === "not_paid" ||
                 t.paymentStatus === "rejected") && (
@@ -220,7 +225,7 @@ export default function FindTicket() {
         ))}
       </div>
 
-      {/* ✅ QR FULLSCREEN MODAL (FIXED FOR MOBILE) */}
+      {/* QR FULLSCREEN MODAL */}
       {showQR && (
         <div className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center px-4">
           <div className="bg-white rounded-xl p-4 w-full max-w-sm">
