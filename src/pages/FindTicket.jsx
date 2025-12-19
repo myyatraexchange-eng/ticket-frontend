@@ -11,13 +11,13 @@ export default function FindTicket() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔍 Filters
+  // Filters
   const [fromFilter, setFromFilter] = useState("");
   const [toFilter, setToFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [trainNumberFilter, setTrainNumberFilter] = useState("");
 
-  // 💳 Payment states
+  // Payment states
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [txnId, setTxnId] = useState("");
   const [payerName, setPayerName] = useState("");
@@ -29,7 +29,6 @@ export default function FindTicket() {
   const [currentUpiLink, setCurrentUpiLink] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const TICKETS_PER_PAGE = 15;
 
   const fetchTickets = async (page = 1) => {
     setLoading(true);
@@ -73,10 +72,11 @@ export default function FindTicket() {
   }, [fromFilter, toFilter, dateFilter, trainNumberFilter]);
 
   const handlePay = (ticket) => {
-    const upiLink = `upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Platform Fees`;
+    const upiLink =
+      "upi://pay?pa=9753060916@okbizaxis&pn=MyYatraExchange&am=20&cu=INR&tn=Platform Fees";
     setCurrentUpiLink(upiLink);
-    setShowQR(true);
     setCurrentTicketId(ticket._id);
+    setShowQR(true);
     setTxnId("");
     setPayerName("");
     setPayerMobile("");
@@ -125,9 +125,7 @@ export default function FindTicket() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submission failed");
 
-      setProofMessage(
-        "✅ Proof submitted successfully. Waiting for admin verification."
-      );
+      setProofMessage("✅ Proof submitted. Waiting for verification.");
 
       setTimeout(() => {
         closeQR();
@@ -162,7 +160,7 @@ export default function FindTicket() {
         🎟 Find Tickets
       </h1>
 
-      <div className="flex gap-3 mb-8 flex-wrap justify-center w-full max-w-5xl mx-auto">
+      <div className="flex gap-3 mb-8 flex-wrap justify-center max-w-5xl mx-auto">
         <input
           placeholder="From"
           value={fromFilter}
@@ -189,45 +187,92 @@ export default function FindTicket() {
         />
       </div>
 
-      {loading && <p className="text-center text-gray-600">Loading...</p>}
+      {loading && <p className="text-center">Loading...</p>}
       {error && <p className="text-center text-red-600">{error}</p>}
 
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl mx-auto">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
         {tickets.map((t) => (
           <div
             key={t._id}
-            className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 
-                       hover:shadow-2xl hover:scale-105 transition-all duration-300 
-                       min-h-[280px]"
+            className="rounded-xl shadow-lg p-5 bg-white border hover:shadow-2xl hover:scale-105 transition"
           >
             <div className="flex flex-col gap-2 text-sm uppercase">
-              <h2 className="text-xl font-semibold text-blue-700 mb-2">
-                🚆 {t.trainName?.toUpperCase()} ({t.trainNumber || "N/A"})
+              <h2 className="text-xl font-semibold text-blue-700">
+                🚆 {t.trainName} ({t.trainNumber})
               </h2>
 
               <p><b>📍 Route:</b> {t.from} → {t.to}</p>
               <p><b>⏰ Departure:</b> {formatDateTime(t.fromDateTime)}</p>
               <p><b>🛬 Arrival:</b> {formatDateTime(t.toDateTime)}</p>
               <p><b>🪑 Class:</b> {t.classType}</p>
-              <p><b>🎟 Ticket:</b> {t.ticketNumber}</p>
-              <p>
-                <b>👤 Passenger:</b>{" "}
-                {t.passengerName} ({t.passengerGender}, {t.passengerAge})
-              </p>
 
               {(t.paymentStatus === "not_paid" ||
                 t.paymentStatus === "rejected") && (
                 <button
                   onClick={() => handlePay(t)}
-                  className="mt-3 bg-blue-600 text-white px-5 py-2 rounded-lg"
+                  className="mt-3 bg-blue-600 text-white py-2 rounded-lg"
                 >
-                  Pay ₹20 (Platform Fees) to Unlock Contact
+                  Pay ₹20 to Unlock Contact
                 </button>
               )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* ✅ QR FULLSCREEN MODAL (FIXED FOR MOBILE) */}
+      {showQR && (
+        <div className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl p-4 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-center mb-3">
+              Pay ₹20 via UPI
+            </h3>
+
+            <div className="flex justify-center mb-3">
+              <QRCodeCanvas value={currentUpiLink} size={220} />
+            </div>
+
+            <form onSubmit={submitProof} className="space-y-2">
+              <input
+                placeholder="Transaction ID"
+                value={txnId}
+                onChange={(e) => setTxnId(e.target.value)}
+                className="border p-2 w-full rounded"
+              />
+              <input
+                placeholder="Your Name"
+                value={payerName}
+                onChange={(e) => setPayerName(e.target.value)}
+                className="border p-2 w-full rounded"
+              />
+              <input
+                placeholder="Mobile Number"
+                value={payerMobile}
+                onChange={(e) => setPayerMobile(e.target.value)}
+                className="border p-2 w-full rounded"
+              />
+
+              <button
+                disabled={submittingProof}
+                className="bg-blue-600 text-white w-full py-2 rounded"
+              >
+                {submittingProof ? "Submitting..." : "Submit Proof"}
+              </button>
+
+              {proofMessage && (
+                <p className="text-center text-sm">{proofMessage}</p>
+              )}
+            </form>
+
+            <button
+              onClick={closeQR}
+              className="mt-3 text-sm text-red-500 w-full"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
