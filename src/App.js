@@ -53,9 +53,9 @@ const IplMiniAuction2025 = React.lazy(() =>
   import("./pages/blog/IplMiniAuction2025")
 );
 
-/* ⭐ NEW – Aravalli Hills Blog */
+/* ⭐ NEW – Aravalli Hills Blog (FIXED PATH) */
 const AravalliBlog = React.lazy(() =>
-  import("./pages/blog/AravalliHillsBlog")
+  import("./pages/blog/AravalliBlog")
 );
 
 import PrivateRoute from "./routes/PrivateRoute";
