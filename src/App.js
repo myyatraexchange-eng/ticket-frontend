@@ -53,6 +53,11 @@ const IplMiniAuction2025 = React.lazy(() =>
   import("./pages/blog/IplMiniAuction2025")
 );
 
+/* ⭐ NEW – Aravalli Hills Blog */
+const AravalliBlog = React.lazy(() =>
+  import("./pages/blog/AravalliHillsBlog")
+);
+
 import PrivateRoute from "./routes/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { TicketProvider } from "./context/TicketContext";
@@ -168,6 +173,12 @@ function AppContent() {
             <Route
               path="/blog/ipl-mini-auction-2025"
               element={<IplMiniAuction2025 />}
+            />
+
+            {/* ⭐ NEW — Aravalli Hills Controversy */}
+            <Route
+              path="/blog/aravalli-hills-controversy-2025"
+              element={<AravalliBlog />}
             />
 
           </Routes>

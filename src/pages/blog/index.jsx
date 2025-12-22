@@ -2,6 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const blogs = [
+  /* ⭐ NEW TRENDING BLOG — Aravalli Hills ---------------------------------- */
+  {
+    title:
+      "Aravalli Hills Controversy 2025: Kya Hum Apni Sabse Purani Dharohar Kho Rahe Hain? | Guru Shikhar Travel Guide",
+    link: "/blog/aravalli-hills-controversy-2025",
+    tag: "🔥 Trending",
+    desc:
+      "Aravalli Hills news 2025: mining controversy, Supreme Court & NGT updates, Guru Shikhar Mount Abu travel guide aur confirm train ticket ka smart solution.",
+    thumbnail: "/thumbnails/Aravallith.webp",
+  },
+
   /* ⭐ NEW TRENDING BLOG — IPL MINI AUCTION ---------------------------------- */
   {
     title:
@@ -149,7 +160,6 @@ export default function BlogIndex() {
             to={blog.link}
             className="bg-white shadow-lg rounded-2xl border hover:shadow-2xl transition duration-300 overflow-hidden"
           >
-            {/* THUMBNAIL */}
             <img
               src={blog.thumbnail}
               alt={blog.title}
