@@ -1,4 +1,4 @@
-/* --- FINAL HOME PAGE WITH ALL CLS FIXES + HERO CENTER ALIGN
+/* --- FINAL HOME PAGE WITH CLS FIX (SKELETON) + HERO CENTER ALIGN
       (LOGIC & TICKET CARD UNCHANGED) --- */
 
 import React, { useEffect, useState, memo } from "react";
@@ -60,6 +60,11 @@ const TicketCard = memo(({ ticket }) => (
   </div>
 ));
 
+// --- Skeleton (CLS FIX ONLY) ---
+const TicketSkeleton = () => (
+  <div className="rounded-xl border border-gray-200 p-5 bg-gray-100 animate-pulse min-h-[280px]" />
+);
+
 export default function Home() {
   const [tickets, setTickets] = useState([]);
 
@@ -112,7 +117,6 @@ export default function Home() {
               <span className="text-green-400"> Exchange</span>
             </h1>
 
-            {/* MOBILE TRUE CENTER */}
             <p className="text-lg sm:text-xl md:text-2xl mb-2 w-full sm:max-w-2xl mx-auto px-2">
               Share unused tickets & help others get confirmed travel.
             </p>
@@ -121,13 +125,11 @@ export default function Home() {
               "Connecting travelers, saving journeys."
             </p>
 
-            {/* BUTTONS (DESKTOP GAP FIXED) */}
             <div className="flex flex-col sm:flex-row gap-8 sm:gap-6 md:gap-4 justify-center">
               <div className="flex flex-col items-center max-w-[260px] mx-auto">
                 <Link
                   to="/find"
-                  className="bg-white text-black 
-                  px-5 py-3 sm:px-10 sm:py-5 
+                  className="bg-white text-black px-5 py-3 sm:px-10 sm:py-5 
                   rounded-2xl font-bold text-lg
                   shadow-[0_5px_0_#bbb]
                   active:translate-y-1 active:shadow-[0_1px_0_#bbb]
@@ -144,8 +146,7 @@ export default function Home() {
               <div className="flex flex-col items-center max-w-[260px] mx-auto">
                 <Link
                   to="/post"
-                  className="bg-blue-600 text-white 
-                  px-5 py-3 sm:px-10 sm:py-5 
+                  className="bg-blue-600 text-white px-5 py-3 sm:px-10 sm:py-5 
                   rounded-2xl font-bold text-lg
                   shadow-[0_5px_0_#1e40af]
                   active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
@@ -163,36 +164,36 @@ export default function Home() {
         </div>
       </div>
 
-      {/* RECENT TICKETS */}
+      {/* RECENT TICKETS (CLS FIXED) */}
       <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
 
-        {tickets.length === 0 ? (
-          <p className="text-center text-gray-500">Loading tickets...</p>
-        ) : (
-          <>
-            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {tickets.map((ticket) => (
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {tickets.length === 0
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <TicketSkeleton key={i} />
+              ))
+            : tickets.map((ticket) => (
                 <TicketCard key={ticket._id} ticket={ticket} />
               ))}
-            </div>
+        </div>
 
-            <div className="flex justify-center mt-8">
-              <Link
-                to="/find"
-                className="bg-green-500 text-white 
-                px-6 py-3 sm:px-10 sm:py-4 
-                rounded-2xl font-bold text-lg
-                shadow-[0_5px_0_#166534]
-                active:translate-y-1 active:shadow-[0_1px_0_#166534]
-                hover:bg-green-600 transition-all"
-              >
-                Show All Tickets
-              </Link>
-            </div>
-          </>
+        {tickets.length > 0 && (
+          <div className="flex justify-center mt-8">
+            <Link
+              to="/find"
+              className="bg-green-500 text-white 
+              px-6 py-3 sm:px-10 sm:py-4 
+              rounded-2xl font-bold text-lg
+              shadow-[0_5px_0_#166534]
+              active:translate-y-1 active:shadow-[0_1px_0_#166534]
+              hover:bg-green-600 transition-all"
+            >
+              Show All Tickets
+            </Link>
+          </div>
         )}
       </div>
     </div>
