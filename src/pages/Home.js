@@ -1,4 +1,4 @@
-/* --- FINAL HOME PAGE WITH CLS + LCP + RESPONSIVE BANNER FIX --- */
+/* --- FINAL HOME PAGE WITH ALL CLS FIXES (LOGIC & TICKET CARD UNCHANGED) --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// --- Ticket Card ---
+// --- Ticket Card (UNCHANGED) ---
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -136,11 +136,6 @@ export default function Home() {
               >
                 Find Ticket
               </Link>
-              <p className="text-xs sm:text-sm mt-2 leading-5">
-                Waiting list se chutkaara paaye!  
-                Yahan shared confirmed tickets milte hain—  
-                turant confirmed travel ka mauka.
-              </p>
             </div>
 
             <div className="flex flex-col items-center max-w-[220px]">
@@ -155,18 +150,13 @@ export default function Home() {
               >
                 Post Ticket
               </Link>
-              <p className="text-xs sm:text-sm mt-2 leading-5">
-                Apna extra ticket post karein aur  
-                cancel karne se hone wale loss se bachein—  
-                kisi aur ki journey ban jayegi.
-              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* RECENT TICKETS */}
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      {/* RECENT TICKETS (CLS FIX: SPACE RESERVED) */}
+      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px]">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
