@@ -24,36 +24,41 @@ const BlogHome = React.lazy(() => import("./pages/blog"));
 const UnusedTicket = React.lazy(() => import("./pages/blog/UnusedTicket"));
 const SeatConfirm = React.lazy(() => import("./pages/blog/SeatConfirm"));
 const WaitingCancel = React.lazy(() => import("./pages/blog/WaitingCancel"));
-const TatkalFast = React.lazy(() => import("./pages/blog/TatkalFast"));
-const SeatAvailability = React.lazy(() => import("./pages/blog/SeatAvailability"));
+const SeatAvailability = React.lazy(() =>
+  import("./pages/blog/SeatAvailability")
+);
 
 const RacGuide = React.lazy(() => import("./pages/blog/RacGuide"));
 const WLCompare = React.lazy(() => import("./pages/blog/WLCompare"));
 const PNRGuide = React.lazy(() => import("./pages/blog/PNRGuide"));
 const ChartTime = React.lazy(() => import("./pages/blog/ChartTime"));
-const TatkalGuide = React.lazy(() => import("./pages/blog/TatkalGuide"));
 
-/* ⭐ NEW – Dhurandhar Movie Blog */
+/* ⭐ NEW — Waiting List Ticket Confirm Blog */
+const WaitingListTicketBlog = React.lazy(() =>
+  import("./pages/blog/WaitingListTicketBlog")
+);
+
+/* ⭐ NEW — Dhurandhar Movie Blog */
 const DhurandharMovieShootingLocation = React.lazy(() =>
   import("./pages/blog/DhurandharMovieShootingLocation")
 );
 
-/* ⭐ NEW – Indigo Share Price Blog */
+/* ⭐ NEW — Indigo Share Price Blog */
 const IndigoSharePrice = React.lazy(() =>
   import("./pages/blog/IndigoSharePrice")
 );
 
-/* ⭐ NEW – India vs Pakistan 2026 Blog */
+/* ⭐ NEW — India vs Pakistan 2026 Blog */
 const IndVsPak = React.lazy(() =>
   import("./pages/blog/ind-vs-pak")
 );
 
-/* ⭐ NEW – IPL Mini Auction 2025 Blog */
+/* ⭐ NEW — IPL Mini Auction 2025 Blog */
 const IplMiniAuction2025 = React.lazy(() =>
   import("./pages/blog/IplMiniAuction2025")
 );
 
-/* ⭐ NEW – Aravalli Hills Blog (FIXED PATH) */
+/* ⭐ NEW — Aravalli Hills Blog */
 const AravalliBlog = React.lazy(() =>
   import("./pages/blog/AravalliBlog")
 );
@@ -83,7 +88,6 @@ function AppContent() {
       <main className={isHome ? "" : "min-h-screen px-4 md:px-8 py-6"}>
         <Suspense fallback={<p className="text-center pt-20">Loading...</p>}>
           <Routes>
-
             {/* Basic Pages */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -98,7 +102,6 @@ function AppContent() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/post"
               element={
@@ -107,7 +110,6 @@ function AppContent() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/profile"
               element={
@@ -144,43 +146,41 @@ function AppContent() {
             <Route path="/blog/unused-ticket" element={<UnusedTicket />} />
             <Route path="/blog/seat-confirm" element={<SeatConfirm />} />
             <Route path="/blog/waiting-cancel" element={<WaitingCancel />} />
-            <Route path="/blog/tatkal-fast" element={<TatkalFast />} />
-            <Route path="/blog/seat-availability" element={<SeatAvailability />} />
+            <Route
+              path="/blog/seat-availability"
+              element={<SeatAvailability />}
+            />
 
-            {/* New 5 blogs */}
+            {/* INFO BLOGS */}
             <Route path="/blog/rac-guide" element={<RacGuide />} />
             <Route path="/blog/wl-compare" element={<WLCompare />} />
             <Route path="/blog/pnr-guide" element={<PNRGuide />} />
             <Route path="/blog/chart-time" element={<ChartTime />} />
-            <Route path="/blog/tatkal-guide" element={<TatkalGuide />} />
 
-            {/* ⭐ NEW — Dhurandhar Movie */}
+            {/* ⭐ NEW — Waiting List Ticket Confirm */}
+            <Route
+              path="/blog/waiting-list-ticket-confirm"
+              element={<WaitingListTicketBlog />}
+            />
+
+            {/* ⭐ FEATURED BLOGS */}
             <Route
               path="/blog/dhurandhar-movie-shooting-location-train-guide"
               element={<DhurandharMovieShootingLocation />}
             />
-
-            {/* ⭐ NEW — Indigo Share Price */}
             <Route
               path="/blog/indigo-share-price-flight-cancel-train-seat"
               element={<IndigoSharePrice />}
             />
-
-            {/* ⭐ NEW — India vs Pakistan 2026 */}
             <Route path="/blog/ind-vs-pak" element={<IndVsPak />} />
-
-            {/* ⭐ NEW — IPL Mini Auction 2025 */}
             <Route
               path="/blog/ipl-mini-auction-2025"
               element={<IplMiniAuction2025 />}
             />
-
-            {/* ⭐ NEW — Aravalli Hills Controversy */}
             <Route
               path="/blog/aravalli-hills-controversy-2025"
               element={<AravalliBlog />}
             />
-
           </Routes>
         </Suspense>
       </main>

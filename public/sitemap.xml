@@ -71,37 +71,40 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- ⭐ TRENDING BLOG — ARAVALLI HILLS -->
+  <!-- ⭐ TRENDING BLOGS -->
   <url>
     <loc>https://www.myyatraexchange.com/blog/aravalli-hills-controversy-2025</loc>
     <changefreq>daily</changefreq>
     <priority>0.97</priority>
   </url>
 
-  <!-- ⭐ TRENDING BLOG — IPL MINI AUCTION 2025 -->
   <url>
     <loc>https://www.myyatraexchange.com/blog/ipl-mini-auction-2025</loc>
     <changefreq>daily</changefreq>
     <priority>0.97</priority>
   </url>
 
-  <!-- ⭐ TRENDING MOVIE BLOG -->
   <url>
     <loc>https://www.myyatraexchange.com/blog/dhurandhar-movie-shooting-location-train-guide</loc>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
 
-  <!-- ⭐ INDIGO SHARE PRICE BLOG -->
   <url>
     <loc>https://www.myyatraexchange.com/blog/indigo-share-price-flight-cancel-train-seat</loc>
     <changefreq>daily</changefreq>
     <priority>0.92</priority>
   </url>
 
-  <!-- ⭐ INDIA vs PAKISTAN T20 WORLD CUP 2026 BLOG -->
   <url>
     <loc>https://www.myyatraexchange.com/blog/ind-vs-pak</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.96</priority>
+  </url>
+
+  <!-- 🆕 NEW WAITING LIST BLOG -->
+  <url>
+    <loc>https://www.myyatraexchange.com/blog/waiting-list-ticket-confirm</loc>
     <changefreq>daily</changefreq>
     <priority>0.96</priority>
   </url>
@@ -111,7 +114,6 @@
   <url><loc>https://www.myyatraexchange.com/blog/wl-compare</loc></url>
   <url><loc>https://www.myyatraexchange.com/blog/pnr-guide</loc></url>
   <url><loc>https://www.myyatraexchange.com/blog/chart-time</loc></url>
-  <url><loc>https://www.myyatraexchange.com/blog/tatkal-guide</loc></url>
 
   <url><loc>https://www.myyatraexchange.com/blog/unused-ticket</loc></url>
   <url><loc>https://www.myyatraexchange.com/blog/seat-confirm</loc></url>
