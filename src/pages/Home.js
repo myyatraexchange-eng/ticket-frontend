@@ -155,8 +155,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* RECENT TICKETS (CLS FIX: SPACE RESERVED) */}
-      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px]">
+      {/* RECENT TICKETS (CLS SAFE + DESKTOP GAP FIX) */}
+      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
