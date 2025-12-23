@@ -1,4 +1,4 @@
-/* --- FINAL HOME PAGE WITH CLS + LCP FIX (NO LOGIC CHANGED) --- */
+/* --- FINAL HOME PAGE WITH CLS + LCP + RESPONSIVE BANNER FIX --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -81,14 +81,17 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
         <title>MyYatraExchange – Find & Share Train Tickets</title>
-
-        {/* ✅ LCP FIX: Hero Image Preload */}
+        {/* ✅ LCP FIX */}
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* HERO SECTION (CLS SAFE) */}
+      {/* HERO SECTION (RESPONSIVE + CLS SAFE) */}
       <div
-        className="relative w-full overflow-hidden group"
+        className="
+          relative w-full overflow-hidden group
+          min-h-[520px] sm:min-h-[600px]
+          max-h-[750px]
+        "
         style={{ aspectRatio: "16 / 9" }}
       >
         <img
@@ -97,9 +100,11 @@ export default function Home() {
           width="1600"
           height="900"
           fetchpriority="high"
-          className="w-full h-full object-cover 
-                     transition-transform duration-700 
-                     group-hover:scale-105"
+          className="
+            w-full h-full object-cover
+            transition-transform duration-700
+            group-hover:scale-105
+          "
         />
 
         {/* OVERLAY */}
