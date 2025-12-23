@@ -1,4 +1,4 @@
-/* --- FINAL HOME PAGE WITH SHOW ALL TICKETS BUTTON RESTORED --- */
+/* --- FINAL HOME PAGE WITH CLS + LCP FIX (NO LOGIC CHANGED) --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -81,14 +81,25 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
         <title>MyYatraExchange – Find & Share Train Tickets</title>
+
+        {/* ✅ LCP FIX: Hero Image Preload */}
+        <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* HERO SECTION */}
-      <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden group">
+      {/* HERO SECTION (CLS SAFE) */}
+      <div
+        className="relative w-full overflow-hidden group"
+        style={{ aspectRatio: "16 / 9" }}
+      >
         <img
           src={trainImage}
           alt="Indian train"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          width="1600"
+          height="900"
+          fetchpriority="high"
+          className="w-full h-full object-cover 
+                     transition-transform duration-700 
+                     group-hover:scale-105"
         />
 
         {/* OVERLAY */}
@@ -107,10 +118,7 @@ export default function Home() {
             "Connecting travelers, saving journeys."
           </p>
 
-          {/* BUTTONS */}
           <div className="flex flex-col sm:flex-row gap-6">
-
-            {/* Find Ticket */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/find"
@@ -130,7 +138,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Post Ticket */}
             <div className="flex flex-col items-center max-w-[220px]">
               <Link
                 to="/post"
@@ -149,7 +156,6 @@ export default function Home() {
                 kisi aur ki journey ban jayegi.
               </p>
             </div>
-
           </div>
         </div>
       </div>
@@ -170,7 +176,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* ⭐ SHOW ALL TICKETS BUTTON (RESTORED + 3D EFFECT) */}
             <div className="flex justify-center mt-8">
               <Link
                 to="/find"
