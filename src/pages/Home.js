@@ -1,4 +1,5 @@
-/* --- FINAL HOME PAGE WITH ALL CLS FIXES (LOGIC & TICKET CARD UNCHANGED) --- */
+/* --- FINAL HOME PAGE WITH ALL CLS FIXES + DESKTOP HERO POLISH
+      (LOGIC & TICKET CARD UNCHANGED) --- */
 
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
@@ -81,15 +82,16 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
         <title>MyYatraExchange – Find & Share Train Tickets</title>
+        {/* LCP FIX */}
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* HERO SECTION */}
+      {/* HERO SECTION (DESKTOP POLISHED + CLS SAFE) */}
       <div
         className="
           relative w-full overflow-hidden group
           min-h-[520px] sm:min-h-[600px]
-          max-h-[750px]
+          max-h-[650px] lg:max-h-[600px]
         "
         style={{ aspectRatio: "16 / 9" }}
       >
@@ -103,65 +105,73 @@ export default function Home() {
         />
 
         {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
-            <span className="text-orange-400">My</span>
-            <span className="text-white"> Yatra</span>
-            <span className="text-green-400"> Exchange</span>
-          </h1>
+        <div
+          className="
+            absolute inset-0 bg-black bg-opacity-50
+            flex flex-col justify-center
+            text-white px-6
+          "
+        >
+          <div className="w-full max-w-6xl mx-auto text-center md:text-left">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
+              <span className="text-orange-400">My</span>
+              <span className="text-white"> Yatra</span>
+              <span className="text-green-400"> Exchange</span>
+            </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-xl">
-            Share unused tickets & help others get confirmed travel.
-          </p>
+            <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-2xl mx-auto md:mx-0">
+              Share unused tickets & help others get confirmed travel.
+            </p>
 
-          <p className="text-sm sm:text-base italic opacity-90 mb-6">
-            "Connecting travelers, saving journeys."
-          </p>
+            <p className="text-sm sm:text-base italic opacity-90 mb-8 max-w-2xl mx-auto md:mx-0">
+              "Connecting travelers, saving journeys."
+            </p>
 
-          {/* BUTTONS */}
-          <div className="flex flex-col sm:flex-row gap-8">
-            {/* FIND TICKET */}
-            <div className="flex flex-col items-center max-w-[260px]">
-              <Link
-                to="/find"
-                className="bg-white text-black 
-                px-5 py-3 sm:px-10 sm:py-5 
-                rounded-2xl font-bold text-lg
-                shadow-[0_5px_0_#bbb]
-                active:translate-y-1 active:shadow-[0_1px_0_#bbb]
-                hover:bg-gray-100 transition-all"
-              >
-                Find Ticket
-              </Link>
-              <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
-                Apni route ke liye confirmed ticket dhundhein aur  
-                waiting list ki tension khatam karein.
-              </p>
-            </div>
+            {/* BUTTONS */}
+            <div className="flex flex-col sm:flex-row gap-8 justify-center md:justify-start">
+              {/* FIND TICKET */}
+              <div className="flex flex-col items-center md:items-start max-w-[260px]">
+                <Link
+                  to="/find"
+                  className="bg-white text-black 
+                  px-5 py-3 sm:px-10 sm:py-5 
+                  rounded-2xl font-bold text-lg
+                  shadow-[0_5px_0_#bbb]
+                  active:translate-y-1 active:shadow-[0_1px_0_#bbb]
+                  hover:bg-gray-100 transition-all"
+                >
+                  Find Ticket
+                </Link>
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center md:text-left">
+                  Apni route ke liye confirmed ticket dhundhein aur
+                  waiting list ki tension khatam karein.
+                </p>
+              </div>
 
-            {/* POST TICKET */}
-            <div className="flex flex-col items-center max-w-[260px]">
-              <Link
-                to="/post"
-                className="bg-blue-600 text-white 
-                px-5 py-3 sm:px-10 sm:py-5 
-                rounded-2xl font-bold text-lg
-                shadow-[0_5px_0_#1e40af]
-                active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
-                hover:bg-blue-700 transition-all"
-              >
-                Post Ticket
-              </Link>
-              <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
-                Apni unused ticket share karke  
-                kisi aur ki yatra safal banayein.
-              </p>
+              {/* POST TICKET */}
+              <div className="flex flex-col items-center md:items-start max-w-[260px]">
+                <Link
+                  to="/post"
+                  className="bg-blue-600 text-white 
+                  px-5 py-3 sm:px-10 sm:py-5 
+                  rounded-2xl font-bold text-lg
+                  shadow-[0_5px_0_#1e40af]
+                  active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
+                  hover:bg-blue-700 transition-all"
+                >
+                  Post Ticket
+                </Link>
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center md:text-left">
+                  Apni unused ticket share karke
+                  kisi aur ki yatra safal banayein.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* RECENT TICKETS */}
+      {/* RECENT TICKETS (CLS SAFE + DESKTOP GAP FIX) */}
       <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
