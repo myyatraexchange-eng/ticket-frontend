@@ -112,7 +112,7 @@ export default function Home() {
               <span className="text-green-400"> Exchange</span>
             </h1>
 
-            {/* ✅ MOBILE TRUE CENTER FIX */}
+            {/* MOBILE TRUE CENTER */}
             <p className="text-lg sm:text-xl md:text-2xl mb-2 w-full sm:max-w-2xl mx-auto px-2">
               Share unused tickets & help others get confirmed travel.
             </p>
@@ -121,8 +121,8 @@ export default function Home() {
               "Connecting travelers, saving journeys."
             </p>
 
-            {/* BUTTONS */}
-            <div className="flex flex-col sm:flex-row gap-8 justify-center">
+            {/* BUTTONS (DESKTOP GAP FIXED) */}
+            <div className="flex flex-col sm:flex-row gap-8 sm:gap-6 md:gap-4 justify-center">
               <div className="flex flex-col items-center max-w-[260px] mx-auto">
                 <Link
                   to="/find"
