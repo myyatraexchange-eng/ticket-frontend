@@ -82,11 +82,10 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
         <title>MyYatraExchange – Find & Share Train Tickets</title>
-        {/* LCP FIX */}
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* HERO SECTION (DESKTOP POLISHED + CLS SAFE) */}
+      {/* HERO SECTION */}
       <div
         className="
           relative w-full overflow-hidden group
@@ -105,32 +104,25 @@ export default function Home() {
         />
 
         {/* OVERLAY */}
-        <div
-          className="
-            absolute inset-0 bg-black bg-opacity-50
-            flex flex-col justify-center
-            text-white px-6
-          "
-        >
-          <div className="w-full max-w-6xl mx-auto text-center md:text-left">
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center text-white px-6">
+          <div className="w-full max-w-6xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
               <span className="text-orange-400">My</span>
               <span className="text-white"> Yatra</span>
               <span className="text-green-400"> Exchange</span>
             </h1>
 
-            <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-2xl mx-auto md:mx-0">
+            <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-2xl mx-auto">
               Share unused tickets & help others get confirmed travel.
             </p>
 
-            <p className="text-sm sm:text-base italic opacity-90 mb-8 max-w-2xl mx-auto md:mx-0">
+            <p className="text-sm sm:text-base italic opacity-90 mb-8 max-w-2xl mx-auto">
               "Connecting travelers, saving journeys."
             </p>
 
             {/* BUTTONS */}
-            <div className="flex flex-col sm:flex-row gap-8 justify-center md:justify-start">
-              {/* FIND TICKET */}
-              <div className="flex flex-col items-center md:items-start max-w-[260px]">
+            <div className="flex flex-col sm:flex-row gap-8 justify-center">
+              <div className="flex flex-col items-center max-w-[260px]">
                 <Link
                   to="/find"
                   className="bg-white text-black 
@@ -142,14 +134,13 @@ export default function Home() {
                 >
                   Find Ticket
                 </Link>
-                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center md:text-left">
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
                   Apni route ke liye confirmed ticket dhundhein aur
                   waiting list ki tension khatam karein.
                 </p>
               </div>
 
-              {/* POST TICKET */}
-              <div className="flex flex-col items-center md:items-start max-w-[260px]">
+              <div className="flex flex-col items-center max-w-[260px]">
                 <Link
                   to="/post"
                   className="bg-blue-600 text-white 
@@ -161,7 +152,7 @@ export default function Home() {
                 >
                   Post Ticket
                 </Link>
-                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center md:text-left">
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
                   Apni unused ticket share karke
                   kisi aur ki yatra safal banayein.
                 </p>
@@ -171,7 +162,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* RECENT TICKETS (CLS SAFE + DESKTOP GAP FIX) */}
+      {/* RECENT TICKETS */}
       <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
