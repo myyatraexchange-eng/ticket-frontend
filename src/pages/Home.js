@@ -1,4 +1,4 @@
-/* --- FINAL HOME PAGE WITH ALL CLS FIXES + DESKTOP HERO POLISH
+/* --- FINAL HOME PAGE WITH ALL CLS FIXES + HERO CENTER ALIGN
       (LOGIC & TICKET CARD UNCHANGED) --- */
 
 import React, { useEffect, useState, memo } from "react";
@@ -104,7 +104,7 @@ export default function Home() {
         />
 
         {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center text-white px-6">
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center text-white px-4">
           <div className="w-full max-w-6xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
               <span className="text-orange-400">My</span>
@@ -112,17 +112,18 @@ export default function Home() {
               <span className="text-green-400"> Exchange</span>
             </h1>
 
-            <p className="text-lg sm:text-xl md:text-2xl mb-2 max-w-2xl mx-auto">
+            {/* ✅ MOBILE TRUE CENTER FIX */}
+            <p className="text-lg sm:text-xl md:text-2xl mb-2 w-full sm:max-w-2xl mx-auto px-2">
               Share unused tickets & help others get confirmed travel.
             </p>
 
-            <p className="text-sm sm:text-base italic opacity-90 mb-8 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base italic opacity-90 mb-8 w-full sm:max-w-2xl mx-auto px-2">
               "Connecting travelers, saving journeys."
             </p>
 
             {/* BUTTONS */}
             <div className="flex flex-col sm:flex-row gap-8 justify-center">
-              <div className="flex flex-col items-center max-w-[260px]">
+              <div className="flex flex-col items-center max-w-[260px] mx-auto">
                 <Link
                   to="/find"
                   className="bg-white text-black 
@@ -134,13 +135,13 @@ export default function Home() {
                 >
                   Find Ticket
                 </Link>
-                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center px-2">
                   Apni route ke liye confirmed ticket dhundhein aur
                   waiting list ki tension khatam karein.
                 </p>
               </div>
 
-              <div className="flex flex-col items-center max-w-[260px]">
+              <div className="flex flex-col items-center max-w-[260px] mx-auto">
                 <Link
                   to="/post"
                   className="bg-blue-600 text-white 
@@ -152,7 +153,7 @@ export default function Home() {
                 >
                   Post Ticket
                 </Link>
-                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center px-2">
                   Apni unused ticket share karke
                   kisi aur ki yatra safal banayein.
                 </p>
