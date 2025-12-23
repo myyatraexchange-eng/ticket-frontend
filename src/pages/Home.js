@@ -81,11 +81,10 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <Helmet>
         <title>MyYatraExchange – Find & Share Train Tickets</title>
-        {/* ✅ LCP FIX */}
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* HERO SECTION (RESPONSIVE + CLS SAFE) */}
+      {/* HERO SECTION */}
       <div
         className="
           relative w-full overflow-hidden group
@@ -100,11 +99,7 @@ export default function Home() {
           width="1600"
           height="900"
           fetchpriority="high"
-          className="
-            w-full h-full object-cover
-            transition-transform duration-700
-            group-hover:scale-105
-          "
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
         {/* OVERLAY */}
@@ -123,8 +118,10 @@ export default function Home() {
             "Connecting travelers, saving journeys."
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6">
-            <div className="flex flex-col items-center max-w-[220px]">
+          {/* BUTTONS */}
+          <div className="flex flex-col sm:flex-row gap-8">
+            {/* FIND TICKET */}
+            <div className="flex flex-col items-center max-w-[260px]">
               <Link
                 to="/find"
                 className="bg-white text-black 
@@ -136,9 +133,14 @@ export default function Home() {
               >
                 Find Ticket
               </Link>
+              <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
+                Apni route ke liye confirmed ticket dhundhein aur  
+                waiting list ki tension khatam karein.
+              </p>
             </div>
 
-            <div className="flex flex-col items-center max-w-[220px]">
+            {/* POST TICKET */}
+            <div className="flex flex-col items-center max-w-[260px]">
               <Link
                 to="/post"
                 className="bg-blue-600 text-white 
@@ -150,12 +152,16 @@ export default function Home() {
               >
                 Post Ticket
               </Link>
+              <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200">
+                Apni unused ticket share karke  
+                kisi aur ki yatra safal banayein.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* RECENT TICKETS (CLS SAFE + DESKTOP GAP FIX) */}
+      {/* RECENT TICKETS */}
       <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
