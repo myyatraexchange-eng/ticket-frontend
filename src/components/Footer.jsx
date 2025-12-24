@@ -28,7 +28,7 @@ const Footer = () => {
             
             {/* YouTube */}
             <a 
-              href="https://youtube.com/@my_yatra_exchange?si=V2UB_RbmlCilbU5R"
+              href="https://youtube.com/@my_yatra_exchange?si=1AXs4ZgLQZHNbVc1"
               target="_blank" 
               rel="noopener noreferrer"
               className="text-red-500 bg-white p-2 rounded-full text-xl hover:scale-110 transition-all shadow-md"
