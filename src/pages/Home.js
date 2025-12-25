@@ -8,7 +8,7 @@ const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-/* --- Ticket Card (UNCHANGED) --- */
+/* ================= TICKET CARD ================= */
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -58,7 +58,7 @@ const TicketCard = memo(({ ticket }) => (
   </div>
 ));
 
-/* --- Skeleton --- */
+/* ================= SKELETON ================= */
 const TicketSkeleton = () => (
   <div className="rounded-xl border border-gray-200 p-5 bg-gray-100 animate-pulse min-h-[280px]" />
 );
@@ -87,19 +87,14 @@ export default function Home() {
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* ================= HERO ================= */}
-      <div
-        className="
-          relative w-full overflow-hidden
-          min-h-[520px] sm:min-h-[600px]
-          md:aspect-[16/9] md:max-h-[650px]
-        "
-      >
+      {/* ================= HERO (CLS ZERO VERSION) ================= */}
+      <div className="relative w-full overflow-hidden h-[65vh] sm:h-[70vh] lg:h-[75vh]">
         <img
           src={trainImage}
           alt="Indian train"
           width="1600"
           height="900"
+          loading="eager"
           fetchpriority="high"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -120,7 +115,7 @@ export default function Home() {
               "Connecting travelers, saving journeys."
             </p>
 
-            {/* ===== BUTTONS ===== */}
+            {/* ===== CTA BUTTONS ===== */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
 
               {/* FIND */}

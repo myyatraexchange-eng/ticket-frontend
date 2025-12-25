@@ -2,55 +2,66 @@ import React from "react";
 
 export default function HowItWorksModal({ onClose }) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4">
-      <div className="bg-white max-w-2xl w-full rounded-2xl p-6 relative shadow-2xl">
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center px-4">
+      
+      {/* Modal Box */}
+      <div className="
+        bg-white w-full max-w-2xl max-h-[85vh]
+        rounded-2xl shadow-2xl relative
+        flex flex-col overflow-hidden
+      ">
 
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-black text-xl"
-          aria-label="Close"
-        >
-          ✖
-        </button>
+        {/* ===== Header ===== */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-center">
+            My Yatra Exchange: Kaise Kaam Karta Hai?
+          </h2>
+          <p className="text-center text-sm opacity-90 mt-1">
+            (How It Works)
+          </p>
 
-        {/* Title */}
-        <h2 className="text-2xl sm:text-3xl font-extrabold mb-2 text-blue-700 text-center">
-          My Yatra Exchange: Kaise Kaam Karta Hai?
-        </h2>
+          {/* Close */}
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 text-white/80 hover:text-white text-xl"
+            aria-label="Close"
+          >
+            ✖
+          </button>
+        </div>
 
-        <p className="text-center text-gray-600 mb-6 text-sm">
-          (How It Works)
-        </p>
+        {/* ===== Content ===== */}
+        <div className="px-6 py-5 overflow-y-auto text-gray-800 space-y-4 text-sm sm:text-base">
 
-        {/* Steps */}
-        <div className="space-y-5 text-gray-800 text-sm sm:text-base leading-relaxed">
-
-          <div>
-            <h3 className="font-bold text-lg">
+          {/* Step 1 */}
+          <div className="border-l-4 border-orange-400 bg-orange-50 rounded-r-lg p-4">
+            <h3 className="font-bold text-lg mb-1">
               🚂 Step 1: POST TICKET
             </h3>
             <p>
-              Agar aapka plan achanak badal gaya hai aur aapke paas confirm ticket hai,
-              to use cancel karke nuksaan na uthayein.
+              Agar aapka plan achanak badal gaya hai aur aapke paas
+              <b> confirm ticket</b> hai, to use cancel karke nuksaan na uthayein.
               <br />
               <b>My Yatra Exchange</b> par apni ticket details post karein aur
               apna poora paisa wapas paane ka mauka paayein.
             </p>
           </div>
 
-          <div>
-            <h3 className="font-bold text-lg">
+          {/* Step 2 */}
+          <div className="border-l-4 border-blue-500 bg-blue-50 rounded-r-lg p-4">
+            <h3 className="font-bold text-lg mb-1">
               🔍 Step 2: FIND TICKET
             </h3>
             <p>
               Agar aapko achanak kahin jana hai aur confirm seat nahi mil rahi,
-              to <b>My Yatra Exchange</b> par apne route ki available tickets search karein.
+              to <b>My Yatra Exchange</b> par apne route ki
+              available tickets search karein.
             </p>
           </div>
 
-          <div>
-            <h3 className="font-bold text-lg">
+          {/* Step 3 */}
+          <div className="border-l-4 border-green-500 bg-green-50 rounded-r-lg p-4">
+            <h3 className="font-bold text-lg mb-1">
               💳 Step 3: Platform Fee & Contact
             </h3>
             <p>
@@ -61,8 +72,9 @@ export default function HowItWorksModal({ onClose }) {
             </p>
           </div>
 
-          <div>
-            <h3 className="font-bold text-lg">
+          {/* Step 4 */}
+          <div className="border-l-4 border-purple-500 bg-purple-50 rounded-r-lg p-4">
+            <h3 className="font-bold text-lg mb-1">
               🤝 Step 4: Ticket Exchange Karein
             </h3>
             <p>
@@ -71,9 +83,11 @@ export default function HowItWorksModal({ onClose }) {
               aapas mein payment karke ticket le lein.
             </p>
           </div>
+
         </div>
 
-        <div className="mt-6 text-center text-xs text-gray-500">
+        {/* ===== Footer ===== */}
+        <div className="px-6 py-3 bg-gray-50 text-center text-xs sm:text-sm text-gray-600">
           🔐 Secure • Simple • Fast • No Middleman
         </div>
       </div>
