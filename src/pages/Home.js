@@ -73,8 +73,7 @@ export default function Home() {
         const response = await fetch(`${API_BASE}/tickets?available=true`);
         const data = await response.json();
         setTickets((data.tickets || []).slice(0, 3));
-      } catch (err) {
-        console.error("❌ Fetch Failed:", err);
+      } catch {
         setTickets([]);
       }
     };
@@ -88,11 +87,12 @@ export default function Home() {
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* ================= HERO (FIXED & SAFE) ================= */}
+      {/* ================= HERO (MOBILE FIXED) ================= */}
       <div
         className="
           relative w-full overflow-hidden group
-          aspect-[16/9] max-h-[650px]
+          min-h-[520px] sm:min-h-[600px]
+          md:aspect-[16/9] md:max-h-[650px]
         "
       >
         <img
@@ -101,10 +101,9 @@ export default function Home() {
           width="1600"
           height="900"
           fetchpriority="high"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover"
         />
 
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white px-4">
           <div className="w-full max-w-6xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
@@ -122,29 +121,25 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <div className="flex flex-col items-center max-w-[260px]">
-                <Link
-                  to="/find"
-                  className="bg-white text-black px-6 py-4 rounded-2xl font-bold text-lg
-                  shadow-[0_5px_0_#bbb]
-                  active:translate-y-1 active:shadow-[0_1px_0_#bbb]
-                  hover:bg-gray-100 transition-all"
-                >
-                  Find Ticket
-                </Link>
-              </div>
+              <Link
+                to="/find"
+                className="bg-white text-black px-6 py-4 rounded-2xl font-bold text-lg
+                shadow-[0_5px_0_#bbb]
+                active:translate-y-1 active:shadow-[0_1px_0_#bbb]
+                hover:bg-gray-100 transition-all"
+              >
+                Find Ticket
+              </Link>
 
-              <div className="flex flex-col items-center max-w-[260px]">
-                <Link
-                  to="/post"
-                  className="bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold text-lg
-                  shadow-[0_5px_0_#1e40af]
-                  active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
-                  hover:bg-blue-700 transition-all"
-                >
-                  Post Ticket
-                </Link>
-              </div>
+              <Link
+                to="/post"
+                className="bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold text-lg
+                shadow-[0_5px_0_#1e40af]
+                active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
+                hover:bg-blue-700 transition-all"
+              >
+                Post Ticket
+              </Link>
             </div>
           </div>
         </div>
@@ -165,17 +160,33 @@ export default function Home() {
                 <TicketCard key={ticket._id} ticket={ticket} />
               ))}
         </div>
+
+        {/* ✅ SHOW ALL TICKETS (RESTORED) */}
+        {tickets.length > 0 && (
+          <div className="flex justify-center mt-8">
+            <Link
+              to="/find"
+              className="bg-green-500 text-white 
+              px-6 py-3 sm:px-10 sm:py-4 
+              rounded-2xl font-bold text-lg
+              shadow-[0_5px_0_#166534]
+              active:translate-y-1 active:shadow-[0_1px_0_#166534]
+              hover:bg-green-600 transition-all"
+            >
+              Show All Tickets
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* ================= HOW IT WORKS BUTTON ================= */}
+      {/* ================= HOW IT WORKS ================= */}
       <button
         onClick={() => setShowHowItWorks(true)}
-        className="fixed right-4 bottom-24 z-40 bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-all"
+        className="fixed right-4 bottom-24 z-40 bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-blue-700"
       >
         ℹ How it works?
       </button>
 
-      {/* ================= MODAL ================= */}
       {showHowItWorks && (
         <HowItWorksModal onClose={() => setShowHowItWorks(false)} />
       )}
