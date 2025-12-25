@@ -1,16 +1,15 @@
-/* --- FINAL HOME PAGE WITH CLS FIX (SKELETON) + HERO CENTER ALIGN
-      (LOGIC & TICKET CARD UNCHANGED) --- */
-
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import trainImage from "../assets/train.webp";
+import HowItWorksModal from "./HowItWorksModal";
 
+/* ================= API ================= */
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL ||
   "https://ticket-backend-g5da.onrender.com/api";
 
-// --- Ticket Card (UNCHANGED) ---
+/* ================= TICKET CARD ================= */
 const TicketCard = memo(({ ticket }) => (
   <div className="rounded-xl shadow-lg p-5 bg-white border border-gray-200 hover:shadow-2xl hover:scale-105 transition-all duration-300 min-h-[280px]">
     <div className="flex flex-col gap-2 text-sm">
@@ -19,64 +18,44 @@ const TicketCard = memo(({ ticket }) => (
         {ticket.trainNumber || "N/A"})
       </h2>
 
-      <p className="uppercase">
-        <span className="font-semibold">📍 Route:</span>{" "}
-        {ticket.from?.toUpperCase()} → {ticket.to?.toUpperCase()}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">⏰ Departure:</span>{" "}
+      <p><b>📍 Route:</b> {ticket.from} → {ticket.to}</p>
+      <p>
+        <b>⏰ Departure:</b>{" "}
         {ticket.fromDateTime
           ? new Date(ticket.fromDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">🛬 Arrival:</span>{" "}
+      <p>
+        <b>🛬 Arrival:</b>{" "}
         {ticket.toDateTime
           ? new Date(ticket.toDateTime).toLocaleString("en-IN")
           : "N/A"}
       </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">🪑 Class:</span>{" "}
-        {ticket.classType?.toUpperCase() || "GENERAL"}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">🎟 Tickets:</span>{" "}
-        {ticket.ticketNumber || "N/A"}
-      </p>
-
-      <p className="uppercase">
-        <span className="font-semibold">👤 Passenger:</span>{" "}
-        {ticket.passengerName
-          ? `${ticket.passengerName.toUpperCase()} (${
-              ticket.passengerGender?.toUpperCase() || ""
-            }, ${ticket.passengerAge || ""})`
-          : "N/A"}
-      </p>
+      <p><b>🪑 Class:</b> {ticket.classType || "GENERAL"}</p>
+      <p><b>🎟 Tickets:</b> {ticket.ticketNumber || "N/A"}</p>
+      <p><b>👤 Passenger:</b> {ticket.passengerName || "N/A"}</p>
     </div>
   </div>
 ));
 
-// --- Skeleton (CLS FIX ONLY) ---
+/* ================= SKELETON ================= */
 const TicketSkeleton = () => (
   <div className="rounded-xl border border-gray-200 p-5 bg-gray-100 animate-pulse min-h-[280px]" />
 );
 
+/* ================= HOME ================= */
 export default function Home() {
   const [tickets, setTickets] = useState([]);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   useEffect(() => {
     const loadTickets = async () => {
       try {
-        const response = await fetch(`${API_BASE}/tickets?available=true`);
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
+        const res = await fetch(`${API_BASE}/tickets?available=true`);
+        const data = await res.json();
         setTickets((data.tickets || []).slice(0, 3));
       } catch (err) {
-        console.error("❌ Fetch Failed:", err);
+        console.error("Fetch failed", err);
         setTickets([]);
       }
     };
@@ -84,88 +63,56 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-gray-50 font-sans relative">
       <Helmet>
-        <title>MyYatraExchange – Find & Share Train Tickets</title>
+        <title>My Yatra Exchange – Find & Share Train Tickets</title>
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* HERO SECTION */}
-      <div
-        className="
-          relative w-full overflow-hidden group
-          min-h-[520px] sm:min-h-[600px]
-          max-h-[650px] lg:max-h-[600px]
-        "
-        style={{ aspectRatio: "16 / 9" }}
-      >
+      {/* ================= HERO ================= */}
+      <div className="relative w-full overflow-hidden aspect-[16/9] max-h-[600px]">
         <img
           src={trainImage}
           alt="Indian train"
           width="1600"
           height="900"
           fetchpriority="high"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
 
-        {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center text-white px-4">
-          <div className="w-full max-w-6xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
-              <span className="text-orange-400">My</span>
-              <span className="text-white"> Yatra</span>
-              <span className="text-green-400"> Exchange</span>
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white">
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4">
+              <span className="text-orange-400">My</span>{" "}
+              <span className="text-white">Yatra</span>{" "}
+              <span className="text-green-400">Exchange</span>
             </h1>
 
-            <p className="text-lg sm:text-xl md:text-2xl mb-2 w-full sm:max-w-2xl mx-auto px-2">
-              Share unused tickets & help others get confirmed travel.
+            <p className="text-lg sm:text-xl mb-8">
+              Share unused tickets & help others travel confirmed.
             </p>
 
-            <p className="text-sm sm:text-base italic opacity-90 mb-8 w-full sm:max-w-2xl mx-auto px-2">
-              "Connecting travelers, saving journeys."
-            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link
+                to="/find"
+                className="bg-white text-black px-8 py-4 rounded-2xl font-bold text-lg hover:bg-gray-100 transition-all"
+              >
+                Find Ticket
+              </Link>
 
-            <div className="flex flex-col sm:flex-row gap-8 sm:gap-6 md:gap-4 justify-center">
-              <div className="flex flex-col items-center max-w-[260px] mx-auto">
-                <Link
-                  to="/find"
-                  className="bg-white text-black px-5 py-3 sm:px-10 sm:py-5 
-                  rounded-2xl font-bold text-lg
-                  shadow-[0_5px_0_#bbb]
-                  active:translate-y-1 active:shadow-[0_1px_0_#bbb]
-                  hover:bg-gray-100 transition-all"
-                >
-                  Find Ticket
-                </Link>
-                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center px-2">
-                  Apni route ke liye confirmed ticket dhundhein aur
-                  waiting list ki tension khatam karein.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center max-w-[260px] mx-auto">
-                <Link
-                  to="/post"
-                  className="bg-blue-600 text-white px-5 py-3 sm:px-10 sm:py-5 
-                  rounded-2xl font-bold text-lg
-                  shadow-[0_5px_0_#1e40af]
-                  active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
-                  hover:bg-blue-700 transition-all"
-                >
-                  Post Ticket
-                </Link>
-                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center px-2">
-                  Apni unused ticket share karke
-                  kisi aur ki yatra safal banayein.
-                </p>
-              </div>
+              <Link
+                to="/post"
+                className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all"
+              >
+                Post Ticket
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* RECENT TICKETS (CLS FIXED) */}
-      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
+      {/* ================= RECENT TICKETS ================= */}
+      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px]">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
@@ -175,27 +122,24 @@ export default function Home() {
             ? Array.from({ length: 3 }).map((_, i) => (
                 <TicketSkeleton key={i} />
               ))
-            : tickets.map((ticket) => (
+            : tickets.map(ticket => (
                 <TicketCard key={ticket._id} ticket={ticket} />
               ))}
         </div>
-
-        {tickets.length > 0 && (
-          <div className="flex justify-center mt-8">
-            <Link
-              to="/find"
-              className="bg-green-500 text-white 
-              px-6 py-3 sm:px-10 sm:py-4 
-              rounded-2xl font-bold text-lg
-              shadow-[0_5px_0_#166534]
-              active:translate-y-1 active:shadow-[0_1px_0_#166534]
-              hover:bg-green-600 transition-all"
-            >
-              Show All Tickets
-            </Link>
-          </div>
-        )}
       </div>
+
+      {/* ================= FIXED RIGHT BUTTON ================= */}
+      <button
+        onClick={() => setShowHowItWorks(true)}
+        className="fixed right-4 bottom-24 z-40 bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-all"
+      >
+        ℹ How it works?
+      </button>
+
+      {/* ================= MODAL ================= */}
+      {showHowItWorks && (
+        <HowItWorksModal onClose={() => setShowHowItWorks(false)} />
+      )}
     </div>
   );
 }
