@@ -87,10 +87,10 @@ export default function Home() {
         <link rel="preload" as="image" href={trainImage} />
       </Helmet>
 
-      {/* ================= HERO (MOBILE FIXED) ================= */}
+      {/* ================= HERO ================= */}
       <div
         className="
-          relative w-full overflow-hidden group
+          relative w-full overflow-hidden
           min-h-[520px] sm:min-h-[600px]
           md:aspect-[16/9] md:max-h-[650px]
         "
@@ -120,33 +120,60 @@ export default function Home() {
               "Connecting travelers, saving journeys."
             </p>
 
+            {/* ===== BUTTONS ===== */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link
-                to="/find"
-                className="bg-white text-black px-6 py-4 rounded-2xl font-bold text-lg
-                shadow-[0_5px_0_#bbb]
-                active:translate-y-1 active:shadow-[0_1px_0_#bbb]
-                hover:bg-gray-100 transition-all"
-              >
-                Find Ticket
-              </Link>
 
-              <Link
-                to="/post"
-                className="bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold text-lg
-                shadow-[0_5px_0_#1e40af]
-                active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
-                hover:bg-blue-700 transition-all"
-              >
-                Post Ticket
-              </Link>
+              {/* FIND */}
+              <div className="flex flex-col items-center max-w-[260px] mx-auto">
+                <Link
+                  to="/find"
+                  className="
+                    bg-white text-black
+                    px-4 py-3 text-base
+                    sm:px-6 sm:py-4 sm:text-lg
+                    rounded-2xl font-bold
+                    shadow-[0_5px_0_#bbb]
+                    active:translate-y-1 active:shadow-[0_1px_0_#bbb]
+                    hover:bg-gray-100 transition-all
+                  "
+                >
+                  Find Ticket
+                </Link>
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center px-2">
+                  Apni route ke liye confirmed ticket dhundhein aur
+                  waiting list ki tension khatam karein.
+                </p>
+              </div>
+
+              {/* POST */}
+              <div className="flex flex-col items-center max-w-[260px] mx-auto">
+                <Link
+                  to="/post"
+                  className="
+                    bg-blue-600 text-white
+                    px-4 py-3 text-base
+                    sm:px-6 sm:py-4 sm:text-lg
+                    rounded-2xl font-bold
+                    shadow-[0_5px_0_#1e40af]
+                    active:translate-y-1 active:shadow-[0_1px_0_#1e40af]
+                    hover:bg-blue-700 transition-all
+                  "
+                >
+                  Post Ticket
+                </Link>
+                <p className="text-xs sm:text-sm mt-2 leading-5 text-gray-200 text-center px-2">
+                  Apni unused ticket share karke
+                  kisi aur ki yatra safal banayein.
+                </p>
+              </div>
+
             </div>
           </div>
         </div>
       </div>
 
       {/* ================= RECENT TICKETS ================= */}
-      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px]">
+      <div className="max-w-6xl mx-auto px-4 py-10 min-h-[900px] md:min-h-0">
         <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">
           Recent Tickets
         </h2>
@@ -161,13 +188,12 @@ export default function Home() {
               ))}
         </div>
 
-        {/* ✅ SHOW ALL TICKETS (RESTORED) */}
         {tickets.length > 0 && (
           <div className="flex justify-center mt-8">
             <Link
               to="/find"
-              className="bg-green-500 text-white 
-              px-6 py-3 sm:px-10 sm:py-4 
+              className="bg-green-500 text-white
+              px-6 py-3 sm:px-10 sm:py-4
               rounded-2xl font-bold text-lg
               shadow-[0_5px_0_#166534]
               active:translate-y-1 active:shadow-[0_1px_0_#166534]
