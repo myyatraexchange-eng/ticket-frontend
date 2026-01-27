@@ -38,14 +38,14 @@ const WaitingListTicketBlog = React.lazy(() =>
   import("./pages/blog/WaitingListTicketBlog")
 );
 
+/* ⭐ FEATURED — Train Seat Availability Blog (NEW) */
+const TrainSeatAvailability = React.lazy(() =>
+  import("./pages/blog/TrainSeatAvailability")
+);
+
 /* ⭐ NEW — Dhurandhar Movie Blog */
 const DhurandharMovieShootingLocation = React.lazy(() =>
   import("./pages/blog/DhurandharMovieShootingLocation")
-);
-
-/* ⭐ NEW — Indigo Share Price Blog */
-const IndigoSharePrice = React.lazy(() =>
-  import("./pages/blog/IndigoSharePrice")
 );
 
 /* ⭐ NEW — India vs Pakistan 2026 Blog */
@@ -157,7 +157,13 @@ function AppContent() {
             <Route path="/blog/pnr-guide" element={<PNRGuide />} />
             <Route path="/blog/chart-time" element={<ChartTime />} />
 
-            {/* ⭐ NEW — Waiting List Ticket Confirm */}
+            {/* ⭐ FEATURED BLOG — Train Seat Availability */}
+            <Route
+              path="/blog/train-seat-availability-check"
+              element={<TrainSeatAvailability />}
+            />
+
+            {/* ⭐ Waiting List Ticket Confirm */}
             <Route
               path="/blog/waiting-list-ticket-confirm"
               element={<WaitingListTicketBlog />}
@@ -167,10 +173,6 @@ function AppContent() {
             <Route
               path="/blog/dhurandhar-movie-shooting-location-train-guide"
               element={<DhurandharMovieShootingLocation />}
-            />
-            <Route
-              path="/blog/indigo-share-price-flight-cancel-train-seat"
-              element={<IndigoSharePrice />}
             />
             <Route path="/blog/ind-vs-pak" element={<IndVsPak />} />
             <Route

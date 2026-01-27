@@ -2,6 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const blogs = [
+  /* ⭐ FEATURED MAIN BLOG — Train Seat Availability (NEW, TOP) ---------------- */
+  {
+    title:
+      "Train Seat Availability Check: Confirm Ticket Na Mile To Kya Kare?",
+    link: "/blog/train-seat-availability-check",
+    tag: "⭐ Featured",
+    desc:
+      "Train seat availability check ke baad WL ya RAC aa raha hai? Confirm ticket na mile to smart solution, tips aur alternate options yahan detail me padhein.",
+    thumbnail: "/thumbnails/train-seat-availability.webp",
+  },
+
   /* ⭐ NEW TRENDING BLOG — Aravalli Hills ---------------------------------- */
   {
     title:
@@ -35,7 +46,7 @@ const blogs = [
     thumbnail: "/thumbnails/indvspak.webp",
   },
 
-  /* ⭐ Waiting List MAIN BLOG (NEW ADD) ---------------------------------- */
+  /* ⭐ Waiting List MAIN BLOG ---------------------------------- */
   {
     title:
       "Waiting List Ticket Confirm Kaise Kare? (WL Ticket Alternative Guide 2025)",
@@ -55,17 +66,6 @@ const blogs = [
     desc:
       "Dhurandhar (2025) ki shooting locations – Thailand, Amritsar, Mumbai & Madh Island ke travel + train route guide ke saath.",
     thumbnail: "/thumbnails/dhurandhar-thumbnail.webp",
-  },
-
-  /* ⭐ Existing Trending Blog — Indigo ---------------------------------- */
-  {
-    title:
-      "Indigo Share Price Today: Flight Cancel होने से Stock पर क्या असर पड़ा? और Train में Confirm Seat कैसे पाएं?",
-    link: "/blog/indigo-share-price-flight-cancel-train-seat",
-    tag: "🔥 Trending",
-    desc:
-      "Indigo share price, flight cancellations, DGCA rules ka simple breakdown – aur urgent situation me train me confirm seat kaise milega?",
-    thumbnail: "/thumbnails/indigo-thumbnail.jpg",
   },
 
   /* OLD BLOGS ---------------------------------- */
@@ -94,15 +94,15 @@ const blogs = [
     thumbnail: "/thumbnails/default.jpg",
   },
   {
-    title: "Train Seat Availability Check – MyYatraExchange Method",
-    link: "/blog/seat-availability",
-    tag: "Availability",
+    title: "Train Ka Chart Kab Banta Hai? (Chart Preparation Time)",
+    link: "/blog/chart-time",
+    tag: "Chart Info",
     desc:
-      "IRCTC seat availability ka fastest shortcut — real passengers ke posted confirmed tickets.",
+      "Chart banne ke rules, timing aur chart ke baad tickets ka kya hota hai — full explanation.",
     thumbnail: "/thumbnails/default.jpg",
   },
 
-  /* NEW INFO BLOGS ---------------------------------- */
+  /* INFO BLOGS ---------------------------------- */
   {
     title: "RAC Ticket Kya Hota Hai? Confirm Hoga Ya Nahi?",
     link: "/blog/rac-guide",
@@ -125,14 +125,6 @@ const blogs = [
     tag: "PNR Guide",
     desc:
       "PNR status dekhne ka simple method aur agar waiting ho to kya karna chahiye.",
-    thumbnail: "/thumbnails/default.jpg",
-  },
-  {
-    title: "Train Ka Chart Kab Banta Hai? (Chart Preparation Time)",
-    link: "/blog/chart-time",
-    tag: "Chart Info",
-    desc:
-      "Chart banne ke rules, timing aur chart ke baad tickets ka kya hota hai — full explanation.",
     thumbnail: "/thumbnails/default.jpg",
   },
 ];
