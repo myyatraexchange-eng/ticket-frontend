@@ -1,197 +1,153 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 
-export default function IndigoSharePrice() {
+export default function TrainSeatAvailability() {
   return (
-    <>
+    <div className="max-w-3xl mx-auto px-4 py-10">
+
       <Helmet>
         <title>
-          Indigo Share Price Today: Flight Cancel होने से Stock पर क्या असर पड़ा? और Train में Confirm Seat कैसे पाएं?
+          Train Seat Availability Check: Confirm Ticket Na Mile To Kya Kare? | My Yatra Exchange
         </title>
         <meta
           name="description"
-          content="Indigo share price, flight cancellations aur DGCA rules ka simple breakdown – aur agar flights cancel ho jaye to train me confirm seat kaise mile, MyYatraExchange ke through samjhe."
+          content="Train seat availability check ke baad WL ya RAC aa raha hai? Confirm ticket na mile to smart solution, tips aur FAQ yahan detail me padhein."
         />
-        <link
-          rel="canonical"
-          href="https://myyatraexchange.com/blog/indigo-share-price-flight-cancel-train-seat"
-        />
+        <meta property="og:image" content="/thumbnails/train-seat-availability.webp" />
       </Helmet>
 
-      <article className="max-w-4xl mx-auto px-4 py-8 leading-relaxed">
-        {/* HEADER */}
-        <header>
-          <h1 className="text-3xl font-bold mb-2">
-            Indigo Share Price Today: Flight Cancel होने से Stock पर क्या असर पड़ा? और Train में Confirm Seat कैसे पाएं?
-          </h1>
-          <p className="text-gray-600 text-sm">
-            <strong>Updated on:</strong> 10 December 2025
-          </p>
-        </header>
+      {/* HERO IMAGE */}
+      <div className="rounded-2xl overflow-hidden shadow-xl mb-8 border border-gray-300">
+        <img
+          src="/thumbnails/train-seat-availability.webp"
+          alt="Train Seat Availability Thumbnail"
+          className="w-full"
+        />
+      </div>
 
-        {/* INTRO */}
-        <section className="mt-6">
-          <p>
-            पिछले कुछ दिनों से <strong>Indigo flights cancel / delay</strong> की news लगातार चल रही है।
-            उसी के साथ <strong>Indigo Share Price</strong> भी काफी news में रहा — कभी तेज गिरावट, कभी recovery।
-          </p>
+      <h1 className="text-4xl font-extrabold text-gray-900 leading-snug mb-4">
+        🚆 Train Seat Availability Check: Confirm Ticket Na Mile To Kya Kare?
+      </h1>
 
-          <p className="mt-3">
-            Is blog me hum simple language me samjhenge:
-          </p>
+      <p className="text-gray-700 text-lg mb-6">
+        Aaj ke time me train seat availability check karna har traveller ki 
+        sabse pehli need hoti hai. Office travel, family function, emergency 
+        ya festival — sabse bada sawal hota hai:
+      </p>
 
-          <ul className="list-disc ml-6 mt-2">
-            <li>Short me – Indigo share price aaj kyu upar ya neeche hai?</li>
-            <li>Flights cancel hone se stock par kya impact padta hai?</li>
-            <li>Share market ka basic logic – news → price movement</li>
-            <li>Agar flight cancel ho jaye to train me confirm seat kaise mil sakti hai?</li>
-          </ul>
+      <div className="p-5 bg-blue-50 border-l-4 border-blue-600 rounded-md mb-8">
+        <p className="text-blue-900 text-lg">
+          “Train me confirm seat milegi ya nahi?”
+        </p>
+      </div>
 
-          <div className="bg-yellow-50 border border-yellow-200 p-3 mt-4 rounded">
-            <strong>Note:</strong> Agar aapki flight cancel / reschedule ho gayi hai aur ab urgent me travel karna hai,
-            to train me <strong>confirm seat</strong> ke chances badhane ke liye{" "}
-            <a
-              href="https://myyatraexchange.com/"
-              className="text-blue-700 font-semibold"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              MyYatraExchange
-            </a>{" "}
-            par available confirmed tickets check kar sakte hain.
-          </div>
-        </section>
+      {/* SEAT CHECK */}
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🔍 Train Seat Availability Check Kaise Kare?
+      </h2>
 
-        {/* SECTION – BASIC STOCK LOGIC */}
-        <section className="mt-10">
-          <h2 className="text-2xl font-bold mb-3">Share Price News se kaise react karta hai?</h2>
-          <p>
-            Share market me ek simple rule hota hai: <strong>“Expectation vs Reality”</strong>.
-          </p>
-          <ul className="list-disc ml-6 mt-2">
-            <li>Good news → log zyada buy karte hain → demand badhti hai → price upar.</li>
-            <li>Bad news → log sell karte hain → demand girti hai → price neeche.</li>
-          </ul>
-          <p className="mt-3">
-            Jab bhi <strong>DGCA rules, flight cancellations, staff issues</strong> jaisi news aati hai,
-            investors ko lagta hai ki company ka cost badhega, profit kam ho sakta hai,
-            isliye short-term me share price pressure me aa jata hai.
-          </p>
-        </section>
+      <ul className="list-disc ml-6 text-gray-700 leading-7 mb-6">
+        <li>IRCTC website / mobile app</li>
+        <li>Railway enquiry apps</li>
+        <li>Trusted travel booking platforms</li>
+      </ul>
 
-        {/* SECTION – FLIGHT CANCEL & IMPACT */}
-        <section className="mt-10">
-          <h2 className="text-2xl font-bold mb-3">
-            Indigo Flights Cancel / Delay hone se Stock par kya असर पड़ता है?
-          </h2>
-          <p>
-            Jab large scale par <strong>flights cancel ya delay</strong> hoti hain, to:
-          </p>
-          <ul className="list-disc ml-6 mt-2">
-            <li>Passengers ko inconvenience hoti hai → social media outrage badhta hai.</li>
-            <li>Company ko <strong>refund / compensation / hotel stay</strong> jaise extra cost uthani pad sakti hai.</li>
-            <li>Regulator (DGCA) company par strict rules ya penalty laga sakta hai.</li>
-          </ul>
-          <p className="mt-3">
-            Ye sab milkar investors ke liye negative signal ban jata hai. Isliye short term me
-            <strong>share price gir sakta hai</strong>, bhale hi long term story same rahe.
-          </p>
-        </section>
+      <p className="text-gray-700 leading-7 mb-8">
+        Seat availability check karne ke liye train number, journey date, 
+        boarding station, destination aur class (SL, 3A, 2A) chahiye hoti hai.
+      </p>
 
-        {/* SECTION – LOGICAL EXAMPLE */}
-        <section className="mt-10">
-          <h2 className="text-2xl font-bold mb-3">Example: News se Price Movement</h2>
-          <p>
-            मान लो news aayi: “Indigo ne next 5 saal ke liye 100 naye aircraft order kiye”.
-          </p>
-          <ul className="list-disc ml-6 mt-2">
-            <li>Market sochta hai – company expand kar rahi hai → future growth ka signal.</li>
-            <li>Investors positive hote hain → buying interest badhta hai → price upar ja sakta hai.</li>
-          </ul>
-          <p className="mt-3">
-            Usi tarah, agar news aaye: “Hundreds of flights cancelled due to crew issue / technical issue /
-            regulatory tightening” → short term me negative sentiment create hota hai.
-          </p>
-        </section>
+      {/* WL RAC */}
+      <hr className="my-10 border-gray-300" />
 
-        {/* SECTION – TRAIN ME CONFIRM SEAT KA SOLUTION */}
-        <section className="mt-10">
-          <h2 className="text-2xl font-bold mb-3">
-            Flight Cancel ho gayi? Ab Train me Confirm Seat kaise mile?
-          </h2>
-          <p>
-            Aaj kal flight cancel / delay hone ke baad sabse bada problem hota hai –{" "}
-            <strong>“Ab ghar kaise pahuche?”</strong> Especially jab:
-          </p>
-          <ul className="list-disc ml-6 mt-2">
-            <li>Same day ya next day ki flight bahut mehengi ho</li>
-            <li>Trains me already waiting list lambi ho</li>
-          </ul>
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        ⚠️ WL aur RAC Kya Hota Hai?
+      </h2>
 
-          <p className="mt-3">
-            Yahi par <strong>MyYatraExchange</strong> useful ho sakta hai:
-          </p>
+      <h3 className="font-semibold text-lg mb-2">❌ Waiting List (WL)</h3>
+      <ul className="list-disc ml-6 text-gray-700 mb-6">
+        <li>Seat confirm nahi hoti</li>
+        <li>Chart ke baad cancel ho sakti hai</li>
+        <li>Travel risk high hota hai</li>
+      </ul>
 
-          <ul className="list-disc ml-6 mt-2">
-            <li>Jo log apni train journey cancel kar rahe hain, wo <strong>unused / extra ticket</strong> post kar sakte hain.</li>
-            <li>Jo log urgent me travel karna chahte hain, wo <strong>same route par available confirmed tickets</strong> find kar sakte hain.</li>
-            <li>Platform sirf <strong>travellers ko connect</strong> karta hai – koi ticket sell/buy system nahi.</li>
-          </ul>
+      <h3 className="font-semibold text-lg mb-2">⚠️ RAC</h3>
+      <ul className="list-disc ml-6 text-gray-700 mb-8">
+        <li>Seat shared hoti hai</li>
+        <li>Confirm hone ke chances rehte hain</li>
+        <li>Comfort full seat jaisa nahi hota</li>
+      </ul>
 
-          <p className="mt-3">
-            Agar aapki flight cancel ho gayi hai, to:
-          </p>
-          <ol className="list-decimal ml-6 mt-2">
-            <li>IRCTC me apne route par trains check karein.</li>
-            <li>MyYatraExchange par jaakar <strong>“Find Ticket”</strong> section open karein.</li>
-            <li>Same date / route par kisi ne confirm ticket post ki hai kya, ye check karein.</li>
-          </ol>
+      {/* SOLUTION */}
+      <hr className="my-10 border-gray-300" />
 
-          <div className="bg-blue-50 border border-blue-200 p-3 mt-4 rounded">
-            <strong>Shortcut:</strong>{" "}
-            <a
-              href="https://myyatraexchange.com/find"
-              className="text-blue-700 font-semibold"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Direct Find Ticket page open karein →
-            </a>
-          </div>
-        </section>
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        ✅ Smart Solution: Cancel Mat Karo, Exchange Option Explore Karo
+      </h2>
 
-        {/* SECTION – BASIC WARNING */}
-        <section className="mt-10">
-          <h2 className="text-2xl font-bold mb-3">Important Note (Investment ke liye)</h2>
-          <p>
-            Ye blog sirf <strong>education & awareness</strong> ke liye hai. Ye koi buy/sell recommendation nahi hai.
-            Share market me invest karne se pehle:
-          </p>
-          <ul className="list-disc ml-6 mt-2">
-            <li>Apna khud ka research karein</li>
-            <li>Long-term view rakhein</li>
-            <li>Financial advisor se consult karein (agar doubt ho)</li>
-          </ul>
-        </section>
+      <p className="text-gray-700 leading-7 mb-6">
+        Agar aapke paas confirm train ticket hai lekin aap travel nahi kar pa rahe,
+        toh turant cancel karna hi akela option nahi hota.
+      </p>
 
-        {/* FOOTER CTA */}
-        <footer className="mt-12 border-t pt-5">
-          <p>
-            <strong>Flight cancel ya delay ho gayi? Train me confirm seat chahiye?</strong><br />
-            Direct cancellation charges ya panic booking se pehle{" "}
-            <a
-              href="https://myyatraexchange.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-700 font-semibold"
-            >
-              MyYatraExchange
-            </a>{" "}
-            par available confirmed tickets check karein. Smart travellers ka smart backup plan. 🚆
-          </p>
-        </footer>
-      </article>
-    </>
+      <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-md mb-8">
+        <p className="text-green-900 leading-7">
+          My Yatra Exchange ek platform hai jahan travellers apni travel 
+          availability share karte hain aur seat availability ke liye 
+          alternate options explore kar sakte hain — railway rules ke according.
+        </p>
+      </div>
+
+      {/* BENEFITS */}
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        🌟 My Yatra Exchange Ke Important Benefits
+      </h2>
+
+      <ul className="list-disc ml-6 text-gray-700 mb-8 leading-7">
+        <li>Cancellation loss se bachav</li>
+        <li>Emergency travel me madad</li>
+        <li>WL / RAC ka practical solution</li>
+        <li>Simple aur user-friendly process</li>
+      </ul>
+
+      {/* FAQ */}
+      <hr className="my-10 border-gray-300" />
+
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        ❓ Frequently Asked Questions (FAQ)
+      </h2>
+
+      <p className="mb-4"><b>Q. WL ticket par travel allowed hai?</b><br />
+        A. Nahi, chart ke baad general WL par travel allowed nahi hota.
+      </p>
+
+      <p className="mb-4"><b>Q. RAC confirm hoti hai?</b><br />
+        A. Haan, cancellation hone par RAC confirm ho sakti hai.
+      </p>
+
+      <p className="mb-4"><b>Q. Kya My Yatra Exchange ticket transfer karta hai?</b><br />
+        A. Nahi, platform ticket transfer nahi karta. Ye sirf alternate options explore karne me madad karta hai.
+      </p>
+
+      {/* CTA */}
+      <div className="bg-yellow-50 border-l-4 border-yellow-600 p-5 rounded-md mt-10">
+        <p className="text-yellow-900 text-lg">
+          👉 Agli baar jab train seat available na ho, panic mat karo —  
+          <b> My Yatra Exchange </b> check karo.
+        </p>
+      </div>
+
+      <p className="text-center text-gray-600 mt-6">
+        Official Website:{" "}
+        <a
+          href="https://www.myyatraexchange.com"
+          className="text-blue-600 underline"
+        >
+          www.myyatraexchange.com
+        </a>
+      </p>
+
+    </div>
   );
 }
 
