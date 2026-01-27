@@ -71,7 +71,13 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- ⭐ TRENDING BLOGS -->
+  <!-- ⭐ FEATURED / TRENDING BLOGS -->
+  <url>
+    <loc>https://www.myyatraexchange.com/blog/train-seat-availability-check</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.98</priority>
+  </url>
+
   <url>
     <loc>https://www.myyatraexchange.com/blog/aravalli-hills-controversy-2025</loc>
     <changefreq>daily</changefreq>
@@ -91,18 +97,12 @@
   </url>
 
   <url>
-    <loc>https://www.myyatraexchange.com/blog/indigo-share-price-flight-cancel-train-seat</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.92</priority>
-  </url>
-
-  <url>
     <loc>https://www.myyatraexchange.com/blog/ind-vs-pak</loc>
     <changefreq>daily</changefreq>
     <priority>0.96</priority>
   </url>
 
-  <!-- 🆕 NEW WAITING LIST BLOG -->
+  <!-- 🆕 Waiting List Blog -->
   <url>
     <loc>https://www.myyatraexchange.com/blog/waiting-list-ticket-confirm</loc>
     <changefreq>daily</changefreq>
